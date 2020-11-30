@@ -13,7 +13,7 @@ require (
 	github.com/prometheus/client_golang v1.5.1
 	github.com/prometheus/common v0.9.1
 	github.com/prometheus/procfs v0.0.11 // indirect
-	go.opencensus.io v0.22.4
+	go.opencensus.io v0.22.5
 	golang.org/x/net v0.0.0-20200822124328-c89045814202 // indirect
 	golang.org/x/sys v0.0.0-20200420163511-1957bb5e6d1f
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
