@@ -23,7 +23,7 @@ jobs:
         github.actor == 'jaqx0r'
       )
     steps:
-      - uses: "actions/github-script@v4.0.1"
+      - uses: "actions/github-script@v6.1.1"
         with:
           github-token: ${{ github.token }}
           script: |
