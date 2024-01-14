@@ -1,0 +1,8 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "position",
+    srcs = ["position.go"],
+    importpath = "github.com/google/mtail/internal/runtime/compiler/position",
+    visibility = ["//:__subpackages__"],
+)

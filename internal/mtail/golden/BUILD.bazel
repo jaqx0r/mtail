@@ -1,0 +1,25 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "golden",
+    srcs = ["reader.go"],
+    importpath = "github.com/google/mtail/internal/mtail/golden",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//internal/metrics",
+        "//internal/metrics/datum",
+        "@com_github_golang_glog//:go_default_library",
+    ],
+)
+
+go_test(
+    name = "golden_test",
+    srcs = ["reader_test.go"],
+    embed = [":golden"],
+    data = ["reader_test.golden"],
+    deps = [
+        "//internal/metrics",
+        "//internal/metrics/datum",
+        "//internal/testutil",
+    ],
+)
