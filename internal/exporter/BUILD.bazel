@@ -25,6 +25,7 @@ go_library(
 
 go_test(
     name = "exporter_test",
+    size = "small",
     srcs = [
         "export_test.go",
         "graphite_test.go",

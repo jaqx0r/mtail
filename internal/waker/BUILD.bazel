@@ -14,6 +14,7 @@ go_library(
 
 go_test(
     name = "waker_test",
+    size = "small",
     srcs = [
         "testwaker_test.go",
         "timedwaker_test.go",

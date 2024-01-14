@@ -16,6 +16,7 @@ go_library(
 
 go_test(
     name = "opt_test",
+    size = "small",
     srcs = ["opt_test.go"],
     deps = [
         ":opt",

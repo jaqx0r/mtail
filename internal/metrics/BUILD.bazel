@@ -19,6 +19,7 @@ go_library(
 
 go_test(
     name = "metrics_test",
+    size = "small",
     srcs = [
         "metric_test.go",
         "store_bench_test.go",

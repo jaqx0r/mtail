@@ -18,6 +18,7 @@ go_library(
 
 go_test(
     name = "compiler_test",
+    size = "small",
     srcs = ["compiler_test.go"],
     deps = [
         ":compiler",

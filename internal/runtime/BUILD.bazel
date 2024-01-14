@@ -22,6 +22,7 @@ go_library(
 
 go_test(
     name = "runtime_test",
+    size = "small",
     srcs = [
         "runtime_integration_test.go",
         "runtime_test.go",
