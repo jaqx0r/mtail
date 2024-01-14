@@ -1,5 +1,5 @@
-filegroup(name="examples",
-srcs = glob(["*.mtail"]),
-
-visibility = ["//internal/mtail:__subpackages__"],
+filegroup(
+    name = "examples",
+    srcs = glob(["*.mtail"]),
+    visibility = ["//internal/mtail:__subpackages__"],
 )
