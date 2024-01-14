@@ -29,6 +29,7 @@ go_library(
 
 go_test(
     name = "testutil_test",
+    size = "small",
     srcs = ["timeout_test.go"],
     embed = [":testutil"],
 )

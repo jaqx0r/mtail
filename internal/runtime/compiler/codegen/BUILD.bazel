@@ -21,6 +21,7 @@ go_library(
 
 go_test(
     name = "codegen_test",
+    size = "small",
     srcs = ["codegen_test.go"],
     deps = [
         ":codegen",

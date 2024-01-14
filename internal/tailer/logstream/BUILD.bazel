@@ -22,6 +22,7 @@ go_library(
 
 go_test(
     name = "logstream_test",
+    size = "small",
     srcs = [
         "dgramstream_unix_test.go",
         "filestream_test.go",

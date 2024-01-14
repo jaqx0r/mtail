@@ -18,6 +18,7 @@ go_library(
 
 go_test(
     name = "tailer_test",
+    size = "small",
     srcs = [
         "tail_test.go",
         "tail_unix_test.go",

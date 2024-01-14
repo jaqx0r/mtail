@@ -34,6 +34,7 @@ go_library(
 
 go_test(
     name = "mtail_test",
+    size = "small",
     srcs = [
         "basic_tail_integration_test.go",
         "compile_only_integration_test.go",
@@ -56,7 +57,7 @@ go_test(
         "unix_socket_export_integration_test.go",
     ],
     data = glob(["testdata/**"]) + [
-        "//cmd/mtail:mtail",
+        "//cmd/mtail",
         "//examples",
     ],
     embed = [":mtail"],

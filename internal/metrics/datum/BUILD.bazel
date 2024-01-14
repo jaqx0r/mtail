@@ -15,6 +15,7 @@ go_library(
 
 go_test(
     name = "datum_test",
+    size = "small",
     srcs = [
         "buckets_test.go",
         "datum_test.go",

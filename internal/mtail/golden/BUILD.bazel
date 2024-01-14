@@ -14,9 +14,10 @@ go_library(
 
 go_test(
     name = "golden_test",
+    size = "small",
     srcs = ["reader_test.go"],
-    embed = [":golden"],
     data = ["reader_test.golden"],
+    embed = [":golden"],
     deps = [
         "//internal/metrics",
         "//internal/metrics/datum",
