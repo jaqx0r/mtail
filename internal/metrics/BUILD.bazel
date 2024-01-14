@@ -1,0 +1,33 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "metrics",
+    srcs = [
+        "metric.go",
+        "store.go",
+        "testing.go",
+        "type.go",
+    ],
+    importpath = "github.com/google/mtail/internal/metrics",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//internal/metrics/datum",
+        "@com_github_golang_glog//:go_default_library",
+        "@com_github_pkg_errors//:go_default_library",
+    ],
+)
+
+go_test(
+    name = "metrics_test",
+    srcs = [
+        "metric_test.go",
+        "store_bench_test.go",
+        "store_test.go",
+    ],
+    embed = [":metrics"],
+    deps = [
+        "//internal/metrics/datum",
+        "//internal/testutil",
+        "@com_github_golang_glog//:go_default_library",
+    ],
+)

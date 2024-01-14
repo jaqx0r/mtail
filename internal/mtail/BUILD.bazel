@@ -1,0 +1,102 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "mtail",
+    srcs = [
+        "buildinfo.go",
+        "httpstatus.go",
+        "logo.ico.go",
+        "mtail.go",
+        "options.go",
+        "testing.go",
+    ],
+    importpath = "github.com/google/mtail/internal/mtail",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//internal/exporter",
+        "//internal/logline",
+        "//internal/metrics",
+        "//internal/metrics/datum",
+        "//internal/runtime",
+        "//internal/tailer",
+        "//internal/testutil",
+        "//internal/waker",
+        "@com_github_golang_glog//:go_default_library",
+        "@com_github_prometheus_client_golang//prometheus:go_default_library",
+        "@com_github_prometheus_client_golang//prometheus/collectors:go_default_library",
+        "@com_github_prometheus_client_golang//prometheus/promhttp:go_default_library",
+        "@com_github_prometheus_common//version:go_default_library",
+        "@io_opencensus_go//trace:go_default_library",
+        "@io_opencensus_go//zpages:go_default_library",
+        "@io_opencensus_go_contrib_exporter_jaeger//:go_default_library",
+    ],
+)
+
+go_test(
+    name = "mtail_test",
+    srcs = [
+        "basic_tail_integration_test.go",
+        "compile_only_integration_test.go",
+        "examples_integration_test.go",
+        "examples_integration_unix_test.go",
+        "log_deletion_integration_unix_test.go",
+        "log_glob_integration_test.go",
+        "log_rotation_integration_test.go",
+        "log_rotation_integration_unix_test.go",
+        "log_truncation_integration_test.go",
+        "mtail_test.go",
+        "multiple_levels_directory_integration_test.go",
+        "multiple_lines_integration_test.go",
+        "partial_line_integration_test.go",
+        "permission_denied_integration_unix_test.go",
+        "prog_load_integration_test.go",
+        "read_pipe_integration_unix_test.go",
+        "relative_path_pattern_integration_test.go",
+        "unix_socket_export_integration_test.go",
+    ],
+    data = glob(["testdata/**"]) + [        "//examples"],
+    embed = [":mtail"],
+    deps = [
+        "//internal/metrics",
+        "//internal/metrics/datum",
+        "//internal/mtail/golden",
+        "//internal/testutil",
+        "//internal/waker",
+        "@com_github_golang_glog//:go_default_library",
+    ] + select({
+        "@io_bazel_rules_go//go/platform:aix": [
+            "@org_golang_x_sys//unix:go_default_library",
+        ],
+        "@io_bazel_rules_go//go/platform:android": [
+            "@org_golang_x_sys//unix:go_default_library",
+        ],
+        "@io_bazel_rules_go//go/platform:darwin": [
+            "@org_golang_x_sys//unix:go_default_library",
+        ],
+        "@io_bazel_rules_go//go/platform:dragonfly": [
+            "@org_golang_x_sys//unix:go_default_library",
+        ],
+        "@io_bazel_rules_go//go/platform:freebsd": [
+            "@org_golang_x_sys//unix:go_default_library",
+        ],
+        "@io_bazel_rules_go//go/platform:illumos": [
+            "@org_golang_x_sys//unix:go_default_library",
+        ],
+        "@io_bazel_rules_go//go/platform:ios": [
+            "@org_golang_x_sys//unix:go_default_library",
+        ],
+        "@io_bazel_rules_go//go/platform:linux": [
+            "@org_golang_x_sys//unix:go_default_library",
+        ],
+        "@io_bazel_rules_go//go/platform:netbsd": [
+            "@org_golang_x_sys//unix:go_default_library",
+        ],
+        "@io_bazel_rules_go//go/platform:openbsd": [
+            "@org_golang_x_sys//unix:go_default_library",
+        ],
+        "@io_bazel_rules_go//go/platform:solaris": [
+            "@org_golang_x_sys//unix:go_default_library",
+        ],
+        "//conditions:default": [],
+    }),
+)

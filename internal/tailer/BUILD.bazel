@@ -1,0 +1,33 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "tailer",
+    srcs = [
+        "httpstatus.go",
+        "tail.go",
+    ],
+    importpath = "github.com/google/mtail/internal/tailer",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//internal/logline",
+        "//internal/tailer/logstream",
+        "//internal/waker",
+        "@com_github_golang_glog//:go_default_library",
+    ],
+)
+
+go_test(
+    name = "tailer_test",
+    srcs = [
+        "tail_test.go",
+        "tail_unix_test.go",
+        "tail_windows_test.go",
+    ],
+    embed = [":tailer"],
+    deps = [
+        "//internal/logline",
+        "//internal/testutil",
+        "//internal/waker",
+        "@com_github_golang_glog//:go_default_library",
+    ],
+)
