@@ -6,6 +6,7 @@ toolchain go1.23.7
 require (
 	contrib.go.opencensus.io/exporter/jaeger v0.2.1
 	github.com/golang/glog v1.2.4
+	github.com/bazelbuild/rules_go v0.45.0
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da
 	github.com/google/go-cmp v0.7.0
 	github.com/pkg/errors v0.9.1
@@ -16,7 +17,6 @@ require (
 )
 
 require (
-	github.com/bazelbuild/rules_go v0.45.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
