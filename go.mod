@@ -1,9 +1,12 @@
 module github.com/google/mtail
 
-go 1.20
+go 1.21
+
+toolchain go1.21.6
 
 require (
 	contrib.go.opencensus.io/exporter/jaeger v0.2.1
+	github.com/bazelbuild/rules_go v0.45.0
 	github.com/golang/glog v1.2.0
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da
 	github.com/google/go-cmp v0.6.0
@@ -15,7 +18,6 @@ require (
 )
 
 require (
-	github.com/bazelbuild/rules_go v0.45.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
