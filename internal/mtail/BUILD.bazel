@@ -39,6 +39,7 @@ go_test(
         "compile_only_integration_test.go",
         "examples_integration_test.go",
         "examples_integration_unix_test.go",
+        "exec_integration_test.go",
         "log_deletion_integration_unix_test.go",
         "log_glob_integration_test.go",
         "log_rotation_integration_test.go",
@@ -54,7 +55,10 @@ go_test(
         "relative_path_pattern_integration_test.go",
         "unix_socket_export_integration_test.go",
     ],
-    data = glob(["testdata/**"]) + [        "//examples"],
+    data = glob(["testdata/**"]) + [
+        "//cmd/mtail:mtail",
+        "//examples",
+    ],
     embed = [":mtail"],
     deps = [
         "//internal/metrics",
@@ -63,6 +67,7 @@ go_test(
         "//internal/testutil",
         "//internal/waker",
         "@com_github_golang_glog//:go_default_library",
+        "@io_bazel_rules_go//go/tools/bazel",
     ] + select({
         "@io_bazel_rules_go//go/platform:aix": [
             "@org_golang_x_sys//unix:go_default_library",

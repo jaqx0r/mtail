@@ -23,6 +23,13 @@ def go_dependencies():
         version = "v0.0.0-20211218093645-b94a6e3cc137",
     )
     go_repository(
+        name = "com_github_bazelbuild_rules_go",
+        build_file_proto_mode = "disable_global",
+        importpath = "github.com/bazelbuild/rules_go",
+        sum = "h1:ZPsHcsau3SXFQJOpqD+Ey9/RU6qjiUhdTAZI+Q8e2gY=",
+        version = "v0.45.0",
+    )
+    go_repository(
         name = "com_github_beorn7_perks",
         build_file_proto_mode = "disable_global",
         importpath = "github.com/beorn7/perks",
