@@ -7,6 +7,8 @@ import (
 	"bytes"
 	"fmt"
 
+	"github.com/golang/glog"
+	"github.com/jaqx0r/mtail/internal/runtime/compiler/errors"
 	"github.com/jaqx0r/mtail/internal/runtime/compiler/position"
 	"github.com/jaqx0r/mtail/internal/runtime/compiler/types"
 )
@@ -126,5 +128,25 @@ func (s *Scope) CopyFrom(o *Scope) {
 	}
 	if o.Parent != nil {
 		s.CopyFrom(o.Parent)
+	}
+}
+
+// Check checks a symbol table for validity and emits errors into the given error list if any are found.
+func (s *Scope) Check(errors *errors.ErrorList) {
+	for _, sym := range s.Symbols {
+		if !sym.Used {
+			// Users don't have control over the patterns given from decorators
+			// so this should never be an error; but it can be useful to know
+			// if a program is doing unnecessary work.
+			if sym.Kind == CaprefSymbol {
+				if sym.Addr == 0 {
+					// Don't warn about the zeroth capture group; it's not user-defined.
+					continue
+				}
+				glog.Infof("capture group reference `%s' at %s appears to be unused", sym.Name, sym.Pos)
+				continue
+			}
+			errors.Add(sym.Pos, fmt.Sprintf("Declaration of %s `%s' here is never used.", sym.Kind, sym.Name))
+		}
 	}
 }

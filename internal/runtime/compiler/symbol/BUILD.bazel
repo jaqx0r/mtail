@@ -6,8 +6,10 @@ go_library(
     importpath = "github.com/jaqx0r/mtail/internal/runtime/compiler/symbol",
     visibility = ["//:__subpackages__"],
     deps = [
+        "//internal/runtime/compiler/errors",
         "//internal/runtime/compiler/position",
         "//internal/runtime/compiler/types",
+        "@com_github_golang_glog//:glog",
     ],
 )
 
