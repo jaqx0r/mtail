@@ -109,20 +109,6 @@ func (opt overrideLocation) apply(m *Server) error {
 	return nil
 }
 
-// StaleLogGcWaker triggers garbage collection runs for stale logs in the tailer.
-func StaleLogGcWaker(w waker.Waker) Option {
-	return &staleLogGcWaker{w}
-}
-
-type staleLogGcWaker struct {
-	waker.Waker
-}
-
-func (opt staleLogGcWaker) apply(m *Server) error {
-	m.tOpts = append(m.tOpts, tailer.StaleLogGcWaker(opt.Waker))
-	return nil
-}
-
 // LogPatternPollWaker triggers polls on the filesystem for new logs that match the log glob patterns.
 func LogPatternPollWaker(w waker.Waker) Option {
 	return &logPatternPollWaker{w}

@@ -2,7 +2,6 @@
 // This file is available under the Apache license.
 
 //go:build unix
-// +build unix
 
 package logstream_test
 
@@ -33,22 +32,24 @@ func TestFileStreamRotation(t *testing.T) {
 	f := testutil.TestOpenFile(t, name)
 	defer f.Close()
 
-	lines := make(chan *logline.LogLine, 2)
-
 	ctx, cancel := context.WithCancel(context.Background())
-	waker, awaken := waker.NewTest(ctx, 1)
+	waker, awaken := waker.NewTest(ctx, 1, "stream")
 
-	fs, err := logstream.New(ctx, &wg, waker, name, lines, true)
-	// fs.Stop() is also called explicitly further down but a failed test
-	// and early return would lead to the handle staying open
-	defer fs.Stop()
-
+	// OneShotDisabled because we hit EOF and need to wait.
+	fs, err := logstream.New(ctx, &wg, waker, name, logstream.OneShotDisabled)
 	testutil.FatalIfErr(t, err)
-	awaken(1)
+
+	expected := []*logline.LogLine{
+		{Context: context.TODO(), Filename: name, Line: "1"},
+		{Context: context.TODO(), Filename: name, Line: "2"},
+	}
+	checkLineDiff := testutil.ExpectLinesReceivedNoDiff(t, expected, fs.Lines())
+
+	awaken(1, 1) // sync to eof
 
 	glog.Info("write 1")
 	testutil.WriteString(t, f, "1\n")
-	awaken(1)
+	awaken(1, 1)
 
 	glog.Info("rename")
 	testutil.FatalIfErr(t, os.Rename(name, name+".1"))
@@ -57,24 +58,19 @@ func TestFileStreamRotation(t *testing.T) {
 	f = testutil.TestOpenFile(t, name)
 	defer f.Close()
 
-	awaken(1)
+	awaken(1, 1)
 	glog.Info("write 2")
 	testutil.WriteString(t, f, "2\n")
-	awaken(1)
-
-	fs.Stop()
-	wg.Wait()
-	close(lines)
-
-	received := testutil.LinesReceived(lines)
-	expected := []*logline.LogLine{
-		{context.TODO(), name, "1"},
-		{context.TODO(), name, "2"},
-	}
-	testutil.ExpectNoDiff(t, expected, received, testutil.IgnoreFields(logline.LogLine{}, "Context"))
+	awaken(1, 1)
 
 	cancel()
 	wg.Wait()
+
+	checkLineDiff()
+
+	if v := <-fs.Lines(); v != nil {
+		t.Errorf("expecting filestream to be complete because stopped")
+	}
 }
 
 func TestFileStreamURL(t *testing.T) {
@@ -86,30 +82,30 @@ func TestFileStreamURL(t *testing.T) {
 	f := testutil.TestOpenFile(t, name)
 	defer f.Close()
 
-	lines := make(chan *logline.LogLine, 1)
 	ctx, cancel := context.WithCancel(context.Background())
-	waker, awaken := waker.NewTest(ctx, 1)
-	fs, err := logstream.New(ctx, &wg, waker, "file://"+name, lines, true)
+	waker, awaken := waker.NewTest(ctx, 1, "stream")
+
+	fs, err := logstream.New(ctx, &wg, waker, "file://"+name, logstream.OneShotDisabled)
 	testutil.FatalIfErr(t, err)
-	awaken(1)
+
+	expected := []*logline.LogLine{
+		{Context: context.TODO(), Filename: name, Line: "yo"},
+	}
+	checkLineDiff := testutil.ExpectLinesReceivedNoDiff(t, expected, fs.Lines())
+
+	awaken(1, 1)
 
 	testutil.WriteString(t, f, "yo\n")
-	awaken(1)
+	awaken(1, 1)
 
-	fs.Stop()
-	wg.Wait()
-	close(lines)
-	received := testutil.LinesReceived(lines)
-	expected := []*logline.LogLine{
-		{context.TODO(), name, "yo"},
-	}
-	testutil.ExpectNoDiff(t, expected, received, testutil.IgnoreFields(logline.LogLine{}, "Context"))
-
-	if !fs.IsComplete() {
-		t.Errorf("expecting filestream to be complete because stopped")
-	}
 	cancel()
 	wg.Wait()
+
+	checkLineDiff()
+
+	if v := <-fs.Lines(); v != nil {
+		t.Errorf("expecting filestream to be complete because stopped")
+	}
 }
 
 // TestFileStreamOpenFailure is a unix-specific test because on Windows, it is not possible to create a file
@@ -128,11 +124,10 @@ func TestFileStreamOpenFailure(t *testing.T) {
 
 	testutil.FatalIfErr(t, err)
 
-	lines := make(chan *logline.LogLine, 1)
 	ctx, cancel := context.WithCancel(context.Background())
-	waker, _ := waker.NewTest(ctx, 0)
+	waker := waker.NewTestAlways()
 
-	_, err = logstream.New(ctx, &wg, waker, name, lines, true)
+	_, err = logstream.New(ctx, &wg, waker, name, logstream.OneShotEnabled)
 	if err == nil || !os.IsPermission(err) {
 		t.Errorf("Expected a permission denied error, got: %v", err)
 	}

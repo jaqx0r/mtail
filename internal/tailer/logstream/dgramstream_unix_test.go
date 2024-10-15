@@ -2,7 +2,6 @@
 // This file is available under the Apache license.
 
 //go:build unix
-// +build unix
 
 package logstream_test
 
@@ -39,13 +38,20 @@ func TestDgramStreamReadCompletedBecauseSocketClosed(t *testing.T) {
 			default:
 				t.Fatalf("bad scheme %s", scheme)
 			}
-			lines := make(chan *logline.LogLine, 1)
+
 			ctx, cancel := context.WithCancel(context.Background())
-			waker, awaken := waker.NewTest(ctx, 1)
+			// Stream is not shut down with cancel in this test
+			defer cancel()
+			waker := waker.NewTestAlways()
 
 			sockName := scheme + "://" + addr
-			ss, err := logstream.New(ctx, &wg, waker, sockName, lines, false)
+			ds, err := logstream.New(ctx, &wg, waker, sockName, logstream.OneShotEnabled)
 			testutil.FatalIfErr(t, err)
+
+			expected := []*logline.LogLine{
+				{Context: context.TODO(), Filename: sockName, Line: "1"},
+			}
+			checkLineDiff := testutil.ExpectLinesReceivedNoDiff(t, expected, ds.Lines())
 
 			s, err := net.Dial(scheme, addr)
 			testutil.FatalIfErr(t, err)
@@ -53,27 +59,15 @@ func TestDgramStreamReadCompletedBecauseSocketClosed(t *testing.T) {
 			_, err = s.Write([]byte("1\n"))
 			testutil.FatalIfErr(t, err)
 
-			awaken(0) // sync past read
-
-			ss.Stop()
-
-			// "Close" the socket by sending zero bytes, which after Stop tells the stream to act as if we're done.
+			// "Close" the socket by sending zero bytes, which in oneshot mode tells the stream to act as if we're done.
 			_, err = s.Write([]byte{})
 			testutil.FatalIfErr(t, err)
 
 			wg.Wait()
-			close(lines)
 
-			received := testutil.LinesReceived(lines)
-			expected := []*logline.LogLine{
-				{context.TODO(), addr, "1"},
-			}
-			testutil.ExpectNoDiff(t, expected, received, testutil.IgnoreFields(logline.LogLine{}, "Context"))
+			checkLineDiff()
 
-			cancel()
-			wg.Wait()
-
-			if !ss.IsComplete() {
+			if v := <-ds.Lines(); v != nil {
 				t.Errorf("expecting dgramstream to be complete because socket closed")
 			}
 		}))
@@ -96,13 +90,18 @@ func TestDgramStreamReadCompletedBecauseCancel(t *testing.T) {
 			default:
 				t.Fatalf("bad scheme %s", scheme)
 			}
-			lines := make(chan *logline.LogLine, 1)
+
 			ctx, cancel := context.WithCancel(context.Background())
-			waker, awaken := waker.NewTest(ctx, 1)
+			waker := waker.NewTestAlways()
 
 			sockName := scheme + "://" + addr
-			ss, err := logstream.New(ctx, &wg, waker, sockName, lines, false)
+			ds, err := logstream.New(ctx, &wg, waker, sockName, logstream.OneShotDisabled)
 			testutil.FatalIfErr(t, err)
+
+			expected := []*logline.LogLine{
+				{Context: context.TODO(), Filename: sockName, Line: "1"},
+			}
+			checkLineDiff := testutil.ExpectLinesReceivedNoDiff(t, expected, ds.Lines())
 
 			s, err := net.Dial(scheme, addr)
 			testutil.FatalIfErr(t, err)
@@ -110,20 +109,15 @@ func TestDgramStreamReadCompletedBecauseCancel(t *testing.T) {
 			_, err = s.Write([]byte("1\n"))
 			testutil.FatalIfErr(t, err)
 
-			awaken(0) // Synchronise past read.
+			// Yield to give the stream a chance to read.
+			time.Sleep(10 * time.Millisecond)
 
 			cancel() // This cancellation should cause the stream to shut down.
-
 			wg.Wait()
-			close(lines)
 
-			received := testutil.LinesReceived(lines)
-			expected := []*logline.LogLine{
-				{context.TODO(), addr, "1"},
-			}
-			testutil.ExpectNoDiff(t, expected, received, testutil.IgnoreFields(logline.LogLine{}, "Context"))
+			checkLineDiff()
 
-			if !ss.IsComplete() {
+			if v := <-ds.Lines(); v != nil {
 				t.Errorf("expecting dgramstream to be complete because cancel")
 			}
 		}))

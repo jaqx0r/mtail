@@ -2,7 +2,6 @@
 // This file is available under the Apache license.
 
 //go:build unix
-// +build unix
 
 package mtail_test
 
@@ -12,14 +11,13 @@ import (
 	"path/filepath"
 	"syscall"
 	"testing"
-	"time"
 
 	"github.com/google/mtail/internal/mtail"
 	"github.com/google/mtail/internal/testutil"
 	"golang.org/x/sys/unix"
 )
 
-func TestReadFromPipe(t *testing.T) {
+func TestReadFromFifo(t *testing.T) {
 	testutil.SkipIfShort(t)
 	tmpDir := testutil.TestTempDir(t)
 
@@ -40,13 +38,13 @@ func TestReadFromPipe(t *testing.T) {
 		testutil.FatalIfErr(t, f.Close())
 	}()
 
-	m, stopM := mtail.TestStartServer(t, 1, mtail.LogPathPatterns(logDir+"/*"), mtail.ProgramPath(progDir))
+	m, stopM := mtail.TestStartServer(t, 1, 1, mtail.LogPathPatterns(logDir+"/*"), mtail.ProgramPath(progDir))
 	defer stopM()
 
 	lineCountCheck := m.ExpectExpvarDeltaWithDeadline("lines_total", 3)
 
 	testutil.WriteString(t, f, "1\n2\n3\n")
-	m.PollWatched(0)
+	m.AwakenPatternPollers(1, 1)
 
 	lineCountCheck()
 }
@@ -67,13 +65,12 @@ func TestReadFromSocket(t *testing.T) {
 
 			logFile := filepath.Join(logDir, "sock")
 
-			m, stopM := mtail.TestStartServer(t, 1, mtail.LogPathPatterns(scheme+"://"+logDir+"/sock"), mtail.ProgramPath(progDir))
+			m, stopM := mtail.TestStartServer(t, 1, 1, mtail.LogPathPatterns(scheme+"://"+logDir+"/sock"), mtail.ProgramPath(progDir))
 			defer stopM()
 
 			lineCountCheck := m.ExpectExpvarDeltaWithDeadline("lines_total", 3)
-			time.Sleep(10 * time.Millisecond)
 
-			s, err := net.DialUnix(scheme, nil, &net.UnixAddr{logFile, scheme})
+			s, err := net.DialUnix(scheme, nil, &net.UnixAddr{Name: logFile, Net: scheme})
 			testutil.FatalIfErr(t, err)
 			defer func() {
 				testutil.FatalIfErr(t, s.Close())
@@ -81,8 +78,6 @@ func TestReadFromSocket(t *testing.T) {
 
 			_, err = s.Write([]byte("1\n2\n3\n"))
 			testutil.FatalIfErr(t, err)
-
-			m.PollWatched(0)
 
 			lineCountCheck()
 		})

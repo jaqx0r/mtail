@@ -7,7 +7,7 @@ go_library(
     visibility = ["//:__subpackages__"],
     deps = [
         "//internal/runtime/compiler/position",
-        "@com_github_pkg_errors//:go_default_library",
+        "@com_github_pkg_errors//:errors",
     ],
 )
 

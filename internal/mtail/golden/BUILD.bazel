@@ -8,7 +8,7 @@ go_library(
     deps = [
         "//internal/metrics",
         "//internal/metrics/datum",
-        "@com_github_golang_glog//:go_default_library",
+        "@com_github_golang_glog//:glog",
     ],
 )
 
