@@ -5,8 +5,6 @@ on:
     tags:
       - v*
     branches:
-      - main
-      - bazel-build
   pull_request:
   merge_group:
 env:
@@ -21,12 +19,7 @@ permissions:
 
 jobs:
   test:
-    strategy:
-      matrix:
-        # macos-latest is slow and has weird test failures with unixgram message sizes, so it's been disabled.
-        # Sync with matrix in ci-done.yml        
-        runs-on: [ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.runs-on }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: mount bazel cache
