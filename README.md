@@ -2,11 +2,11 @@
 
 # mtail - extract internal monitoring data from application logs for collection into a timeseries database
 
-[![ci](https://github.com/google/mtail/workflows/CI/badge.svg)](https://github.com/google/mtail/actions?query=workflow%3ACI+branch%3main)
-[![GoDoc](https://godoc.org/github.com/google/mtail?status.png)](http://godoc.org/github.com/google/mtail)
-[![Go Report Card](https://goreportcard.com/badge/github.com/google/mtail)](https://goreportcard.com/report/github.com/google/mtail)
+[![ci](https://github.com/jaqx0r/mtail/workflows/CI/badge.svg)](https://github.com/jaqx0r/mtail/actions?query=workflow%3ACI+branch%3main)
+[![GoDoc](https://godoc.org/github.com/jaqx0r/mtail?status.png)](http://godoc.org/github.com/jaqx0r/mtail)
+[![Go Report Card](https://goreportcard.com/badge/github.com/jaqx0r/mtail)](https://goreportcard.com/report/github.com/jaqx0r/mtail)
 [![OSS-Fuzz](https://oss-fuzz-build-logs.storage.googleapis.com/badges/mtail.svg)](https://bugs.chromium.org/p/oss-fuzz/issues/list?sort=-opened&can=1&q=proj:mtail)
-[![codecov](https://codecov.io/gh/google/mtail/branch/main/graph/badge.svg)](https://codecov.io/gh/google/mtail)
+[![codecov](https://codecov.io/gh/jaqx0r/mtail/branch/main/graph/badge.svg)](https://codecov.io/gh/jaqx0r/mtail)
 
 `mtail` is a tool for extracting metrics from application logs to be exported
 into a timeseries database or timeseries calculator for alerting and
@@ -42,7 +42,7 @@ There are various ways of installing **mtail**.
 ### Precompiled binaries
 
 Precompiled binaries for released versions are available in the
-[Releases page](https://github.com/google/mtail/releases) on Github. Using the
+[Releases page](https://github.com/jaqx0r/mtail/releases) on Github. Using the
 latest production release binary is the recommended way of installing **mtail**.
 
 Windows, OSX and Linux binaries are available.
@@ -51,15 +51,15 @@ Windows, OSX and Linux binaries are available.
 
 The simplest way to get `mtail` is to `go get` it directly.
 
-`go get github.com/google/mtail/cmd/mtail`
+`go get github.com/jaqx0r/mtail/cmd/mtail`
 
 This assumes you have a working Go environment with a recent Go version.  Usually mtail is tested to work with the last two minor versions  (e.g. Go 1.12 and Go 1.11).
 
 If you want to fetch everything, you need to turn on Go Modules to succeed because of the way Go Modules have changed the way go get treats source trees with no Go code at the top level.
 
 ```
-GO111MODULE=on go get -u github.com/google/mtail
-cd $GOPATH/src/github.com/google/mtail
+GO111MODULE=on go get -u github.com/jaqx0r/mtail
+cd $GOPATH/src/github.com/jaqx0r/mtail
 make install
 ```
 
@@ -113,8 +113,8 @@ Read more about deploying `mtail` and your programs in a monitoring environment
 
 ## Getting more help and reporting defects
 
-If you have any questions, please use the [GitHub Discussions Q&A](https://github.com/google/mtail/discussions/new?category=q-a).
+If you have any questions, please use the [GitHub Discussions Q&A](https://github.com/jaqx0r/mtail/discussions/new?category=q-a).
 
 We also have an email list : https://groups.google.com/forum/#!forum/mtail-users
 
-For any defects please [file a new issue](https://github.com/google/mtail/issues/new).
+For any defects please [file a new issue](https://github.com/jaqx0r/mtail/issues/new).
