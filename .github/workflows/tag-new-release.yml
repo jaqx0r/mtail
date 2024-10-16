@@ -1,8 +1,9 @@
 name: tag new release
 
 on:
+  push: # for testing
   pull_request:  # for testing
-  workflow_dispatch:
+  workflow_dispatch:  # manual invocation
   schedule:
     - cron: "30 5 * * 0"
 
