@@ -30,7 +30,7 @@ jobs:
     # https://github.com/orgs/community/discussions/26238
     if: ${{ !github.event.workflow_run || github.event.workflow_run.conclusion == 'success' }}
     steps:
-      - if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+      - if: ${{ !startsWith(github.ref, 'refs/tags/') || github.event.workflow_run }}
         run: echo "flags=--snapshot" >> $GITHUB_ENV
       - uses: actions/checkout@v4
         with:
