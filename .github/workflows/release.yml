@@ -4,10 +4,7 @@ on:
   # goreleaser is put into snapshot mode when not on a tag
   pull_request:
   merge_group:
-  # Run when a tag is pushed.
   push:
-    tags:
-      - v*
 
 env:
   REGISTRY: ghcr.io
