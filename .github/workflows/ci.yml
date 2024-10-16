@@ -51,6 +51,8 @@ jobs:
         if: always()
         with:
           file: coverprofile
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
