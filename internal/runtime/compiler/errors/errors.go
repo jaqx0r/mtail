@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/google/mtail/internal/runtime/compiler/position"
+	"github.com/jaqx0r/mtail/internal/runtime/compiler/position"
 	"github.com/pkg/errors"
 )
 

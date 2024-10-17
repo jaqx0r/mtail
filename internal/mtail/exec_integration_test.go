@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/golang/glog"
-	"github.com/google/mtail/internal/testutil"
+	"github.com/jaqx0r/mtail/internal/testutil"
 )
 
 var mtailPath string

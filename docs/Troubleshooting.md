@@ -14,19 +14,19 @@ Please when reporting a problem, include the `mtail` version:
 
 ## `go get` or build problems
 
-### `package github.com/google/mtail: no Go files`
+### `package github.com/jaqx0r/mtail: no Go files`
 
 You're using go 1.11 or higher, which now starts to use go modules, and doesn't like source code layouts like `mtail` which doesn't have any Go files in the top directory.
 
 Either set `GO111MODULE=on` environment variable first, or `go get` the binary directly:
 
-`go get github.com/google/mtail/cmd/mtail`
+`go get github.com/jaqx0r/mtail/cmd/mtail`
 
 vs
 
 ```
-GO111MODULE=on go get -u github.com/google/mtail
-cd $GOPATH/src/github.com/google/mtail
+GO111MODULE=on go get -u github.com/jaqx0r/mtail
+cd $GOPATH/src/github.com/jaqx0r/mtail
 make install
 ```
 

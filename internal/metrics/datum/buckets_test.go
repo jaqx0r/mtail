@@ -9,7 +9,7 @@ import (
 	"testing/quick"
 	"time"
 
-	"github.com/google/mtail/internal/metrics/datum"
+	"github.com/jaqx0r/mtail/internal/metrics/datum"
 )
 
 func TestBucketContains(t *testing.T) {

@@ -24,9 +24,9 @@ import (
 	"time"
 
 	"github.com/golang/glog"
-	"github.com/google/mtail/internal/runtime/compiler/ast"
-	"github.com/google/mtail/internal/runtime/compiler/errors"
-	"github.com/google/mtail/internal/runtime/compiler/position"
+	"github.com/jaqx0r/mtail/internal/runtime/compiler/ast"
+	"github.com/jaqx0r/mtail/internal/runtime/compiler/errors"
+	"github.com/jaqx0r/mtail/internal/runtime/compiler/position"
 )
 
 // Parse reads the program named name from the input, and if successful returns

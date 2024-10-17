@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/google/mtail/main/logo.png" alt="mtail" title="mtail" align="right" width="140">
+<img src="https://raw.githubusercontent.com/jaqx0r/mtail/main/logo.png" alt="mtail" title="mtail" align="right" width="140">
 
 # mtail - extract internal monitoring data from application logs for collection into a timeseries database
 

@@ -15,10 +15,10 @@ import (
 	"time"
 
 	"github.com/golang/glog"
-	"github.com/google/mtail/internal/exporter"
-	"github.com/google/mtail/internal/metrics"
-	"github.com/google/mtail/internal/mtail"
-	"github.com/google/mtail/internal/waker"
+	"github.com/jaqx0r/mtail/internal/exporter"
+	"github.com/jaqx0r/mtail/internal/metrics"
+	"github.com/jaqx0r/mtail/internal/mtail"
+	"github.com/jaqx0r/mtail/internal/waker"
 	"go.opencensus.io/trace"
 )
 

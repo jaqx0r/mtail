@@ -10,15 +10,15 @@ import (
 	"time"
 
 	"github.com/golang/glog"
-	"github.com/google/mtail/internal/metrics"
-	"github.com/google/mtail/internal/metrics/datum"
-	"github.com/google/mtail/internal/runtime/code"
-	"github.com/google/mtail/internal/runtime/compiler/ast"
-	"github.com/google/mtail/internal/runtime/compiler/errors"
-	"github.com/google/mtail/internal/runtime/compiler/parser"
-	"github.com/google/mtail/internal/runtime/compiler/position"
-	"github.com/google/mtail/internal/runtime/compiler/symbol"
-	"github.com/google/mtail/internal/runtime/compiler/types"
+	"github.com/jaqx0r/mtail/internal/metrics"
+	"github.com/jaqx0r/mtail/internal/metrics/datum"
+	"github.com/jaqx0r/mtail/internal/runtime/code"
+	"github.com/jaqx0r/mtail/internal/runtime/compiler/ast"
+	"github.com/jaqx0r/mtail/internal/runtime/compiler/errors"
+	"github.com/jaqx0r/mtail/internal/runtime/compiler/parser"
+	"github.com/jaqx0r/mtail/internal/runtime/compiler/position"
+	"github.com/jaqx0r/mtail/internal/runtime/compiler/symbol"
+	"github.com/jaqx0r/mtail/internal/runtime/compiler/types"
 )
 
 // codegen represents a code generator.

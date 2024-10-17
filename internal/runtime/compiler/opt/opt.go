@@ -7,11 +7,11 @@ package opt
 import (
 	"math"
 
-	"github.com/google/mtail/internal/runtime/compiler/ast"
-	"github.com/google/mtail/internal/runtime/compiler/errors"
-	"github.com/google/mtail/internal/runtime/compiler/parser"
-	"github.com/google/mtail/internal/runtime/compiler/position"
-	"github.com/google/mtail/internal/runtime/compiler/types"
+	"github.com/jaqx0r/mtail/internal/runtime/compiler/ast"
+	"github.com/jaqx0r/mtail/internal/runtime/compiler/errors"
+	"github.com/jaqx0r/mtail/internal/runtime/compiler/parser"
+	"github.com/jaqx0r/mtail/internal/runtime/compiler/position"
+	"github.com/jaqx0r/mtail/internal/runtime/compiler/types"
 )
 
 func Optimise(n ast.Node) (ast.Node, error) {

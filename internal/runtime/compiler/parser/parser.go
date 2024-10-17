@@ -12,9 +12,9 @@ import (
 	"time"
 
 	"github.com/golang/glog"
-	"github.com/google/mtail/internal/metrics"
-	"github.com/google/mtail/internal/runtime/compiler/ast"
-	"github.com/google/mtail/internal/runtime/compiler/position"
+	"github.com/jaqx0r/mtail/internal/metrics"
+	"github.com/jaqx0r/mtail/internal/runtime/compiler/ast"
+	"github.com/jaqx0r/mtail/internal/runtime/compiler/position"
 )
 
 //line parser.y:19

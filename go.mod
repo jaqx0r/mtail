@@ -1,4 +1,4 @@
-module github.com/google/mtail
+module github.com/jaqx0r/mtail
 
 go 1.21.1
 
