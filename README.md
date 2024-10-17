@@ -17,7 +17,7 @@ export their own internal state (other than via logs) and existing monitoring
 systems, such that system operators do not need to patch those applications to
 instrument them or writing custom extraction code for every such application.
 
-The extraction is controlled by [mtail programs](docs/Programming-Guide.md)
+The extraction is controlled by [mtail programs](https://jaqx0r.github.io/mtail/Programming-Guide)
 which define patterns and actions:
 
     # simple line counter
@@ -30,7 +30,7 @@ Metrics are exported for scraping by a collector as JSON or Prometheus format
 over HTTP, or can be periodically sent to a collectd, StatsD, or Graphite
 collector socket.
 
-Read the [programming guide](docs/Programming-Guide.md) if you want to learn how
+Read the [programming guide](https://jaqx0r.github.io/mtail/Programming-Guide) if you want to learn how
 to write mtail programs.
 
 Ask general questions on the users mailing list: https://groups.google.com/g/mtail-users
@@ -66,7 +66,7 @@ make install
 If you develop the compiler you will need some additional tools
 like `goyacc` to be able to rebuild the parser.
 
-See the [Build instructions](docs/Building.md) for more details.
+See the [Build instructions](https://jaqx0r.github.io/mtail/Building) for more details.
 
 A `Dockerfile` is included in this repository for local development as an
 alternative to installing Go in your environment, and takes care of all the
@@ -85,30 +85,32 @@ alerting tool, like [Prometheus](http://prometheus.io).
 to!](http://www.imdb.com/title/tt0151804/quotes/?item=qt0386890)  It has the
 extraction skills!  It is good at dealing with log files!!
 
+Learn more about [interoperability with other tools](https://jaqx0r.github.io/mtail/Interoperability)
+
 ## Read More
 
-Full documentation at http://google.github.io/mtail/
+Full documentation at https://jaqx0r.github.io/mtail/
 
 Read more about writing `mtail` programs:
 
-* [Programming Guide](docs/Programming-Guide.md)
-* [Language Reference](docs/Language.md)
-* [Metrics](docs/Metrics.md)
-* [Managing internal state](docs/state.md)
-* [Testing your programs](docs/Testing.md)
+* [Programming Guide](https://jaqx0r.github.io/mtail/Programming-Guide)
+* [Language Reference](https://jaqx0r.github.io/mtail/Language)
+* [Metrics](https://jaqx0r.github.io/mtail/Metrics)
+* [Managing internal state](https://jaqx0r.github.io/mtail/state)
+* [Testing your programs](https://jaqx0r.github.io/mtail/Testing)
 
 Read more about hacking on `mtail`
 
-* [Building from source](docs/Building.md)
+* [Building from source](https://jaqx0r.github.io/mtail/Building)
 * [Contributing](CONTRIBUTING.md)
-* [Style](docs/style.md)
+* [Style](https://jaqx0r.github.io/mtail/style)
 
 Read more about deploying `mtail` and your programs in a monitoring environment
 
-* [Deploying](docs/Deploying.md)
-* [Interoperability](docs/Interoperability.md) with other systems
-* [Troubleshooting](docs/Troubleshooting.md)
-* [FAQ](docs/faq.md)
+* [Deploying](https://jaqx0r.github.io/mtail/Deploying)
+* [Interoperability](https://jaqx0r.github.io/mtail/Interoperability) with other systems
+* [Troubleshooting](https://jaqx0r.github.io/mtail/Troubleshooting)
+* [FAQ](https://jaqx0r.github.io/mtail/faq)
 
 
 ## Getting more help and reporting defects
