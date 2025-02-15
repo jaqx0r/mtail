@@ -18,7 +18,7 @@ func Optimise(n ast.Node) (ast.Node, error) {
 	o := &optimiser{}
 	r := ast.Walk(o, n)
 	if len(o.errors) > 0 {
-		return r, o.errors
+		return r, &o.errors
 	}
 	return r, nil
 }

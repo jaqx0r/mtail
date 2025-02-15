@@ -13,9 +13,9 @@ import (
 )
 
 func TestBucketContains(t *testing.T) {
-	if err := quick.Check(func(min, max, val float64) bool {
-		r := &datum.Range{Min: min, Max: max}
-		truth := val < max && val >= min
+	if err := quick.Check(func(lo, hi, val float64) bool {
+		r := &datum.Range{Min: lo, Max: hi}
+		truth := val < hi && val >= lo
 		return truth == r.Contains(val)
 	}, nil); err != nil {
 		t.Error(err)

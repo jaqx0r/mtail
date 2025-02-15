@@ -54,7 +54,7 @@ func Check(node ast.Node, maxRegexpLength int, maxRecursionDepth int) (ast.Node,
 	c := &checker{maxRegexLength: maxRegexpLength, maxRecursionDepth: maxRecursionDepth}
 	node = ast.Walk(c, node)
 	if len(c.errors) > 0 {
-		return node, c.errors
+		return node, &c.errors
 	}
 	return node, nil
 }
