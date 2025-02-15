@@ -134,16 +134,16 @@ func (c *codegen) VisitBefore(node ast.Node) (ast.Visitor, ast.Node) {
 			if n.Buckets[0] > 0 {
 				m.Buckets = append(m.Buckets, datum.Range{0, n.Buckets[0]})
 			}
-			min := n.Buckets[0]
-			for _, max := range n.Buckets[1:] {
-				if max <= min {
+			lo := n.Buckets[0]
+			for _, hi := range n.Buckets[1:] {
+				if hi <= lo {
 					c.errorf(n.Pos(), "buckets boundaries must be sorted")
 					return nil, n
 				}
-				m.Buckets = append(m.Buckets, datum.Range{min, max})
-				min = max
+				m.Buckets = append(m.Buckets, datum.Range{lo, hi})
+				lo = hi
 			}
-			m.Buckets = append(m.Buckets, datum.Range{min, math.Inf(+1)})
+			m.Buckets = append(m.Buckets, datum.Range{lo, math.Inf(+1)})
 
 			if len(n.Keys) == 0 {
 				// Calling GetDatum here causes the storage to be allocated.
