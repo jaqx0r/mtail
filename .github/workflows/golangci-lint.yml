@@ -22,10 +22,11 @@ jobs:
       checks: write
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
       - uses: golangci/golangci-lint-action@v6
         with:
           # Required: the version of golangci-lint is required and must be
           # specified without patch version: we always use the latest patch
           # version.
-          version: v1.59
+          version: v1.64
           only-new-issues: ${{ github.event_name == 'pull_request' }}
