@@ -45,7 +45,6 @@ linters:
     - gocognit # boo cyclomatic complexity
     - gocyclo  # boo cyclomatic complexity
     - godox # TODOs are fine
-    - gomnd    # magic numbers in test tables are fine actually
     - gosec # run independently
     - lll # go says long lines are ok, and this is trivially automatable
     - musttag # don't agree with the premise
