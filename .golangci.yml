@@ -27,8 +27,6 @@ linters:
     - test
     - unused
     - metalinter
-  enable:
-    - exportloopref
   # A general rule is if the lint author can't be bothered supplying automated
   # fixes for obvious lint warnings, I'm not bothered using their tool.
   disable:
