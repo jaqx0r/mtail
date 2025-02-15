@@ -38,7 +38,7 @@ func CodeGen(name string, n ast.Node) (*code.Object, error) {
 	_ = ast.Walk(c, n)
 	c.writeJumps()
 	if len(c.errors) > 0 {
-		return nil, c.errors
+		return nil, &c.errors
 	}
 	return &c.obj, nil
 }
