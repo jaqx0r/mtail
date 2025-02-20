@@ -1,4 +1,4 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+load("@rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "datum",
@@ -9,7 +9,7 @@ go_library(
         "int.go",
         "string.go",
     ],
-    importpath = "github.com/google/mtail/internal/metrics/datum",
+    importpath = "github.com/jaqx0r/mtail/internal/metrics/datum",
     visibility = ["//:__subpackages__"],
 )
 

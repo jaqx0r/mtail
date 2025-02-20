@@ -1,13 +1,13 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+load("@rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "errors",
     srcs = ["errors.go"],
-    importpath = "github.com/google/mtail/internal/runtime/compiler/errors",
+    importpath = "github.com/jaqx0r/mtail/internal/runtime/compiler/errors",
     visibility = ["//:__subpackages__"],
     deps = [
         "//internal/runtime/compiler/position",
-        "@com_github_pkg_errors//:go_default_library",
+        "@com_github_pkg_errors//:errors",
     ],
 )
 

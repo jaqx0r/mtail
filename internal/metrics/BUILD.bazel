@@ -1,4 +1,4 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+load("@rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "metrics",
@@ -8,12 +8,12 @@ go_library(
         "testing.go",
         "type.go",
     ],
-    importpath = "github.com/google/mtail/internal/metrics",
+    importpath = "github.com/jaqx0r/mtail/internal/metrics",
     visibility = ["//:__subpackages__"],
     deps = [
         "//internal/metrics/datum",
-        "@com_github_golang_glog//:go_default_library",
-        "@com_github_pkg_errors//:go_default_library",
+        "@com_github_golang_glog//:glog",
+        "@com_github_pkg_errors//:errors",
     ],
 )
 
@@ -29,6 +29,6 @@ go_test(
     deps = [
         "//internal/metrics/datum",
         "//internal/testutil",
-        "@com_github_golang_glog//:go_default_library",
+        "@com_github_golang_glog//:glog",
     ],
 )

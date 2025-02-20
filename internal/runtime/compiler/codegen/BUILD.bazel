@@ -1,9 +1,9 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+load("@rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "codegen",
     srcs = ["codegen.go"],
-    importpath = "github.com/google/mtail/internal/runtime/compiler/codegen",
+    importpath = "github.com/jaqx0r/mtail/internal/runtime/compiler/codegen",
     visibility = ["//:__subpackages__"],
     deps = [
         "//internal/metrics",
@@ -15,7 +15,7 @@ go_library(
         "//internal/runtime/compiler/position",
         "//internal/runtime/compiler/symbol",
         "//internal/runtime/compiler/types",
-        "@com_github_golang_glog//:go_default_library",
+        "@com_github_golang_glog//:glog",
     ],
 )
 

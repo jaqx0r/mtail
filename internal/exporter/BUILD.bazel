@@ -1,4 +1,4 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+load("@rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "exporter",
@@ -11,15 +11,15 @@ go_library(
         "statsd.go",
         "varz.go",
     ],
-    importpath = "github.com/google/mtail/internal/exporter",
+    importpath = "github.com/jaqx0r/mtail/internal/exporter",
     visibility = ["//:__subpackages__"],
     deps = [
         "//internal/metrics",
         "//internal/metrics/datum",
-        "@com_github_golang_glog//:go_default_library",
-        "@com_github_pkg_errors//:go_default_library",
-        "@com_github_prometheus_client_golang//prometheus:go_default_library",
-        "@com_github_prometheus_common//expfmt:go_default_library",
+        "@com_github_golang_glog//:glog",
+        "@com_github_pkg_errors//:errors",
+        "@com_github_prometheus_client_golang//prometheus",
+        "@com_github_prometheus_common//expfmt",
     ],
 )
 
@@ -38,6 +38,6 @@ go_test(
         "//internal/metrics",
         "//internal/metrics/datum",
         "//internal/testutil",
-        "@com_github_prometheus_client_golang//prometheus/testutil:go_default_library",
+        "@com_github_prometheus_client_golang//prometheus/testutil",
     ],
 )

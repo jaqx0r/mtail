@@ -1,4 +1,4 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+load("@rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "ast",
@@ -6,14 +6,14 @@ go_library(
         "ast.go",
         "walk.go",
     ],
-    importpath = "github.com/google/mtail/internal/runtime/compiler/ast",
+    importpath = "github.com/jaqx0r/mtail/internal/runtime/compiler/ast",
     visibility = ["//:__subpackages__"],
     deps = [
         "//internal/metrics",
         "//internal/runtime/compiler/position",
         "//internal/runtime/compiler/symbol",
         "//internal/runtime/compiler/types",
-        "@com_github_golang_glog//:go_default_library",
+        "@com_github_golang_glog//:glog",
     ],
 )
 

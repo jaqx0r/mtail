@@ -1,4 +1,4 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+load("@rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "parser",
@@ -10,7 +10,7 @@ go_library(
         "tokens.go",
         "unparser.go",
     ],
-    importpath = "github.com/google/mtail/internal/runtime/compiler/parser",
+    importpath = "github.com/jaqx0r/mtail/internal/runtime/compiler/parser",
     visibility = ["//:__subpackages__"],
     deps = [
         "//internal/metrics",
@@ -18,7 +18,7 @@ go_library(
         "//internal/runtime/compiler/errors",
         "//internal/runtime/compiler/position",
         "//internal/runtime/compiler/symbol",
-        "@com_github_golang_glog//:go_default_library",
+        "@com_github_golang_glog//:glog",
     ],
 )
 

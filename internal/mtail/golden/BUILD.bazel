@@ -1,14 +1,14 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+load("@rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "golden",
     srcs = ["reader.go"],
-    importpath = "github.com/google/mtail/internal/mtail/golden",
+    importpath = "github.com/jaqx0r/mtail/internal/mtail/golden",
     visibility = ["//:__subpackages__"],
     deps = [
         "//internal/metrics",
         "//internal/metrics/datum",
-        "@com_github_golang_glog//:go_default_library",
+        "@com_github_golang_glog//:glog",
     ],
 )
 

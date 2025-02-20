@@ -1,4 +1,4 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+load("@rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "code",
@@ -7,7 +7,7 @@ go_library(
         "object.go",
         "opcodes.go",
     ],
-    importpath = "github.com/google/mtail/internal/runtime/code",
+    importpath = "github.com/jaqx0r/mtail/internal/runtime/code",
     visibility = ["//:__subpackages__"],
     deps = ["//internal/metrics"],
 )
