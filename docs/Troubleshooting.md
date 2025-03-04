@@ -95,7 +95,7 @@ You can transcode these back to their names by doing a conversion from the
 int32 value in hex provided in the stack, e.g.: 0x61706163 -> 'apac' (probably
 an apache log program); 0x7273796e -> 'rsyn' (probably an rsyncd log program)
 
-Obvious problems seen in the goroutine stack dump are long-waiting gorotines, usually on mutexes.
+Obvious problems seen in the goroutine stack dump are long-waiting goroutines, usually on mutexes.
 (they show their block time in minutes, e.g. `goroutine 38 [semacquire, 1580
 minutes]:`) which usually also manifest as a logjam (no pun intended) in the
 loader, tailer, and watcher goroutines (in state 'chan send').
