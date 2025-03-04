@@ -35,7 +35,7 @@ The unit tests can be run with `make test`, which invokes `go test`.  The slower
 
 ### Cross-compilation
 
-`goreleaser` is used to build the binaries available for download on the Releases page.  If yuo want to build your own locally, fetch goreleaser and update the config file locally if necessary.
+`goreleaser` is used to build the binaries available for download on the Releases page.  If you want to build your own locally, fetch goreleaser and update the config file locally if necessary.
 
 ## No Go
 
