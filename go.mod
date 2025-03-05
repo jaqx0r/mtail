@@ -1,6 +1,7 @@
 module github.com/jaqx0r/mtail
 
 go 1.21.1
+toolchain go1.23.7
 
 require (
 	contrib.go.opencensus.io/exporter/jaeger v0.2.1
@@ -11,7 +12,7 @@ require (
 	github.com/prometheus/client_golang v1.21.1
 	github.com/prometheus/common v0.62.0
 	go.opencensus.io v0.24.0
-	golang.org/x/sys v0.30.0
+	golang.org/x/sys v0.31.0
 )
 
 require (
