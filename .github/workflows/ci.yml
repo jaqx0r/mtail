@@ -2,8 +2,12 @@ name: ci
 
 on:
   push:
+    tags:
+    branches:
+      - main
   pull_request:
   merge_group:
+  workflow_dispatch:
 
 env:
   GOPROXY: "https://proxy.golang.org"
