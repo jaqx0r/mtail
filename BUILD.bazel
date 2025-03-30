@@ -1,5 +1,8 @@
+load("@aspect_bazel_lib//lib:tar.bzl", "mtree_mutate", "mtree_spec", "tar")
+load("@aspect_bazel_lib//lib:transitions.bzl", "platform_transition_filegroup")
 load("@gazelle//:def.bzl", "gazelle")
 load("@rules_go//go:def.bzl", "nogo")
+load("@rules_oci//oci:defs.bzl", "oci_image", "oci_load", "oci_push")
 
 # gazelle:prefix github.com/jaqx0r/mtail
 gazelle(name = "gazelle")
@@ -8,4 +11,46 @@ nogo(
     name = "nogo",
     vet = True,
     visibility = ["//visibility:public"],
+)
+
+tar(
+    name = "mtail_layer",
+    srcs = ["//cmd/mtail"],
+)
+
+platform_transition_filegroup(
+    name = "transitioned_layer",
+    srcs = [":mtail_layer"],
+    target_platform = select({
+        "@platforms//cpu:arm64": "@rules_go//go/toolchain:linux_arm64",
+        "@platforms//cpu:x86_64": "@rules_go//go/toolchain:linux_amd64",
+    }),
+)
+
+oci_image(
+    name = "oci_image",
+    base = "@distroless_base",
+    entrypoint = ["cmd/mtail/mtail_/mtail"],
+    exposed_ports = ["3903/tcp"],
+    labels = {
+        "org.opencontainers.image.ref.name": "jaqx0r/mtail",
+        "org.opencontainers.image.title": "mtail",
+        "org.opencontainers.image.description": "extract internal monitoring data from application logs for collection in a timeseries database",
+        "org.opencontainers.image.authors": "Jamie Wilkinson (@jaqx0r)",
+        "org.opencontainers.image.licenses": "Apache-2.0",
+        #"org.opencontainers.image.version": "$version",
+        #"org.opencontainers.image.revision": "$commit_hash",
+        #"org.opencontainers.image.source": "$vcs_url",
+        "org.opencontainers.image.documentation": "https://jaqx0r.github.io/mtail/",
+        #"org.opencontainers.image.created": "$build_date",
+        "org.opencontainers.image.url": "https://github.com/jaqx0r/mtail",
+    },
+    tars = [":mtail_layer"],
+    visibility = ["//visibility:public"],
+)
+
+oci_load(
+    name = "load_image",
+    image = ":oci_image",
+    repo_tags = ["mtail:latest"],
 )

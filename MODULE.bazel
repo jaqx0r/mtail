@@ -26,3 +26,20 @@ use_repo(
     "io_opencensus_go_contrib_exporter_jaeger",
     "org_golang_x_sys",
 )
+
+# `rules_oci` and `aspect_bazel_lib`'s `tar` for making container images.
+bazel_dep(name = "aspect_bazel_lib", version = "2.14.0")
+bazel_dep(name = "rules_oci", version = "2.2.3")
+bazel_dep(name = "platforms", version = "0.0.11")
+
+oci = use_extension("@rules_oci//oci:extensions.bzl", "oci")
+oci.pull(
+    name = "distroless_base",
+    digest = "sha256:125eb09bbd8e818da4f9eac0dfc373892ca75bec4630aa642d315ecf35c1afb7",
+    image = "gcr.io/distroless/base",
+    platforms = [
+        "linux/amd64",
+        "linux/arm64/v8",
+    ],
+)
+use_repo(oci, "distroless_base", "distroless_base_linux_amd64", "distroless_base_linux_arm64_v8")
