@@ -49,29 +49,27 @@ Windows, OSX and Linux binaries are available.
 
 ### Building from source
 
-The simplest way to get `mtail` is to `go get` it directly.
+`mtail` uses [`bazel`](https://bazel.build) for its speed, hermeticity, and support for cross-language compilation.  Install [`bazelisk`](https://bazel.build/install/bazelisk) to manage Bazel for you.
 
-`go get github.com/jaqx0r/mtail/cmd/mtail`
-
-This assumes you have a working Go environment with a recent Go version.  Usually mtail is tested to work with the last two minor versions  (e.g. Go 1.12 and Go 1.11).
-
-If you want to fetch everything, you need to turn on Go Modules to succeed because of the way Go Modules have changed the way go get treats source trees with no Go code at the top level.
+Then:
 
 ```
-GO111MODULE=on go get -u github.com/jaqx0r/mtail
-cd $GOPATH/src/github.com/jaqx0r/mtail
-make install
+bazel build //cmd/mtail
 ```
-
-If you develop the compiler you will need some additional tools
-like `goyacc` to be able to rebuild the parser.
 
 See the [Build instructions](https://jaqx0r.github.io/mtail/Building) for more details.
 
-A `Dockerfile` is included in this repository for local development as an
-alternative to installing Go in your environment, and takes care of all the
-build dependency installation, if you don't care for that.
+The build system can also emit an OCI container image for you.
 
+```
+bazel build //:oci_image
+```
+
+will create it, but to run it the best option is to load it into your local container runtime
+
+```
+bazel run //:load_image
+```
 
 ## Deployment
 
