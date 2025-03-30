@@ -1,4 +1,11 @@
 load("@gazelle//:def.bzl", "gazelle")
+load("@rules_go//go:def.bzl", "nogo")
 
 # gazelle:prefix github.com/jaqx0r/mtail
 gazelle(name = "gazelle")
+
+nogo(
+    name = "nogo",
+    vet = True,
+    visibility = ["//visibility:public"],
+)
