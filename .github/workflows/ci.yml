@@ -1,9 +1,10 @@
-name: CI
+name: ci
 
 on:
   push:
   pull_request:
   merge_group:
+
 env:
   GOPROXY: "https://proxy.golang.org"
 
@@ -36,17 +37,18 @@ jobs:
       - run: bazel build //...
       - name: bazel test
         run: bazel coverage --test_output=all --combined_report=lcov --instrument_test_targets --nocache_test_results --instrumentation_filter="^//" //...
-      - name: copy test results into workspace
+      - name: output bazel paths for test and coverage
         if: always()
+        id: bazel_info
         run: |
-          cp -Lpr $(bazel info bazel-testlogs)/ test-results
-          cp -Lpr $(bazel info output_path)/_coverage/_coverage_report.dat coverage_report.dat
-      - uses: EnricoMi/publish-unit-test-result-action@v2
+          bazel info bazel-testlogs output_path | sed -e 's/: /=/' >> $GITHUB_OUTPUT
+      - uses: EnricoMi/publish-unit-test-result-action/linux@v2
         if: always()
         with:
-          files: |
-            test-results/**/test.xml
+          files: ${{ steps.bazel_info.outputs.bazel-testlogs }}/**/test.xml
       - uses: codecov/codecov-action@v5
         if: always()
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          files: ${{ steps.bazel_info.outputs.output_path }}/_coverage/_coverage_report.dat
