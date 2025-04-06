@@ -44,6 +44,10 @@ func (e *Exporter) Produce(context.Context) ([]metricdata.ScopeMetrics, error) {
 		return nil
 	})
 
+	if len(otelMetrics) == 0 {
+		return nil, nil
+	}
+
 	return []metricdata.ScopeMetrics{{
 		Scope:   instrumentation.Scope{Name: "mtail_program"},
 		Metrics: otelMetrics,
@@ -68,17 +72,20 @@ func otelIntCounter(m *metrics.Metric, omitProgLabel bool) metricdata.Sum[int64]
 		counter.DataPoints = append(counter.DataPoints, dp)
 	}
 	return counter
-
 }
 
 func otelLabels(labels map[string]string, omitProgLabel bool, programName string) attribute.Set {
-	kvs := make([]attribute.KeyValue, len(labels))
+	l := len(labels)
+	if !omitProgLabel {
+		l++
+	}
+	kvs := make([]attribute.KeyValue, l)
 	i := 0
 	for k, v := range labels {
 		kvs[i] = attribute.String(k, v)
 		i++
 	}
-	if omitProgLabel {
+	if !omitProgLabel {
 		kvs[i] = attribute.String("prog", programName)
 	}
 	return attribute.NewSet(kvs...)
