@@ -37,6 +37,22 @@ func (e *Exporter) Produce(context.Context) ([]metricdata.ScopeMetrics, error) {
 			default:
 				return nil
 			}
+		case metrics.Gauge:
+			switch m.Type {
+			case metrics.Int:
+				newMetric.Data = otelIntGauge(m, e.omitProgLabel)
+			case metrics.Float:
+				newMetric.Data = otelFloatGauge(m, e.omitProgLabel)
+			default:
+				return nil
+			}
+		case metrics.Timer:
+			switch m.Type {
+			case metrics.Float:
+				newMetric.Data = otelFloatGauge(m, e.omitProgLabel)
+			default:
+				return nil
+			}
 		default:
 			return nil
 		}
@@ -56,7 +72,7 @@ func (e *Exporter) Produce(context.Context) ([]metricdata.ScopeMetrics, error) {
 
 func otelIntCounter(m *metrics.Metric, omitProgLabel bool) metricdata.Sum[int64] {
 	counter := metricdata.Sum[int64]{
-		DataPoints:  make([]metricdata.DataPoint[int64], 0),
+		DataPoints:  make([]metricdata.DataPoint[int64], 0, len(m.LabelValues)),
 		Temporality: metricdata.CumulativeTemporality,
 		IsMonotonic: true,
 	}
@@ -72,6 +88,42 @@ func otelIntCounter(m *metrics.Metric, omitProgLabel bool) metricdata.Sum[int64]
 		counter.DataPoints = append(counter.DataPoints, dp)
 	}
 	return counter
+}
+
+func otelIntGauge(m *metrics.Metric, omitProgLabel bool) metricdata.Gauge[int64] {
+	gauge := metricdata.Gauge[int64]{
+		DataPoints: make([]metricdata.DataPoint[int64], 0, len(m.LabelValues)),
+	}
+	lsc := make(chan *metrics.LabelSet)
+	go m.EmitLabelSets(lsc)
+	for ls := range lsc {
+		dp := metricdata.DataPoint[int64]{
+			Attributes: otelLabels(ls.Labels, omitProgLabel, m.Program),
+			StartTime: processStartTime,
+			Time: ls.Datum.TimeUTC(),
+			Value: datum.GetInt(ls.Datum),
+		}
+		gauge.DataPoints = append(gauge.DataPoints, dp)
+	}
+	return gauge
+}
+
+func otelFloatGauge(m *metrics.Metric, omitProgLabel bool) metricdata.Gauge[float64] {
+	gauge := metricdata.Gauge[float64]{
+		DataPoints: make([]metricdata.DataPoint[float64], 0, len(m.LabelValues)),
+	}
+	lsc := make(chan *metrics.LabelSet)
+	go m.EmitLabelSets(lsc)
+	for ls := range lsc {
+		dp := metricdata.DataPoint[float64]{
+			Attributes: otelLabels(ls.Labels, omitProgLabel, m.Program),
+			StartTime: processStartTime,
+			Time: ls.Datum.TimeUTC(),
+			Value: datum.GetFloat(ls.Datum),
+		}
+		gauge.DataPoints = append(gauge.DataPoints, dp)
+	}
+	return gauge
 }
 
 func otelLabels(labels map[string]string, omitProgLabel bool, programName string) attribute.Set {

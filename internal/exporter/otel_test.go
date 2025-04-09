@@ -89,17 +89,17 @@ var otelTestCases = []struct {
 			},
 		}},
 	},
-		{
-			name: "dimensioned",
-			metrics: []*metrics.Metric{
-				{
-					Name:        "foo",
-					Program:     "test",
-					Kind:        metrics.Counter,
-					Keys:        []string{"a", "b"},
-					LabelValues: []*metrics.LabelValue{{Labels: []string{"1", "2"}, Value: datum.MakeInt(1, time.Unix(0, 0))}},
-				},
+	{
+		name: "dimensioned",
+		metrics: []*metrics.Metric{
+			{
+				Name:        "foo",
+				Program:     "test",
+				Kind:        metrics.Counter,
+				Keys:        []string{"a", "b"},
+				LabelValues: []*metrics.LabelValue{{Labels: []string{"1", "2"}, Value: datum.MakeInt(1, time.Unix(0, 0))}},
 			},
+		},
 		expected: []metricdata.ScopeMetrics{{
 			Scope: instrumentation.Scope{Name: "mtail_program"},
 			Metrics: []metricdata.Metrics{
@@ -119,121 +119,163 @@ var otelTestCases = []struct {
 				},
 			},
 		}},
+	},
+	{
+		name: "gauge",
+		metrics: []*metrics.Metric{
+			{
+				Name:        "foo",
+				Program:     "test",
+				Kind:        metrics.Gauge,
+				LabelValues: []*metrics.LabelValue{{Labels: []string{}, Value: datum.MakeInt(1, time.Unix(0, 0))}},
+			},
 		},
-	//	{
-	//		"gauge",
-	//		false,
-	//		[]*metrics.Metric{
-	//			{
-	//				Name:        "foo",
-	//				Program:     "test",
-	//				Kind:        metrics.Gauge,
-	//				LabelValues: []*metrics.LabelValue{{Labels: []string{}, Value: datum.MakeInt(1, time.Unix(0, 0))}},
-	//			},
-	//		},
-	//		`# HELP foo defined at
-	//
-	// # TYPE foo gauge
-	// foo{} 1
-	// `,
-	//
-	//	},
-	//	{
-	//		"timer",
-	//		false,
-	//		[]*metrics.Metric{
-	//			{
-	//				Name:        "foo",
-	//				Program:     "test",
-	//				Kind:        metrics.Timer,
-	//				LabelValues: []*metrics.LabelValue{{Labels: []string{}, Value: datum.MakeInt(1, time.Unix(0, 0))}},
-	//			},
-	//		},
-	//		`# HELP foo defined at
-	//
-	// # TYPE foo gauge
-	// foo{} 1
-	// `,
-	//
-	//	},
-	//	{
-	//		"text",
-	//		false,
-	//		[]*metrics.Metric{
-	//			{
-	//				Name:        "foo",
-	//				Program:     "test",
-	//				Kind:        metrics.Text,
-	//				LabelValues: []*metrics.LabelValue{{Labels: []string{}, Value: datum.MakeString("hi", time.Unix(0, 0))}},
-	//			},
-	//		},
-	//		"",
-	//	},
-	//	{
-	//		"quotes",
-	//		false,
-	//		[]*metrics.Metric{
-	//			{
-	//				Name:        "foo",
-	//				Program:     "test",
-	//				Kind:        metrics.Counter,
-	//				Keys:        []string{"a"},
-	//				LabelValues: []*metrics.LabelValue{{Labels: []string{"str\"bang\"blah"}, Value: datum.MakeInt(1, time.Unix(0, 0))}},
-	//			},
-	//		},
-	//		`# HELP foo defined at
-	//
-	// # TYPE foo counter
-	// foo{a="str\"bang\"blah"} 1
-	// `,
-	//
-	//	},
-	//	{
-	//		"help",
-	//		false,
-	//		[]*metrics.Metric{
-	//			{
-	//				Name:        "foo",
-	//				Program:     "test",
-	//				Kind:        metrics.Counter,
-	//				LabelValues: []*metrics.LabelValue{{Labels: []string{}, Value: datum.MakeInt(1, time.Unix(0, 0))}},
-	//				Source:      "location.mtail:37",
-	//			},
-	//		},
-	//		`# HELP foo defined at location.mtail:37
-	//
-	// # TYPE foo counter
-	// foo{} 1
-	// `,
-	//
-	//	},
-	//	{
-	//		"2 help with label",
-	//		true,
-	//		[]*metrics.Metric{
-	//			{
-	//				Name:        "foo",
-	//				Program:     "test2",
-	//				Kind:        metrics.Counter,
-	//				LabelValues: []*metrics.LabelValue{{Labels: []string{}, Value: datum.MakeInt(1, time.Unix(0, 0))}},
-	//				Source:      "location.mtail:37",
-	//			},
-	//			{
-	//				Name:        "foo",
-	//				Program:     "test1",
-	//				Kind:        metrics.Counter,
-	//				LabelValues: []*metrics.LabelValue{{Labels: []string{}, Value: datum.MakeInt(1, time.Unix(0, 0))}},
-	//				Source:      "different.mtail:37",
-	//			},
-	//		},
-	//		`# HELP foo defined at location.mtail:37
-	//
-	// # TYPE foo counter
-	// foo{prog="test2"} 1
-	// foo{prog="test1"} 1
-	// `,
-	//
-	//	},
+		expected: []metricdata.ScopeMetrics{{
+			Scope: instrumentation.Scope{Name: "mtail_program"},
+			Metrics: []metricdata.Metrics{
+				{
+					Name:        "foo",
+					Description: "foo defined at ",
+					Data: metricdata.Gauge[int64]{
+						DataPoints: []metricdata.DataPoint[int64]{
+							{
+								Value: 1,
+							},
+						},
+					},
+				},
+			},
+		}},
+	},
+	{
+		name: "float gauge",
+		metrics: []*metrics.Metric{
+			{
+				Name:        "foo",
+				Program:     "test",
+				Kind:        metrics.Gauge,
+				Type:        metrics.Float,
+				LabelValues: []*metrics.LabelValue{{Labels: []string{}, Value: datum.MakeFloat(1.0, time.Unix(0, 0))}},
+			},
+		},
+		expected: []metricdata.ScopeMetrics{{
+			Scope: instrumentation.Scope{Name: "mtail_program"},
+			Metrics: []metricdata.Metrics{
+				{
+					Name:        "foo",
+					Description: "foo defined at ",
+					Data: metricdata.Gauge[float64]{
+						DataPoints: []metricdata.DataPoint[float64]{
+							{
+								Value: 1.0,
+							},
+						},
+					},
+				},
+			},
+		}},
+	},
+	{
+		name: "timer",
+		metrics: []*metrics.Metric{
+			{
+				Name:        "foo",
+				Program:     "test",
+				Kind:        metrics.Timer,
+				Type:        metrics.Float,
+				LabelValues: []*metrics.LabelValue{{Labels: []string{}, Value: datum.MakeFloat(1, time.Unix(0, 0))}},
+			},
+		},
+		expected: []metricdata.ScopeMetrics{{
+			Scope: instrumentation.Scope{Name: "mtail_program"},
+			Metrics: []metricdata.Metrics{
+				{
+					Name:        "foo",
+					Description: "foo defined at ",
+					Data: metricdata.Gauge[float64]{
+						DataPoints: []metricdata.DataPoint[float64]{
+							{
+								Value: 1.0,
+							},
+						},
+					},
+				},
+			},
+		}},
+	},
+	{
+		name: "text",
+		metrics: []*metrics.Metric{
+			{
+				Name:        "foo",
+				Program:     "test",
+				Kind:        metrics.Text,
+				LabelValues: []*metrics.LabelValue{{Labels: []string{}, Value: datum.MakeString("hi", time.Unix(0, 0))}},
+			},
+		},
+		expected: []metricdata.ScopeMetrics{},
+	},
+	{
+		name: "quotes",
+		metrics: []*metrics.Metric{
+			{
+				Name:        "foo",
+				Program:     "test",
+				Kind:        metrics.Counter,
+				Keys:        []string{"a"},
+				LabelValues: []*metrics.LabelValue{{Labels: []string{"str\"bang\"blah"}, Value: datum.MakeInt(1, time.Unix(0, 0))}},
+			},
+		},
+		expected: []metricdata.ScopeMetrics{{
+			Scope: instrumentation.Scope{Name: "mtail_program"},
+			Metrics: []metricdata.Metrics{
+				{
+					Name:        "foo",
+					Description: "foo defined at ",
+					Data: metricdata.Sum[int64]{
+						Temporality: metricdata.CumulativeTemporality,
+						IsMonotonic: true,
+						DataPoints: []metricdata.DataPoint[int64]{
+							{
+								Attributes: attribute.NewSet(attribute.String("a", "str\"bang\"blah")),
+								Value:      1,
+							},
+						},
+					},
+				},
+			},
+		}},
+	},
+	{
+		name: "description",
+		metrics: []*metrics.Metric{
+			{
+				Name:        "foo",
+				Program:     "test",
+				Kind:        metrics.Counter,
+				LabelValues: []*metrics.LabelValue{{Labels: []string{}, Value: datum.MakeInt(1, time.Unix(0, 0))}},
+				Source:      "location.mtail:37",
+			},
+		},
+		expected: []metricdata.ScopeMetrics{{
+			Scope: instrumentation.Scope{Name: "mtail_program"},
+			Metrics: []metricdata.Metrics{
+				{
+					Name:        "foo",
+					Description: "foo defined at location.mtail:37",
+					Data: metricdata.Sum[int64]{
+						Temporality: metricdata.CumulativeTemporality,
+						IsMonotonic: true,
+						DataPoints: []metricdata.DataPoint[int64]{
+							{
+								Value: 1,
+							},
+						},
+					},
+				},
+			},
+		}},
+	},
 	//	{
 	//		"histo",
 	//		true,
