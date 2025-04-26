@@ -9,6 +9,7 @@ def _go_yacc_impl(ctx):
     args.add(ctx.file.src)
     goroot = "%s/.." % ctx.executable._go_yacc_tool.dirname
     ctx.actions.run(
+        mnemonic = "GoYacc",
         executable = ctx.executable._go_yacc_tool,
         arguments = [args],
         inputs = [ctx.file.src],
