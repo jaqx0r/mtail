@@ -30,6 +30,10 @@ use_repo(
     "com_github_prometheus_common",
     "io_opencensus_go",
     "io_opencensus_go_contrib_exporter_jaeger",
+    "io_opentelemetry_go_otel",
+    "io_opentelemetry_go_otel_exporters_otlp_otlpmetric_otlpmetricgrpc",
+    "io_opentelemetry_go_otel_sdk",
+    "io_opentelemetry_go_otel_sdk_metric",
     "org_golang_x_sys",
 )
 
