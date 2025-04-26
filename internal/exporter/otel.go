@@ -6,7 +6,9 @@ package exporter
 import (
 	"context"
 	"fmt"
+	"maps"
 	"math"
+	"slices"
 	"time"
 
 	"github.com/jaqx0r/mtail/internal/metrics"
@@ -73,9 +75,9 @@ func (e *Exporter) Produce(context.Context) ([]metricdata.ScopeMetrics, error) {
 	}
 
 	otelMetrics := make([]metricdata.ScopeMetrics, 0, len(scopedOtelMetrics))
-	for prog, metrics := range scopedOtelMetrics {
+	for _, prog := range slices.Sorted(maps.Keys(scopedOtelMetrics)) {
 		otelMetrics = append(otelMetrics, metricdata.ScopeMetrics{Scope: instrumentation.Scope{Name: prog},
-			Metrics: metrics,
+			Metrics: scopedOtelMetrics[prog],
 		})
 	}
 	return otelMetrics, nil
