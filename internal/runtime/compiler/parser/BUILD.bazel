@@ -1,5 +1,5 @@
 load("@rules_go//go:def.bzl", "go_library", "go_test")
-load(":goyacc.bzl", "go_yacc")
+load("//tools:goyacc.bzl", "go_yacc")
 
 go_yacc(
     name = "parser_go_gen",
