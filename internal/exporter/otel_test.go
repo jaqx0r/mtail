@@ -20,10 +20,9 @@ import (
 )
 
 var otelTestCases = []struct {
-	name      string
-	progLabel bool
-	metrics   []*metrics.Metric
-	expected  []metricdata.ScopeMetrics
+	name     string
+	metrics  []*metrics.Metric
+	expected []metricdata.ScopeMetrics
 }{
 	{
 		name:    "empty",
@@ -41,7 +40,7 @@ var otelTestCases = []struct {
 			},
 		},
 		expected: []metricdata.ScopeMetrics{{
-			Scope: instrumentation.Scope{Name: "mtail_program"},
+			Scope: instrumentation.Scope{Name: "test"},
 			Metrics: []metricdata.Metrics{
 				{
 					Name:        "foo",
@@ -52,37 +51,6 @@ var otelTestCases = []struct {
 						DataPoints: []metricdata.DataPoint[int64]{
 							{
 								Value: 1,
-							},
-						},
-					},
-				},
-			},
-		}},
-	},
-	{
-		name:      "with prog label",
-		progLabel: true,
-		metrics: []*metrics.Metric{
-			{
-				Name:        "foo",
-				Program:     "test",
-				Kind:        metrics.Counter,
-				LabelValues: []*metrics.LabelValue{{Labels: []string{}, Value: datum.MakeInt(1, time.Unix(0, 0))}},
-			},
-		},
-		expected: []metricdata.ScopeMetrics{{
-			Scope: instrumentation.Scope{Name: "mtail_program"},
-			Metrics: []metricdata.Metrics{
-				{
-					Name:        "foo",
-					Description: "foo defined at ",
-					Data: metricdata.Sum[int64]{
-						Temporality: metricdata.CumulativeTemporality,
-						IsMonotonic: true,
-						DataPoints: []metricdata.DataPoint[int64]{
-							{
-								Attributes: attribute.NewSet(attribute.String("prog", "test")),
-								Value:      1,
 							},
 						},
 					},
@@ -102,7 +70,7 @@ var otelTestCases = []struct {
 			},
 		},
 		expected: []metricdata.ScopeMetrics{{
-			Scope: instrumentation.Scope{Name: "mtail_program"},
+			Scope: instrumentation.Scope{Name: "test"},
 			Metrics: []metricdata.Metrics{
 				{
 					Name:        "foo",
@@ -132,7 +100,7 @@ var otelTestCases = []struct {
 			},
 		},
 		expected: []metricdata.ScopeMetrics{{
-			Scope: instrumentation.Scope{Name: "mtail_program"},
+			Scope: instrumentation.Scope{Name: "test"},
 			Metrics: []metricdata.Metrics{
 				{
 					Name:        "foo",
@@ -160,7 +128,7 @@ var otelTestCases = []struct {
 			},
 		},
 		expected: []metricdata.ScopeMetrics{{
-			Scope: instrumentation.Scope{Name: "mtail_program"},
+			Scope: instrumentation.Scope{Name: "test"},
 			Metrics: []metricdata.Metrics{
 				{
 					Name:        "foo",
@@ -188,7 +156,7 @@ var otelTestCases = []struct {
 			},
 		},
 		expected: []metricdata.ScopeMetrics{{
-			Scope: instrumentation.Scope{Name: "mtail_program"},
+			Scope: instrumentation.Scope{Name: "test"},
 			Metrics: []metricdata.Metrics{
 				{
 					Name:        "foo",
@@ -228,7 +196,7 @@ var otelTestCases = []struct {
 			},
 		},
 		expected: []metricdata.ScopeMetrics{{
-			Scope: instrumentation.Scope{Name: "mtail_program"},
+			Scope: instrumentation.Scope{Name: "test"},
 			Metrics: []metricdata.Metrics{
 				{
 					Name:        "foo",
@@ -259,7 +227,7 @@ var otelTestCases = []struct {
 			},
 		},
 		expected: []metricdata.ScopeMetrics{{
-			Scope: instrumentation.Scope{Name: "mtail_program"},
+			Scope: instrumentation.Scope{Name: "test"},
 			Metrics: []metricdata.Metrics{
 				{
 					Name:        "foo",
@@ -278,20 +246,20 @@ var otelTestCases = []struct {
 		}},
 	},
 	{
-		name:      "histo",
+		name: "histo",
 		metrics: []*metrics.Metric{
 			{
 				Name:        "foo",
 				Program:     "test",
 				Kind:        metrics.Histogram,
-								Type: metrics.Buckets,
+				Type:        metrics.Buckets,
 				Keys:        []string{"a"},
 				LabelValues: []*metrics.LabelValue{{Labels: []string{"bar"}, Value: datum.MakeBuckets([]datum.Range{{0, 1}, {1, 2}}, time.Unix(0, 0))}},
 				Source:      "location.mtail:37",
 			},
 		},
 		expected: []metricdata.ScopeMetrics{{
-			Scope: instrumentation.Scope{Name: "mtail_program"},
+			Scope: instrumentation.Scope{Name: "test"},
 			Metrics: []metricdata.Metrics{
 				{
 					Name:        "foo",
@@ -313,13 +281,13 @@ var otelTestCases = []struct {
 		}},
 	},
 	{
-		name:      "histo-count-eq-inf",
+		name: "histo-count-eq-inf",
 		metrics: []*metrics.Metric{
 			{
 				Name:    "foo",
 				Program: "test",
 				Kind:    metrics.Histogram,
-				Type: metrics.Buckets,
+				Type:    metrics.Buckets,
 				Keys:    []string{"a"},
 				LabelValues: []*metrics.LabelValue{
 					{
@@ -348,7 +316,7 @@ var otelTestCases = []struct {
 			},
 		},
 		expected: []metricdata.ScopeMetrics{{
-			Scope: instrumentation.Scope{Name: "mtail_program"},
+			Scope: instrumentation.Scope{Name: "test"},
 			Metrics: []metricdata.Metrics{
 				{
 					Name:        "foo",
@@ -369,6 +337,60 @@ var otelTestCases = []struct {
 			},
 		}},
 	},
+	{
+		name: "two scopes",
+		metrics: []*metrics.Metric{
+			{
+				Name:        "foo1",
+				Program:     "test1",
+				Kind:        metrics.Counter,
+				Type:        metrics.Int,
+				LabelValues: []*metrics.LabelValue{{Labels: []string{}, Value: datum.MakeInt(1, time.Unix(0, 0))}},
+			},
+			{
+				Name:        "foo2",
+				Program:     "test2",
+				Kind:        metrics.Gauge,
+				Type:        metrics.Int,
+				LabelValues: []*metrics.LabelValue{{Labels: []string{}, Value: datum.MakeInt(1, time.Unix(0, 0))}},
+			},
+		},
+		expected: []metricdata.ScopeMetrics{
+			{
+				Scope: instrumentation.Scope{Name: "test1"},
+				Metrics: []metricdata.Metrics{
+					{
+						Name:        "foo1",
+						Description: "foo1 defined at ",
+						Data: metricdata.Sum[int64]{
+							Temporality: metricdata.CumulativeTemporality,
+							IsMonotonic: true,
+							DataPoints: []metricdata.DataPoint[int64]{
+								{
+									Value: 1,
+								},
+							},
+						},
+					},
+				},
+			},
+			{
+				Scope: instrumentation.Scope{Name: "test2"},
+				Metrics: []metricdata.Metrics{{
+					Name:        "foo2",
+					Description: "foo2 defined at ",
+					Data: metricdata.Gauge[int64]{
+						DataPoints: []metricdata.DataPoint[int64]{
+							{
+								Value: 1,
+							},
+						},
+					},
+				},
+				},
+			},
+		},
+	},
 }
 
 func TestOtelExport(t *testing.T) {
@@ -383,9 +405,6 @@ func TestOtelExport(t *testing.T) {
 			}
 			opts := []Option{
 				Hostname("gunstar"),
-			}
-			if !tc.progLabel {
-				opts = append(opts, OmitProgLabel())
 			}
 			e, err := New(ctx, ms, opts...)
 			testutil.FatalIfErr(t, err)
