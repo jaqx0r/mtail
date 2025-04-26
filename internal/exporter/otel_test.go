@@ -6,6 +6,7 @@ package exporter
 
 import (
 	"context"
+	"math"
 	"testing"
 	"time"
 
@@ -276,76 +277,98 @@ var otelTestCases = []struct {
 			},
 		}},
 	},
-	//	{
-	//		"histo",
-	//		true,
-	//		[]*metrics.Metric{
-	//			{
-	//				Name:        "foo",
-	//				Program:     "test",
-	//				Kind:        metrics.Histogram,
-	//				Keys:        []string{"a"},
-	//				LabelValues: []*metrics.LabelValue{{Labels: []string{"bar"}, Value: datum.MakeBuckets([]datum.Range{{0, 1}, {1, 2}}, time.Unix(0, 0))}},
-	//				Source:      "location.mtail:37",
-	//			},
-	//		},
-	//		`# HELP foo defined at location.mtail:37
-	//
-	// # TYPE foo histogram
-	// foo_bucket{a="bar",prog="test",le="1"} 0
-	// foo_bucket{a="bar",prog="test",le="2"} 0
-	// foo_bucket{a="bar",prog="test",le="+Inf"} 0
-	// foo_sum{a="bar",prog="test"} 0
-	// foo_count{a="bar",prog="test"} 0
-	// `,
-	//
-	//	},
-	//	{
-	//		"histo-count-eq-inf",
-	//		true,
-	//		[]*metrics.Metric{
-	//			{
-	//				Name:    "foo",
-	//				Program: "test",
-	//				Kind:    metrics.Histogram,
-	//				Keys:    []string{"a"},
-	//				LabelValues: []*metrics.LabelValue{
-	//					{
-	//						Labels: []string{"bar"},
-	//						Value: &datum.Buckets{
-	//							Buckets: []datum.BucketCount{
-	//								{
-	//									Range: datum.Range{Min: 0, Max: 1},
-	//									Count: 1,
-	//								},
-	//								{
-	//									Range: datum.Range{Min: 1, Max: 2},
-	//									Count: 1,
-	//								},
-	//								{
-	//									Range: datum.Range{Min: 2, Max: math.Inf(+1)},
-	//									Count: 2,
-	//								},
-	//							},
-	//							Count: 4,
-	//							Sum:   5,
-	//						},
-	//					},
-	//				},
-	//				Source: "location.mtail:37",
-	//			},
-	//		},
-	//		`# HELP foo defined at location.mtail:37
-	//
-	// # TYPE foo histogram
-	// foo_bucket{a="bar",prog="test",le="1"} 1
-	// foo_bucket{a="bar",prog="test",le="2"} 2
-	// foo_bucket{a="bar",prog="test",le="+Inf"} 4
-	// foo_sum{a="bar",prog="test"} 5
-	// foo_count{a="bar",prog="test"} 4
-	// `,
-	//
-	//	},
+	{
+		name:      "histo",
+		metrics: []*metrics.Metric{
+			{
+				Name:        "foo",
+				Program:     "test",
+				Kind:        metrics.Histogram,
+								Type: metrics.Buckets,
+				Keys:        []string{"a"},
+				LabelValues: []*metrics.LabelValue{{Labels: []string{"bar"}, Value: datum.MakeBuckets([]datum.Range{{0, 1}, {1, 2}}, time.Unix(0, 0))}},
+				Source:      "location.mtail:37",
+			},
+		},
+		expected: []metricdata.ScopeMetrics{{
+			Scope: instrumentation.Scope{Name: "mtail_program"},
+			Metrics: []metricdata.Metrics{
+				{
+					Name:        "foo",
+					Description: "foo defined at location.mtail:37",
+					Data: metricdata.Histogram[float64]{
+						Temporality: metricdata.CumulativeTemporality,
+						DataPoints: []metricdata.HistogramDataPoint[float64]{
+							{
+								Count:        0,
+								Sum:          0,
+								Bounds:       []float64{1, 2},
+								BucketCounts: []uint64{0, 0, 0},
+								Attributes:   attribute.NewSet(attribute.String("a", "bar")),
+							},
+						},
+					},
+				},
+			},
+		}},
+	},
+	{
+		name:      "histo-count-eq-inf",
+		metrics: []*metrics.Metric{
+			{
+				Name:    "foo",
+				Program: "test",
+				Kind:    metrics.Histogram,
+				Type: metrics.Buckets,
+				Keys:    []string{"a"},
+				LabelValues: []*metrics.LabelValue{
+					{
+						Labels: []string{"bar"},
+						Value: &datum.Buckets{
+							Buckets: []datum.BucketCount{
+								{
+									Range: datum.Range{Min: 0, Max: 1},
+									Count: 1,
+								},
+								{
+									Range: datum.Range{Min: 1, Max: 2},
+									Count: 1,
+								},
+								{
+									Range: datum.Range{Min: 2, Max: math.Inf(+1)},
+									Count: 2,
+								},
+							},
+							Count: 4,
+							Sum:   5,
+						},
+					},
+				},
+				Source: "location.mtail:37",
+			},
+		},
+		expected: []metricdata.ScopeMetrics{{
+			Scope: instrumentation.Scope{Name: "mtail_program"},
+			Metrics: []metricdata.Metrics{
+				{
+					Name:        "foo",
+					Description: "foo defined at location.mtail:37",
+					Data: metricdata.Histogram[float64]{
+						Temporality: metricdata.CumulativeTemporality,
+						DataPoints: []metricdata.HistogramDataPoint[float64]{
+							{
+								Count:        4,
+								Sum:          5,
+								Bounds:       []float64{1, 2},
+								BucketCounts: []uint64{1, 1, 2},
+								Attributes:   attribute.NewSet(attribute.String("a", "bar")),
+							},
+						},
+					},
+				},
+			},
+		}},
+	},
 }
 
 func TestOtelExport(t *testing.T) {

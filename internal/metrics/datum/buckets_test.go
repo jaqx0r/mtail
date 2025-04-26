@@ -40,9 +40,9 @@ func TestMakeBucket(t *testing.T) {
 	}
 	bs := datum.GetBucketsCumByMax(b)
 	expected := map[float64]uint64{
-		1: 0,
-		2: 1,
-		4: 1,
+		1:            0,
+		2:            1,
+		4:            1,
 		math.Inf(+1): 1,
 	}
 	testutil.ExpectNoDiff(t, expected, bs)
