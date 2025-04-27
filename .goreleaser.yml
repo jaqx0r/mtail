@@ -2,6 +2,8 @@ version: 2
 before:
   hooks:
     - go mod download
+    - go install golang.org/x/tools/cmd/goyacc
+    - go generate ./...
 builds:
   - id: mtail
     main: ./cmd/mtail/main.go

@@ -5,11 +5,11 @@ go_library(
     srcs = [
         "buildinfo.go",
         "httpstatus.go",
-        "logo.ico.go",
         "mtail.go",
         "options.go",
         "testing.go",
     ],
+    embedsrcs = ["logo.ico"],
     importpath = "github.com/jaqx0r/mtail/internal/mtail",
     visibility = ["//:__subpackages__"],
     deps = [
