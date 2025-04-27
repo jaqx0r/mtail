@@ -19,4 +19,10 @@ go_binary(
     name = "mtail",
     embed = [":mtail_lib"],
     visibility = ["//visibility:public"],
+    x_defs = {
+        "main.Branch": "{STABLE_GIT_BRANCH}",
+        "main.Version": "{STABLE_GIT_VERSION}",
+        "main.Revision": "{STABLE_GIT_REVISION}",
+        "main.EmbedLabel": "{BUILD_EMBED_LABEL}",
+    },
 )

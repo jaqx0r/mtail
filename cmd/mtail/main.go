@@ -90,13 +90,17 @@ func init() {
 }
 
 var (
-	// Branch as well as Version and Revision identifies where in the git
-	// history the build came from, as supplied by the linker when copmiled
-	// with `make'.  The defaults here indicate that the user did not use
-	// `make' as instructed.
-	Branch   = "invalid:-use-make-to-build"
-	Version  = "invalid:-use-make-to-build"
-	Revision = "invalid:-use-make-to-build"
+	// Branch, Version and Revision identifies where in the git history the
+	// build came from, as supplied by the linker when compiled with `bazel`.
+	// The defaults here indicate that the user did not use `bazel` as
+	// instructed.
+	Branch   = "invalid:-use-bazel-to-build"
+	Version  = "invalid:-use-bazel-to-build"
+	Revision = "invalid:-use-bazel-to-build"
+	// EmbedLabel can be set on the bazel command line with `--embed_label` and
+	// is used during releases to inject the release version name into the
+	// build.
+	EmbedLabel = ""
 )
 
 func main() {
@@ -104,6 +108,7 @@ func main() {
 		Branch:   Branch,
 		Version:  Version,
 		Revision: Revision,
+		EmbedLabel: EmbedLabel,
 	}
 
 	flag.Usage = func() {
