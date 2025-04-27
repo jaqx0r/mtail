@@ -97,6 +97,10 @@ var (
 	Branch   = "invalid:-use-bazel-to-build"
 	Version  = "invalid:-use-bazel-to-build"
 	Revision = "invalid:-use-bazel-to-build"
+	// EmbedLabel can be set on the bazel command line with `--embed_label` and
+	// is used during releases to inject the release version name into the
+	// build.
+	EmbedLabel = ""
 )
 
 func main() {
@@ -104,6 +108,7 @@ func main() {
 		Branch:   Branch,
 		Version:  Version,
 		Revision: Revision,
+		EmbedLabel: EmbedLabel,
 	}
 
 	flag.Usage = func() {
