@@ -13,8 +13,11 @@ import (
 
 	"github.com/jaqx0r/mtail/internal/metrics"
 	"github.com/jaqx0r/mtail/internal/metrics/datum"
+	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
 	"go.opentelemetry.io/otel/sdk/instrumentation"
+	"go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 )
 
@@ -192,4 +195,15 @@ func otelLabels(labels map[string]string) attribute.Set {
 		i++
 	}
 	return attribute.NewSet(kvs...)
+}
+
+func (e *Exporter) InitOtel(ctx context.Context) error {
+	otlpexp, err := otlpmetricgrpc.New(ctx, otlpmetricgrpc.WithInsecure(), otlpmetricgrpc.WithTimeout(*writeDeadline))
+	if err != nil {
+		return err
+	}
+	reader := metric.NewPeriodicReader(otlpexp, metric.WithInterval(e.pushInterval), metric.WithProducer(e))
+	meterProvider := metric.NewMeterProvider(metric.WithReader(reader))
+	otel.SetMeterProvider(meterProvider)
+	return nil
 }

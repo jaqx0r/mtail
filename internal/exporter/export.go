@@ -26,6 +26,7 @@ import (
 // Commandline Flags.
 var (
 	writeDeadline = flag.Duration("metric_push_write_deadline", 10*time.Second, "Time to wait for a push to succeed before exiting with an error.")
+	enableOpenTelemetry = flag.Bool("experimental_enable_opentelemetry", false, "Enable the experimental Open Telemetry metric pusher.")
 )
 
 // Exporter manages the export of metrics to passive and active collectors.
@@ -122,6 +123,12 @@ func New(ctx context.Context, store *metrics.Store, options ...Option) (*Exporte
 	if *statsdHostPort != "" {
 		o := pushOptions{"udp", *statsdHostPort, metricToStatsd, statsdExportTotal, statsdExportSuccess}
 		e.RegisterPushExport(o)
+	}
+	if *enableOpenTelemetry {
+		err := e.InitOtel(ctx)
+		if err != nil {
+			return nil, err
+		}
 	}
 	e.StartMetricPush()
 
