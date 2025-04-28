@@ -1,4 +1,4 @@
-load("@rules_go//go:def.bzl", "go_binary", "go_library")
+load("@rules_go//go:def.bzl", "go_binary", "go_cross_binary", "go_library")
 
 go_library(
     name = "mtail_lib",
@@ -26,3 +26,22 @@ go_binary(
         "main.EmbedLabel": "{BUILD_EMBED_LABEL}",
     },
 )
+
+# Build an mtail binary for supported platforms.
+[
+    go_cross_binary(
+        name = "mtail_" + platform,
+        platform = "@rules_go//go/toolchain:" + platform,
+        target = ":mtail",
+    )
+    for platform in [
+        "linux_386",
+        "linux_amd64",
+        "linux_arm64",
+        "windows_386",
+        "windows_amd64",
+        "windows_arm64",
+        "darwin_amd64",
+        "darwin_arm64",
+    ]
+]
