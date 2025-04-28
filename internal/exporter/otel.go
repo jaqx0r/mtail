@@ -13,9 +13,13 @@ import (
 
 	"github.com/jaqx0r/mtail/internal/metrics"
 	"github.com/jaqx0r/mtail/internal/metrics/datum"
+	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
 	"go.opentelemetry.io/otel/sdk/instrumentation"
+	"go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
+	"go.opentelemetry.io/otel/sdk/resource"
 )
 
 var processStartTime = time.Now()
@@ -192,4 +196,33 @@ func otelLabels(labels map[string]string) attribute.Set {
 		i++
 	}
 	return attribute.NewSet(kvs...)
+}
+
+func (e *Exporter) InitOtel(ctx context.Context) error {
+	res, err := resource.New(ctx,
+		resource.WithHost(),
+		resource.WithAttributes(
+			attribute.String("service.name", "mtail"),
+			attribute.String("service.version", e.version),
+		))
+	if err != nil {
+		return err
+	}
+	otlpexp, err := otlpmetricgrpc.New(ctx, otlpmetricgrpc.WithInsecure(), otlpmetricgrpc.WithTimeout(*writeDeadline))
+	if err != nil {
+		return err
+	}
+	reader := metric.NewPeriodicReader(otlpexp, metric.WithInterval(e.pushInterval), metric.WithProducer(e))
+	meterProvider := metric.NewMeterProvider(metric.WithReader(reader), metric.WithResource(res))
+	otel.SetMeterProvider(meterProvider)
+
+	e.wg.Add(1)
+	// Shut down the otel meter provider at exit
+	go func() {
+		defer e.wg.Done()
+		<-e.ctx.Done()
+		meterProvider.Shutdown(ctx)
+	}()
+
+	return nil
 }
