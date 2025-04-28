@@ -37,6 +37,7 @@ type Exporter struct {
 	store          *metrics.Store
 	pushInterval   time.Duration
 	hostname       string
+	version string
 	omitProgLabel  bool
 	emitTimestamp  bool
 	exportDisabled bool
@@ -52,6 +53,14 @@ type Option func(*Exporter) error
 func Hostname(hostname string) Option {
 	return func(e *Exporter) error {
 		e.hostname = hostname
+		return nil
+	}
+}
+
+// Version specifies the mtail version to use in exported metrics.
+func Version(version string) Option {
+	return func (e *Exporter) error {
+		e.version = version
 		return nil
 	}
 }

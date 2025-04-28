@@ -25,10 +25,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/version"
 	"go.opencensus.io/zpages"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
-	"go.opentelemetry.io/otel/sdk/metric"
-	"go.opentelemetry.io/otel/sdk/resource"
 )
 
 // Server contains the state of the main mtail program.
@@ -73,6 +69,7 @@ func (m *Server) initRuntime() (err error) {
 
 // initExporter sets up an Exporter for this Server.
 func (m *Server) initExporter() (err error) {
+	m.eOpts = append(m.eOpts, exporter.Version(m.buildInfo.Version))
 	m.e, err = exporter.New(m.ctx, m.store, m.eOpts...)
 	if err != nil {
 		return err
@@ -86,24 +83,6 @@ func (m *Server) initExporter() (err error) {
 		version.Revision = m.buildInfo.Revision
 	})
 	m.reg.MustRegister(vc.NewCollector("mtail"))
-
-	otlpexp, err := otlpmetricgrpc.New(m.ctx)
-	if err != nil {
-		return err
-	}
-	res, err := resource.New(m.ctx, resource.WithProcess())
-	otelMeterProvider := metric.NewMeterProvider(
-		metric.WithReader(metric.NewPeriodicReader(
-			otlpexp,
-			metric.WithProducer(m.e))),
-		metric.WithResource(res))
-	otel.SetMeterProvider(otelMeterProvider)
-
-	// Shut down the otel meter provider at exit
-	go func() {
-		<-m.ctx.Done()
-		otelMeterProvider.Shutdown(m.ctx)
-	}()
 
 	return nil
 }
