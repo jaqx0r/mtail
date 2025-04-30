@@ -54,3 +54,12 @@ oci_load(
     image = ":oci_image",
     repo_tags = ["mtail:latest"],
 )
+
+filegroup(
+    name = "docs",
+    srcs = [
+        "LICENSE",
+        "README.md",
+    ],
+    visibility = ["//release:__pkg__"],
+)

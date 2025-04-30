@@ -1,0 +1,42 @@
+load("@rules_go//go:def.bzl", "go_cross_binary")
+load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
+
+# Build an mtail binary for supported platforms.
+PLATFORMS = [
+    "linux_386",
+    "linux_amd64",
+    "linux_arm64",
+    "windows_386",
+    "windows_amd64",
+    "windows_arm64",
+    "darwin_amd64",
+    "darwin_arm64",
+]
+
+[
+    go_cross_binary(
+        name = "mtail_" + platform,
+        platform = "@rules_go//go/toolchain:" + platform,
+        target = "//cmd/mtail",
+    )
+    for platform in PLATFORMS
+]
+
+filegroup(
+    name = "cross_build",
+    srcs = [":mtail_" + platform for platform in PLATFORMS],
+)
+
+[
+    pkg_tar(
+        name = "tarball_" + platform,
+        srcs = [
+            ":mtail_" + platform,
+            "//:docs",
+        ],
+        out = "mtail_" + platform + ".tar.gz",
+        extension = "tar.gz",
+        stamp = -1,
+    )
+    for platform in PLATFORMS
+]
