@@ -2,7 +2,7 @@ load("@aspect_bazel_lib//lib:tar.bzl", "mtree_mutate", "mtree_spec", "tar")
 load("@aspect_bazel_lib//lib:transitions.bzl", "platform_transition_filegroup")
 load("@gazelle//:def.bzl", "gazelle")
 load("@rules_go//go:def.bzl", "nogo")
-load("@rules_oci//oci:defs.bzl", "oci_image", "oci_load", "oci_push")
+load("@rules_oci//oci:defs.bzl", "oci_image", "oci_image_index", "oci_load", "oci_push")
 
 # gazelle:prefix github.com/jaqx0r/mtail
 gazelle(name = "gazelle")
@@ -47,6 +47,31 @@ oci_image(
     },
     tars = [":mtail_layer"],
     visibility = ["//visibility:public"],
+)
+
+platform(
+    name = "linux_amd64",
+    constraint_values = [
+        "@platforms//os:linux",
+        "@platforms//cpu:x86_64",
+    ],
+)
+
+platform(
+    name = "linux_arm64v8",
+    constraint_values = [
+        "@platforms//os:linux",
+        "@platforms//cpu:aarch64",
+    ],
+)
+
+oci_image_index(
+    name = "multi_image",
+    images = [":oci_image"],
+    platforms = [
+        ":linux_amd64",
+        ":linux_arm64v8",
+    ],
 )
 
 oci_load(
