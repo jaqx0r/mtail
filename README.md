@@ -80,7 +80,7 @@ alerting tool, like [Prometheus](http://prometheus.io).
 
 ### Source-to-Program Mapping
 
-By default, mtail processes every log line with every loaded program. For large installations with many logs and programs, this can be inefficient. You can optimize performance by mapping specific log sources to specific programs using the `--source_mapping_file` option:
+By default, mtail processes every log line with every loaded program. For large installations with many logs and programs, this can be inefficient. You can optimize performance by mapping specific log sources to specific programs via the `--source_mapping_file` option:
 
 ```
 mtail --progs=/etc/mtail/progs --logs=/var/log/syslog,/var/log/apache2/*.log --source_mapping_file=/etc/mtail/source_mapping.yaml
