@@ -14,11 +14,11 @@ import (
 	"time"
 
 	"github.com/golang/glog"
-	"github.com/google/mtail/internal/exporter"
-	"github.com/google/mtail/internal/logline"
-	"github.com/google/mtail/internal/metrics"
-	"github.com/google/mtail/internal/runtime"
-	"github.com/google/mtail/internal/tailer"
+	"github.com/jaqx0r/mtail/internal/exporter"
+	"github.com/jaqx0r/mtail/internal/logline"
+	"github.com/jaqx0r/mtail/internal/metrics"
+	"github.com/jaqx0r/mtail/internal/runtime"
+	"github.com/jaqx0r/mtail/internal/tailer"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/collectors"
 	vc "github.com/prometheus/client_golang/prometheus/collectors/version"
@@ -82,6 +82,7 @@ func (m *Server) initRuntime() (err error) {
 
 // initExporter sets up an Exporter for this Server.
 func (m *Server) initExporter() (err error) {
+	m.eOpts = append(m.eOpts, exporter.Version(m.buildInfo.Version))
 	m.e, err = exporter.New(m.ctx, m.store, m.eOpts...)
 	if err != nil {
 		return err

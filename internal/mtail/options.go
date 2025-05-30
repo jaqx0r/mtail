@@ -11,10 +11,10 @@ import (
 	"time"
 
 	"contrib.go.opencensus.io/exporter/jaeger"
-	"github.com/google/mtail/internal/exporter"
-	"github.com/google/mtail/internal/runtime"
-	"github.com/google/mtail/internal/tailer"
-	"github.com/google/mtail/internal/waker"
+	"github.com/jaqx0r/mtail/internal/exporter"
+	"github.com/jaqx0r/mtail/internal/runtime"
+	"github.com/jaqx0r/mtail/internal/tailer"
+	"github.com/jaqx0r/mtail/internal/waker"
 	"go.opencensus.io/trace"
 )
 

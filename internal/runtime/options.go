@@ -6,9 +6,10 @@ package runtime
 import (
 	"time"
 
-	"github.com/google/mtail/internal/runtime/compiler"
-	"github.com/google/mtail/internal/runtime/vm"
+
 	"github.com/pkg/errors"
+	"github.com/jaqx0r/mtail/internal/runtime/compiler"
+	"github.com/jaqx0r/mtail/internal/runtime/vm"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
