@@ -18,5 +18,11 @@ go_test(
     size = "small",
     srcs = ["symtab_test.go"],
     embed = [":symbol"],
-    deps = ["//internal/testutil"],
+    deps = [
+        "//internal/runtime/compiler/errors",
+        "//internal/runtime/compiler/position",
+        "//internal/testutil",
+        "@com_github_google_go_cmp//cmp",
+        "@com_github_google_go_cmp//cmp/cmpopts",
+    ],
 )

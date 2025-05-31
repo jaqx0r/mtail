@@ -9,6 +9,9 @@ import (
 	"testing"
 	"testing/quick"
 
+	"github.com/google/go-cmp/cmp"
+	"github.com/jaqx0r/mtail/internal/runtime/compiler/errors"
+	"github.com/jaqx0r/mtail/internal/runtime/compiler/position"
 	"github.com/jaqx0r/mtail/internal/testutil"
 )
 
@@ -75,4 +78,23 @@ func TestNestedScope(t *testing.T) {
 	if s1.Lookup("bar", VarSymbol) == nil {
 		t.Errorf("bar not found from s1")
 	}
+}
+
+func TestCheck(t *testing.T) {
+	s := NewScope(nil)
+
+	pos := &position.Position{Filename: "test", Line: 1, Startcol: 1, Endcol: 3}
+
+	sym := NewSymbol("foo", VarSymbol, pos)
+	s.Insert(sym)
+
+	var errs errors.ErrorList
+	s.Check(&errs)
+
+	var wantErrs errors.ErrorList
+	wantErrs.Add(pos, "Declaration of variable `foo' here is never used.")
+	if diff := cmp.Diff(wantErrs, errs); diff != "" {
+		t.Errorf("Check() unexpected error diff (-want +got):\n%s", diff)
+	}
+
 }

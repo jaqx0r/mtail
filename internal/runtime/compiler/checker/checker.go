@@ -113,7 +113,6 @@ func (c *checker) VisitBefore(node ast.Node) (ast.Visitor, ast.Node) {
 	case *ast.VarDecl:
 		n.Symbol = symbol.NewSymbol(n.Name, symbol.VarSymbol, n.Pos())
 		if alt := c.scope.Insert(n.Symbol); alt != nil {
-			c.errors.Add(n.Pos(), fmt.Sprintf("Redeclaration of metric `%s' previously declared at %s", n.Name, alt.Pos))
 			c.depth--
 			return nil, n
 		}
