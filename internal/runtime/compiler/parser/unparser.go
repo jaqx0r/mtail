@@ -52,6 +52,14 @@ func (u *Unparser) VisitBefore(n ast.Node) (ast.Visitor, ast.Node) {
 		u.emit(fmt.Sprintf("<%s>(", n.Type()))
 	}
 	switch v := n.(type) {
+
+	case *ast.LogMapping:
+		u.emit("logmapping ")
+		if len(v.Mappings) > 0 {
+			u.emit("\"" + strings.Join(v.Mappings, "\", \"") + "\"")
+		}
+		u.newline()
+
 	case *ast.StmtList:
 		for _, child := range v.Children {
 			ast.Walk(u, child)

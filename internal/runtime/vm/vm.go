@@ -57,11 +57,11 @@ type VM struct {
 	name string
 	prog []code.Instr
 
-	re      []*regexp.Regexp  // Regular expression constants
-	str     []string          // String constants
-	Metrics []*metrics.Metric // Metrics accessible to this program.
-
-	timeMemos *lru.Cache // memo of time string parse results
+	re          []*regexp.Regexp       // Regular expression constants
+	str         []string               // String constants
+	Metrics     []*metrics.Metric      // Metrics accessible to this program.
+	logmappings map[string]interface{} // logs that should be parsed by this program.
+	timeMemos   *lru.Cache             // memo of time string parse results
 
 	t *thread // Current thread of execution
 
@@ -991,12 +991,21 @@ func (v *VM) ProcessLogLine(_ context.Context, line *logline.LogLine) {
 // New creates a new virtual machine with the given name, and compiler
 // artifacts for executable and data segments.
 func New(name string, obj *code.Object, syslogUseCurrentYear bool, loc *time.Location, log bool, trace bool) *VM {
+
+	logmappings := map[string]interface{}{}
+	if obj.RelevantLogs != nil {
+		for _, logfile := range obj.RelevantLogs {
+			logmappings[logfile] = struct{}{}
+		}
+	}
+
 	v := &VM{
 		name:                 name,
 		re:                   obj.Regexps,
 		str:                  obj.Strings,
 		Metrics:              obj.Metrics,
 		prog:                 obj.Program,
+		logmappings:          logmappings,
 		timeMemos:            lru.New(64),
 		syslogUseCurrentYear: syslogUseCurrentYear,
 		loc:                  loc,
@@ -1054,6 +1063,11 @@ func (v *VM) Run(lines <-chan *logline.LogLine, wg *sync.WaitGroup) {
 	glog.V(1).Infof("started VM %q", v.name)
 	ctx := context.TODO()
 	for line := range lines {
+		if len(v.logmappings) > 0 {
+			if _, ok := v.logmappings[line.Filename]; !ok {
+				continue
+			}
+		}
 		v.ProcessLogLine(ctx, line)
 	}
 	glog.Infof("VM %q finished", v.name)

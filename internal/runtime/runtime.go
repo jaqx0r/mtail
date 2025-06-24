@@ -197,16 +197,17 @@ func (r *Runtime) CompileAndRun(name string, input io.Reader) error {
 		close(handle.lines)
 	}
 	lines := make(chan *logline.LogLine)
-	r.handles[name] = &vmHandle{contentHash: contentHash, vm: v, lines: lines}
+	r.handles[name] = &vmHandle{contentHash: contentHash, vm: v, lines: lines, relevantLogs: obj.RelevantLogs}
 	r.wg.Add(1)
 	go v.Run(lines, &r.wg)
 	return nil
 }
 
 type vmHandle struct {
-	contentHash []byte
-	vm          *vm.VM
-	lines       chan *logline.LogLine
+	contentHash  []byte
+	vm           *vm.VM
+	lines        chan *logline.LogLine
+	relevantLogs []string
 }
 
 // Runtime handles the lifecycle of programs and virtual machines, by watching
@@ -291,6 +292,7 @@ func New(lines <-chan *logline.LogLine, wg *sync.WaitGroup, programPath string, 
 				r.handles[prog].lines <- line
 			}
 			r.handleMu.RUnlock()
+
 		}
 		glog.Info("END OF LINE")
 		glog.Infof("processed %s lines", LineCount.String())
