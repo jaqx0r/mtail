@@ -992,15 +992,13 @@ func (v *VM) ProcessLogLine(_ context.Context, line *logline.LogLine) {
 // artifacts for executable and data segments.
 func New(name string, obj *code.Object, syslogUseCurrentYear bool, loc *time.Location, log bool, trace bool) *VM {
 
-	glog.Infof("RelevantLogs: %s", obj.RelevantLogs)
-
 	logmappings := map[string]interface{}{}
 	if obj.RelevantLogs != nil {
 		for _, logfile := range obj.RelevantLogs {
 			logmappings[logfile] = struct{}{}
 		}
 	}
-	glog.Infof("logmappings: %s", logmappings)
+
 	v := &VM{
 		name:                 name,
 		re:                   obj.Regexps,
@@ -1062,9 +1060,10 @@ func (v *VM) RuntimeErrorString() string {
 // down and the loader signalled via the given waitgroup.
 func (v *VM) Run(lines <-chan *logline.LogLine, wg *sync.WaitGroup) {
 	defer wg.Done()
-	glog.V(1).Infof("started a VM %q", v.name)
+	glog.V(1).Infof("started VM %q", v.name)
 	ctx := context.TODO()
 	for line := range lines {
+		glog.Infof("got a line from file %s", line.Filename)
 		if len(v.logmappings) > 0 {
 			glog.Infof("VM %q logmappings %s", v.name, v.logmappings)
 			if _, ok := v.logmappings[line.Filename]; !ok {
