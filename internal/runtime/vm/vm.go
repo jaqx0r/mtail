@@ -1060,7 +1060,7 @@ func (v *VM) RuntimeErrorString() string {
 // down and the loader signalled via the given waitgroup.
 func (v *VM) Run(lines <-chan *logline.LogLine, wg *sync.WaitGroup) {
 	defer wg.Done()
-	glog.V(1).Infof("started VM %q", v.name)
+	glog.V(1).Infof("started a VM %q", v.name)
 	ctx := context.TODO()
 	for line := range lines {
 		if len(v.logmappings) > 0 {
