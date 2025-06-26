@@ -992,13 +992,15 @@ func (v *VM) ProcessLogLine(_ context.Context, line *logline.LogLine) {
 // artifacts for executable and data segments.
 func New(name string, obj *code.Object, syslogUseCurrentYear bool, loc *time.Location, log bool, trace bool) *VM {
 
+	glog.Infof("RelevantLogs: %s", obj.RelevantLogs)
+
 	logmappings := map[string]interface{}{}
 	if obj.RelevantLogs != nil {
 		for _, logfile := range obj.RelevantLogs {
 			logmappings[logfile] = struct{}{}
 		}
 	}
-
+	glog.Infof("logmappings: %s", logmappings)
 	v := &VM{
 		name:                 name,
 		re:                   obj.Regexps,
