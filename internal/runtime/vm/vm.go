@@ -1063,12 +1063,11 @@ func (v *VM) Run(lines <-chan *logline.LogLine, wg *sync.WaitGroup) {
 	glog.V(1).Infof("started VM %q", v.name)
 	ctx := context.TODO()
 	for line := range lines {
-		if len(v.logmappings) > 0 {
-			if _, ok := v.logmappings[line.Filename]; !ok {
-				glog.Infof("VM %q ignoring line as unmapped logfile %s", v.name, line.Filename)
-				continue
-			}
+
+		if _, ok := v.logmappings[line.Filename]; !ok {
+			continue
 		}
+
 		v.ProcessLogLine(ctx, line)
 	}
 	glog.Infof("VM %q finished", v.name)
