@@ -1067,7 +1067,7 @@ func (v *VM) Run(lines <-chan *logline.LogLine, wg *sync.WaitGroup) {
 		/*if _, ok := v.logmappings[line.Filename]; !ok {
 			continue
 		}*/
-
+		continue
 		v.ProcessLogLine(ctx, line)
 	}
 	glog.Infof("VM %q finished", v.name)
