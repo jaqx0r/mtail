@@ -300,10 +300,10 @@ func New(lines <-chan *logline.LogLine, wg *sync.WaitGroup, programPath string, 
 		defer r.wg.Done() // signal to owner we're done
 		<-initDone
 		for line := range lines {
-			LineCount.Add(1)
 			r.handleMu.RLock()
 			for prog := range r.handles {
 				if _, ok := r.logmappings[line.Filename]; ok || len(r.logmappings) == 0 {
+					LineCount.Add(1)
 					r.handles[prog].lines <- line
 				}
 			}
