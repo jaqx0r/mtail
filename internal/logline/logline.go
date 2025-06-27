@@ -3,17 +3,23 @@
 
 package logline
 
-import "context"
+import (
+	"context"
+	"crypto/sha256"
+	"encoding/binary"
+)
 
 // LogLine contains all the information about a line just read from a log.
 type LogLine struct {
 	Context context.Context
 
-	Filename string // The log filename that this line was read from
-	Line     string // The text of the log line itself up to the newline.
+	Filename     string // The log filename that this line was read from
+	Filenamehash uint32 // stored for efficient key lookup
+	Line         string // The text of the log line itself up to the newline.
 }
 
 // New creates a new LogLine object.
 func New(ctx context.Context, filename string, line string) *LogLine {
-	return &LogLine{ctx, filename, line}
+	hash := sha256.Sum256([]byte(filename))
+	return &LogLine{ctx, filename, binary.BigEndian.Uint32(hash[:8]), line}
 }

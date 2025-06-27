@@ -93,3 +93,125 @@ func TestLoadProg(t *testing.T) {
 	close(lines)
 	wg.Wait()
 }
+
+func TestNewProcessesLines(t *testing.T) {
+
+	tests := []struct {
+		lines       []*logline.LogLine
+		logmappings map[uint32]struct{}
+		expected    []*logline.LogLine
+	}{
+		{
+			// Test case where one file is processed and one not.
+			lines: []*logline.LogLine{
+				{
+					Filenamehash: 12345,
+					Line:         "This is a valid log line",
+				},
+				{
+					Filenamehash: 67890,
+					Line:         "This log line should be ignored",
+				},
+			},
+			expected: []*logline.LogLine{
+				{
+					Filenamehash: 12345,
+					Line:         "This is a valid log line",
+				},
+			},
+			logmappings: map[uint32]struct{}{
+				12345: {}, // This maps to the first line.
+			},
+		},
+		{
+			// Test case where both file are processed.
+			lines: []*logline.LogLine{
+				{
+					Filenamehash: 12345,
+					Line:         "This is a valid log line",
+				},
+				{
+					Filenamehash: 67890,
+					Line:         "This is a valid log line",
+				},
+			},
+			expected: []*logline.LogLine{
+				{
+					Filenamehash: 12345,
+					Line:         "This is a valid log line",
+				},
+				{
+					Filenamehash: 67890,
+					Line:         "This is a valid log line",
+				},
+			},
+			logmappings: map[uint32]struct{}{
+				12345: {}, // This maps to the first line.
+				67890: {}, // This maps to the first line.
+			},
+		},
+		{
+			// Test case where file process because no mapping.
+			lines: []*logline.LogLine{
+				{
+					Filenamehash: 12345,
+					Line:         "This is a valid log line",
+				},
+			},
+			expected: []*logline.LogLine{
+				{
+					Filenamehash: 12345,
+					Line:         "This is a valid log line",
+				},
+			},
+			logmappings: map[uint32]struct{}{}, // empty to all logs match
+		},
+		{
+			// empty test case
+			lines:       []*logline.LogLine{},
+			expected:    []*logline.LogLine{},
+			logmappings: map[uint32]struct{}{}, // empty to all logs match
+		},
+	}
+
+	for _, tc := range tests {
+		// Create a channel for log lines.
+		lines := make(chan *logline.LogLine, len(tc.lines))
+		for _, line := range tc.lines {
+			lines <- line
+		}
+		close(lines)
+
+		var wg sync.WaitGroup
+
+		store := metrics.NewStore()
+		// Create a Runtime instance with a logmapping for the first line.
+		r, err := New(lines, &wg, "", store)
+		testutil.FatalIfErr(t, err)
+
+		// Add a logmapping for the first line.
+		r.logmappings["test_program"] = tc.logmappings
+
+		// Add a mock program handle for "test_program".
+		linesReceived := make(chan *logline.LogLine, len(tc.expected))
+
+		// Start processing lines.
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for line := range lines {
+				if _, ok := r.logmappings["test_program"][line.Filenamehash]; ok {
+					linesReceived <- line
+				}
+			}
+		}()
+
+		// Wait for the Runtime to finish processing.
+		wg.Wait()
+
+		// Validate the lines received by the "test_program" handle.
+
+		testutil.ExpectLinesReceivedNoDiff(t, tc.expected, linesReceived)
+	}
+
+}
