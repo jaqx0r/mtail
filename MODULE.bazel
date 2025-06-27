@@ -28,6 +28,7 @@ use_repo(
     "com_github_pkg_errors",
     "com_github_prometheus_client_golang",
     "com_github_prometheus_common",
+    "com_github_thefutureisours_ahocorasick",
     "io_opencensus_go",
     "io_opencensus_go_contrib_exporter_jaeger",
     "io_opentelemetry_go_otel",

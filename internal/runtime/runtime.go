@@ -19,6 +19,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/TheFutureIsOurs/ahocorasick"
 	"github.com/golang/glog"
 	"github.com/jaqx0r/mtail/internal/logline"
 	"github.com/jaqx0r/mtail/internal/metrics"
@@ -172,13 +173,12 @@ func (r *Runtime) CompileAndRun(name string, input io.Reader) error {
 
 	r.logmappingsMu.RLock()
 
-	r.logmappings[name] = make(map[string]struct{})
-	if obj.RelevantLogs != nil {
-		for _, log := range obj.RelevantLogs {
-			if _, ok := r.logmappings[name][log]; !ok {
-				r.logmappings[name][log] = struct{}{}
-			}
+	if obj.RelevantLogs != nil && len(obj.RelevantLogs) > 0 {
+		ac, err := ahocorasick.Build(obj.RelevantLogs)
+		if err != nil {
+			return err
 		}
+		r.logmappings[name] = ac
 	}
 
 	r.logmappingsMu.RUnlock()
@@ -239,8 +239,8 @@ type Runtime struct {
 	handleMu sync.RWMutex         // guards accesses to handles
 	handles  map[string]*vmHandle // map of program names to virtual machines
 
-	logmappingsMu sync.RWMutex                   // guards accesses to logmappings
-	logmappings   map[string]map[string]struct{} // map of logs
+	logmappingsMu sync.RWMutex               // guards access to logmappings
+	logmappings   map[string]*ahocorasick.Ac // logmappings is a map of trie of log names to map
 
 	programErrorMu sync.RWMutex     // guards access to programErrors
 	programErrors  map[string]error // errors from the last compile attempt of the program
@@ -274,7 +274,7 @@ func New(lines <-chan *logline.LogLine, wg *sync.WaitGroup, programPath string, 
 		ms:            store,
 		programPath:   programPath,
 		handles:       make(map[string]*vmHandle),
-		logmappings:   make(map[string]map[string]struct{}),
+		logmappings:   make(map[string]*ahocorasick.Ac),
 		programErrors: make(map[string]error),
 		signalQuit:    make(chan struct{}),
 	}
@@ -305,7 +305,7 @@ func New(lines <-chan *logline.LogLine, wg *sync.WaitGroup, programPath string, 
 			r.handleMu.RLock()
 			r.logmappingsMu.RLock()
 			for prog := range r.handles {
-				if _, ok := r.logmappings[prog][line.Filename]; ok || len(r.logmappings[prog]) == 0 {
+				if r.logmappings[prog] == nil || r.logmappings[prog].MultiPatternSearch([]rune(line.Filename)) != nil {
 					LineCount.Add(1)
 					r.handles[prog].lines <- line
 				}

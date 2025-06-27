@@ -17,6 +17,7 @@ go_library(
         "@com_github_golang_glog//:glog",
         "@com_github_pkg_errors//:errors",
         "@com_github_prometheus_client_golang//prometheus",
+        "@com_github_thefutureisours_ahocorasick//:go_default_library",
     ],
 )
 
