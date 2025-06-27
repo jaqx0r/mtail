@@ -170,17 +170,18 @@ func (r *Runtime) CompileAndRun(name string, input io.Reader) error {
 		glog.Info("Dumping program objects and bytecode\n", v.DumpByteCode())
 	}
 
-	r.logmappingsMu.Lock()
+	r.logmappingsMu.RLock()
 
-	for obj.RelevantLogs != nil {
+	r.logmappings[name] = make(map[string]struct{})
+	if obj.RelevantLogs != nil {
 		for _, log := range obj.RelevantLogs {
-			if _, ok := r.logmappings[log]; !ok {
-				r.logmappings[log] = struct{}{}
+			if _, ok := r.logmappings[name][log]; !ok {
+				r.logmappings[name][log] = struct{}{}
 			}
 		}
 	}
 
-	r.logmappingsMu.Unlock()
+	r.logmappingsMu.RUnlock()
 
 	// Load the metrics from the compilation into the global metric storage for export.
 	for _, m := range v.Metrics {
@@ -238,8 +239,8 @@ type Runtime struct {
 	handleMu sync.RWMutex         // guards accesses to handles
 	handles  map[string]*vmHandle // map of program names to virtual machines
 
-	logmappingsMu sync.RWMutex        // guards accesses to logmappings
-	logmappings   map[string]struct{} // map of logs
+	logmappingsMu sync.RWMutex                   // guards accesses to logmappings
+	logmappings   map[string]map[string]struct{} // map of logs
 
 	programErrorMu sync.RWMutex     // guards access to programErrors
 	programErrors  map[string]error // errors from the last compile attempt of the program
@@ -273,7 +274,7 @@ func New(lines <-chan *logline.LogLine, wg *sync.WaitGroup, programPath string, 
 		ms:            store,
 		programPath:   programPath,
 		handles:       make(map[string]*vmHandle),
-		logmappings:   make(map[string]struct{}),
+		logmappings:   make(map[string]map[string]struct{}),
 		programErrors: make(map[string]error),
 		signalQuit:    make(chan struct{}),
 	}
@@ -302,12 +303,14 @@ func New(lines <-chan *logline.LogLine, wg *sync.WaitGroup, programPath string, 
 		<-initDone
 		for line := range lines {
 			r.handleMu.RLock()
+			r.logmappingsMu.RLock()
 			for prog := range r.handles {
-				if _, ok := r.logmappings[line.Filename]; ok || len(r.logmappings) == 0 {
+				if _, ok := r.logmappings[prog][line.Filename]; ok || len(prog) == 0 {
 					LineCount.Add(1)
 					r.handles[prog].lines <- line
 				}
 			}
+			r.logmappingsMu.RUnlock()
 			r.handleMu.RUnlock()
 
 		}
