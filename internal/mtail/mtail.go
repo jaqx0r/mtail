@@ -191,7 +191,7 @@ func New(ctx context.Context, store *metrics.Store, options ...Option) (*Server,
 		"log_errors_total":    prometheus.NewDesc("log_errors_total", "number of IO errors encountered per log file", []string{"logfile"}, nil),
 		"log_rotations_total": prometheus.NewDesc("log_rotations_total", "number of log rotation events per log file", []string{"logfile"}, nil),
 		"log_truncates_total": prometheus.NewDesc("log_truncates_total", "number of log truncation events log file", []string{"logfile"}, nil),
-		"log_lines1_total":    prometheus.NewDesc("log_lines1_total", "number of lines read per log file", []string{"logfile"}, nil),
+		"log_lines_total":     prometheus.NewDesc("log_lines_total", "number of lines read per log file", []string{"logfile"}, nil),
 		// internal/runtime/loader.go
 		"lines_total":               prometheus.NewDesc("lines_total", "number of lines received by the program loader", nil, nil),
 		"prog_lines_total":          prometheus.NewDesc("prog_lines_total", "number of lines read by a program", []string{"prog"}, nil),
