@@ -32,6 +32,8 @@ import (
 var (
 	// LineCount counts the number of lines received by the program loader.
 	LineCount = expvar.NewInt("lines_total")
+	// LineCount counts the number of lines ignored by programs as not mapped.
+	LinesIgnoredCount = expvar.NewInt("lines_ignored_total")
 	// ProgLoads counts the number of program load events.
 	ProgLoads = expvar.NewMap("prog_loads_total")
 	// ProgUnloads counts the number of program unload events.
@@ -173,7 +175,7 @@ func (r *Runtime) CompileAndRun(name string, input io.Reader) error {
 
 	r.logmappingsMu.RLock()
 
-	if obj.RelevantLogs != nil && len(obj.RelevantLogs) > 0 {
+	if len(obj.RelevantLogs) > 0 {
 		ac, err := ahocorasick.Build(obj.RelevantLogs)
 		if err != nil {
 			return err
@@ -308,6 +310,8 @@ func New(lines <-chan *logline.LogLine, wg *sync.WaitGroup, programPath string, 
 				if r.logmappings[prog] == nil || len(r.logmappings[prog].MultiPatternSearch([]rune(line.Filename))) > 1 {
 					LineCount.Add(1)
 					r.handles[prog].lines <- line
+				} else {
+					LinesIgnoredCount.Add(1)
 				}
 			}
 			r.logmappingsMu.RUnlock()
