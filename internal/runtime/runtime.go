@@ -305,7 +305,7 @@ func New(lines <-chan *logline.LogLine, wg *sync.WaitGroup, programPath string, 
 			r.handleMu.RLock()
 			r.logmappingsMu.RLock()
 			for prog := range r.handles {
-				if _, ok := r.logmappings[prog][line.Filename]; ok || len(prog) == 0 {
+				if _, ok := r.logmappings[prog][line.Filename]; ok || len(r.logmappings[prog]) == 0 {
 					LineCount.Add(1)
 					r.handles[prog].lines <- line
 				}
