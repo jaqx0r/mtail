@@ -174,11 +174,11 @@ func (r *Runtime) CompileAndRun(name string, input io.Reader) error {
 	}
 
 	r.logmappingsMu.RLock()
-	r.logmappings[name] = map[uint64]struct{}{}
+	r.logmappings[name] = map[uint32]struct{}{}
 
 	for _, log := range obj.RelevantLogs {
 		hash := sha256.Sum256([]byte(log))
-		r.logmappings[name][binary.BigEndian.Uint64(hash[:8])] = struct{}{} // is 8 enough?
+		r.logmappings[name][binary.BigEndian.Uint32(hash[:4])] = struct{}{} // is 8 enough?
 	}
 
 	r.logmappingsMu.RUnlock()
@@ -240,7 +240,7 @@ type Runtime struct {
 	handles  map[string]*vmHandle // map of program names to virtual machines
 
 	logmappingsMu sync.RWMutex                   // guards access to logmappings
-	logmappings   map[string]map[uint64]struct{} // logmappings is a map of hashed log names against the programs
+	logmappings   map[string]map[uint32]struct{} // logmappings is a map of hashed log names against the programs
 
 	programErrorMu sync.RWMutex     // guards access to programErrors
 	programErrors  map[string]error // errors from the last compile attempt of the program
@@ -274,7 +274,7 @@ func New(lines <-chan *logline.LogLine, wg *sync.WaitGroup, programPath string, 
 		ms:            store,
 		programPath:   programPath,
 		handles:       make(map[string]*vmHandle),
-		logmappings:   make(map[string]map[uint64]struct{}),
+		logmappings:   make(map[string]map[uint32]struct{}),
 		programErrors: make(map[string]error),
 		signalQuit:    make(chan struct{}),
 	}

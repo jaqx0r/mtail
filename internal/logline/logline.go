@@ -14,12 +14,12 @@ type LogLine struct {
 	Context context.Context
 
 	Filename     string // The log filename that this line was read from
-	Filenamehash uint64 // stored for efficiency key lookup
+	Filenamehash uint32 // stored for efficiency key lookup
 	Line         string // The text of the log line itself up to the newline.
 }
 
 // New creates a new LogLine object.
 func New(ctx context.Context, filename string, line string) *LogLine {
 	hash := sha256.Sum256([]byte(filename))
-	return &LogLine{ctx, filename, binary.BigEndian.Uint64(hash[:8]), line}
+	return &LogLine{ctx, filename, binary.BigEndian.Uint32(hash[:4]), line}
 }
