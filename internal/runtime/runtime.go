@@ -305,11 +305,12 @@ func New(lines <-chan *logline.LogLine, wg *sync.WaitGroup, programPath string, 
 		<-initDone
 		for line := range lines {
 			LineCount.Add(1)
+			ProgLinesCount.Add(1)
 			r.handleMu.RLock()
 			r.logmappingsMu.RLock()
 			for prog := range r.handles {
 				if r.logmappings[prog] == nil || len(r.logmappings[prog].MultiPatternSearch([]rune(line.Filename))) > 1 {
-					ProgLinesCount.Add(1)
+
 					r.handles[prog].lines <- line
 				}
 			}
