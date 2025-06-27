@@ -296,6 +296,20 @@ func (n *PatternLit) Type() types.Type {
 	return types.Pattern
 }
 
+// LogMapping represents a LOGMAPPING construct in the AST.
+type LogMapping struct {
+	P        position.Position // Position of the LOGMAPPING keyword.
+	Mappings []string          // List of strings provided in the LOGMAPPING.
+}
+
+func (n *LogMapping) Pos() *position.Position {
+	return &n.P
+}
+
+func (n *LogMapping) Type() types.Type {
+	return types.Pattern
+}
+
 // PatternFragment holds a named pattern part.
 type PatternFragment struct {
 	ID      Node
