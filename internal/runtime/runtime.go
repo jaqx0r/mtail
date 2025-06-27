@@ -9,6 +9,7 @@ package runtime
 import (
 	"bytes"
 	"crypto/sha256"
+	"encoding/binary"
 	"expvar"
 	"io"
 	"os"
@@ -19,7 +20,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/TheFutureIsOurs/ahocorasick"
 	"github.com/golang/glog"
 	"github.com/jaqx0r/mtail/internal/logline"
 	"github.com/jaqx0r/mtail/internal/metrics"
@@ -174,13 +174,11 @@ func (r *Runtime) CompileAndRun(name string, input io.Reader) error {
 	}
 
 	r.logmappingsMu.RLock()
-	r.logmappings[name] = nil
-	if len(obj.RelevantLogs) > 0 {
-		ac, err := ahocorasick.Build(obj.RelevantLogs)
-		if err != nil {
-			return err
-		}
-		r.logmappings[name] = ac
+	r.logmappings[name] = map[uint64]struct{}{}
+
+	for _, log := range obj.RelevantLogs {
+		hash := sha256.Sum256([]byte(log))
+		r.logmappings[name][binary.BigEndian.Uint64(hash[:8])] = struct{}{} // is 8 enough?
 	}
 
 	r.logmappingsMu.RUnlock()
@@ -241,8 +239,8 @@ type Runtime struct {
 	handleMu sync.RWMutex         // guards accesses to handles
 	handles  map[string]*vmHandle // map of program names to virtual machines
 
-	logmappingsMu sync.RWMutex               // guards access to logmappings
-	logmappings   map[string]*ahocorasick.Ac // logmappings is a map of trie of log names to map
+	logmappingsMu sync.RWMutex                   // guards access to logmappings
+	logmappings   map[string]map[uint64]struct{} // logmappings is a map of hashed log names against the programs
 
 	programErrorMu sync.RWMutex     // guards access to programErrors
 	programErrors  map[string]error // errors from the last compile attempt of the program
@@ -276,7 +274,7 @@ func New(lines <-chan *logline.LogLine, wg *sync.WaitGroup, programPath string, 
 		ms:            store,
 		programPath:   programPath,
 		handles:       make(map[string]*vmHandle),
-		logmappings:   make(map[string]*ahocorasick.Ac),
+		logmappings:   make(map[string]map[uint64]struct{}),
 		programErrors: make(map[string]error),
 		signalQuit:    make(chan struct{}),
 	}
@@ -308,7 +306,7 @@ func New(lines <-chan *logline.LogLine, wg *sync.WaitGroup, programPath string, 
 			r.handleMu.RLock()
 			r.logmappingsMu.RLock()
 			for prog := range r.handles {
-				if r.logmappings[prog] == nil || len(r.logmappings[prog].MultiPatternSearch([]rune(line.Filename))) > 0 {
+				if _, ok := r.logmappings[prog][line.Filenamehash]; ok || len(r.logmappings[prog]) == 0 {
 					ProgLinesCount.Add(prog, 1)
 					r.handles[prog].lines <- line
 				}

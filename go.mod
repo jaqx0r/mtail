@@ -23,7 +23,6 @@ require (
 )
 
 require (
-	github.com/TheFutureIsOurs/ahocorasick v0.0.0-20210127025413-575fb905ba8d // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.2 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect

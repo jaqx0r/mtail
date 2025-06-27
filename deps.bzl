@@ -1492,10 +1492,3 @@ def go_dependencies():
         sum = "h1:E7g+9GITq07hpfrRu66IVDexMakfv52eLZ2CXBWiKr4=",
         version = "v0.0.0-20191204190536-9bdfabe68543",
     )
-    go_repository(
-        name = "com_github_thefutureisours_ahocorasick",
-        build_file_proto_mode = "disable_global",
-        importpath = "github.com/TheFutureIsOurs/ahocorasick",
-        sum = "h1:E7g+9GITq07hpfrRu66IVDexMakfv52eLZ2CXBWiKr4=",
-        version = "v0.0.0-20210127025413-575fb905ba8d",
-    )
