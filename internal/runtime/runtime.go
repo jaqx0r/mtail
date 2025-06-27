@@ -308,8 +308,8 @@ func New(lines <-chan *logline.LogLine, wg *sync.WaitGroup, programPath string, 
 			r.handleMu.RLock()
 			r.logmappingsMu.RLock()
 			for prog := range r.handles {
-				ProgLinesCount.Add(prog, 1)
 				if r.logmappings[prog] == nil || len(r.logmappings[prog].MultiPatternSearch([]rune(line.Filename))) > 1 {
+					ProgLinesCount.Add(prog, 1)
 					r.handles[prog].lines <- line
 				}
 			}
