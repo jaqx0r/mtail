@@ -174,7 +174,7 @@ func (r *Runtime) CompileAndRun(name string, input io.Reader) error {
 	}
 
 	r.logmappingsMu.RLock()
-
+	r.logmappings[name] = nil
 	if len(obj.RelevantLogs) > 0 {
 		ac, err := ahocorasick.Build(obj.RelevantLogs)
 		if err != nil {
