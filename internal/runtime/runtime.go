@@ -171,15 +171,16 @@ func (r *Runtime) CompileAndRun(name string, input io.Reader) error {
 	}
 
 	r.logmappingsMu.Lock()
-	defer r.logmappingsMu.Unlock()
 
 	for obj.RelevantLogs != nil {
 		for _, log := range obj.RelevantLogs {
 			if _, ok := r.logmappings[log]; !ok {
-				r.logmappings[log] = nil
+				r.logmappings[log] = struct{}{}
 			}
 		}
 	}
+
+	r.logmappingsMu.Unlock()
 
 	// Load the metrics from the compilation into the global metric storage for export.
 	for _, m := range v.Metrics {
@@ -237,8 +238,8 @@ type Runtime struct {
 	handleMu sync.RWMutex         // guards accesses to handles
 	handles  map[string]*vmHandle // map of program names to virtual machines
 
-	logmappingsMu sync.RWMutex           // guards accesses to logmappings
-	logmappings   map[string]interface{} // map of logs
+	logmappingsMu sync.RWMutex        // guards accesses to logmappings
+	logmappings   map[string]struct{} // map of logs
 
 	programErrorMu sync.RWMutex     // guards access to programErrors
 	programErrors  map[string]error // errors from the last compile attempt of the program
@@ -272,7 +273,7 @@ func New(lines <-chan *logline.LogLine, wg *sync.WaitGroup, programPath string, 
 		ms:            store,
 		programPath:   programPath,
 		handles:       make(map[string]*vmHandle),
-		logmappings:   make(map[string]interface{}),
+		logmappings:   make(map[string]struct{}),
 		programErrors: make(map[string]error),
 		signalQuit:    make(chan struct{}),
 	}
