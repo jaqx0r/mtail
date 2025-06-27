@@ -33,7 +33,7 @@ var (
 	// LineCount counts the number of lines received by the program loader.
 	LineCount = expvar.NewInt("lines_total")
 	// LineCount counts the number of lines read by a program
-	ProgLinesCount = expvar.NewInt("prog_lines_total")
+	ProgLinesCount = expvar.NewMap("prog_lines_total")
 	// ProgLoads counts the number of program load events.
 	ProgLoads = expvar.NewMap("prog_loads_total")
 	// ProgUnloads counts the number of program unload events.
@@ -305,12 +305,11 @@ func New(lines <-chan *logline.LogLine, wg *sync.WaitGroup, programPath string, 
 		<-initDone
 		for line := range lines {
 			LineCount.Add(1)
-			ProgLinesCount.Add(1)
 			r.handleMu.RLock()
 			r.logmappingsMu.RLock()
 			for prog := range r.handles {
 				if r.logmappings[prog] == nil || len(r.logmappings[prog].MultiPatternSearch([]rune(line.Filename))) > 1 {
-
+					ProgLinesCount.Add(prog, 1)
 					r.handles[prog].lines <- line
 				}
 			}
