@@ -9,6 +9,7 @@ package runtime
 import (
 	"bytes"
 	"crypto/sha256"
+	"encoding/binary"
 	"expvar"
 	"io"
 	"os"
@@ -31,6 +32,8 @@ import (
 var (
 	// LineCount counts the number of lines received by the program loader.
 	LineCount = expvar.NewInt("lines_total")
+	// ProgLinesCount counts the number of lines read by a program
+	ProgLinesCount = expvar.NewMap("prog_lines_total")
 	// ProgLoads counts the number of program load events.
 	ProgLoads = expvar.NewMap("prog_loads_total")
 	// ProgUnloads counts the number of program unload events.
@@ -170,6 +173,16 @@ func (r *Runtime) CompileAndRun(name string, input io.Reader) error {
 		glog.Info("Dumping program objects and bytecode\n", v.DumpByteCode())
 	}
 
+	r.logmappingsMu.RLock()
+	r.logmappings[name] = map[uint32]struct{}{}
+
+	for _, log := range obj.RelevantLogs {
+		hash := sha256.Sum256([]byte(log))
+		r.logmappings[name][binary.BigEndian.Uint32(hash[:4])] = struct{}{} // is 8 enough?
+	}
+
+	r.logmappingsMu.RUnlock()
+
 	// Load the metrics from the compilation into the global metric storage for export.
 	for _, m := range v.Metrics {
 		if !m.Hidden {
@@ -226,6 +239,9 @@ type Runtime struct {
 	handleMu sync.RWMutex         // guards accesses to handles
 	handles  map[string]*vmHandle // map of program names to virtual machines
 
+	logmappingsMu sync.RWMutex                   // guards access to logmappings
+	logmappings   map[string]map[uint32]struct{} // logmappings is a map of hashed log names against the programs they apply to
+
 	programErrorMu sync.RWMutex     // guards access to programErrors
 	programErrors  map[string]error // errors from the last compile attempt of the program
 
@@ -259,6 +275,7 @@ func New(lines <-chan *logline.LogLine, wg *sync.WaitGroup, programPath string, 
 		programPath:   programPath,
 		handles:       make(map[string]*vmHandle),
 		programErrors: make(map[string]error),
+		logmappings:   make(map[string]map[uint32]struct{}),
 		signalQuit:    make(chan struct{}),
 	}
 	initDone := make(chan struct{})
@@ -287,9 +304,14 @@ func New(lines <-chan *logline.LogLine, wg *sync.WaitGroup, programPath string, 
 		for line := range lines {
 			LineCount.Add(1)
 			r.handleMu.RLock()
+			r.logmappingsMu.RLock()
 			for prog := range r.handles {
-				r.handles[prog].lines <- line
+				if _, ok := r.logmappings[prog][line.Filenamehash]; ok || len(r.logmappings[prog]) == 0 {
+					ProgLinesCount.Add(prog, 1)
+					r.handles[prog].lines <- line
+				}
 			}
+			r.logmappingsMu.RUnlock()
 			r.handleMu.RUnlock()
 		}
 		glog.Info("END OF LINE")

@@ -11,8 +11,9 @@ import (
 
 // Object is the data and bytecode resulting from compiled program source.
 type Object struct {
-	Program []Instr           // The program bytecode.
-	Strings []string          // Static strings.
-	Regexps []*regexp.Regexp  // Static regular expressions.
-	Metrics []*metrics.Metric // Metrics accessible to this program.
+	Program      []Instr           // The program bytecode.
+	Strings      []string          // Static strings.
+	Regexps      []*regexp.Regexp  // Static regular expressions.
+	Metrics      []*metrics.Metric // Metrics accessible to this program.
+	RelevantLogs []string          // logs this program can be used against - if empty can be applied to any log
 }
