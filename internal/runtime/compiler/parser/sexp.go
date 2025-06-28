@@ -62,6 +62,13 @@ func (s *Sexp) VisitBefore(n ast.Node) (ast.Visitor, ast.Node) {
 	s.indent()
 	switch v := n.(type) {
 
+	case *ast.LogMapping:
+		s.emit("logmapping ")
+		if len(v.Mappings) > 0 {
+			s.emit(strings.Join(v.Mappings, ", "))
+		}
+		s.newline()
+
 	case *ast.PatternFragment:
 		s.emit("const ")
 		ast.Walk(s, v.ID)

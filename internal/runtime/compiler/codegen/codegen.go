@@ -325,6 +325,11 @@ func (c *codegen) VisitBefore(node ast.Node) (ast.Visitor, ast.Node) {
 			c.obj.Program[pc].Opcode = code.Expire
 		}
 
+	case *ast.LogMapping:
+		// Emit the list of log mappings into the RelevantLogs object.
+		c.obj.RelevantLogs = append(c.obj.RelevantLogs, n.Mappings...)
+		return nil, n
+
 	case *ast.BinaryExpr:
 		switch n.Op {
 		case parser.AND:

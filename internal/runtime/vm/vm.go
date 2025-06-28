@@ -57,11 +57,10 @@ type VM struct {
 	name string
 	prog []code.Instr
 
-	re      []*regexp.Regexp  // Regular expression constants
-	str     []string          // String constants
-	Metrics []*metrics.Metric // Metrics accessible to this program.
-
-	timeMemos *lru.Cache // memo of time string parse results
+	re        []*regexp.Regexp  // Regular expression constants
+	str       []string          // String constants
+	Metrics   []*metrics.Metric // Metrics accessible to this program.
+	timeMemos *lru.Cache        // memo of time string parse results
 
 	t *thread // Current thread of execution
 
@@ -991,6 +990,7 @@ func (v *VM) ProcessLogLine(_ context.Context, line *logline.LogLine) {
 // New creates a new virtual machine with the given name, and compiler
 // artifacts for executable and data segments.
 func New(name string, obj *code.Object, syslogUseCurrentYear bool, loc *time.Location, log bool, trace bool) *VM {
+
 	v := &VM{
 		name:                 name,
 		re:                   obj.Regexps,

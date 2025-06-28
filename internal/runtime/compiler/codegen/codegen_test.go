@@ -20,9 +20,10 @@ import (
 var codegenTestDebug = flag.Bool("codegen_test_debug", false, "Log ASTs and debugging information ")
 
 var testCodeGenPrograms = []struct {
-	name   string
-	source string
-	prog   []code.Instr // expected bytecode
+	name         string
+	source       string
+	prog         []code.Instr // expected bytecode
+	expectedLogs []string
 }{
 	// Composite literals require too many explicit conversions.
 	{
@@ -37,6 +38,7 @@ var testCodeGenPrograms = []struct {
 			{code.Inc, nil, 1},
 			{code.Setmatched, true, 1},
 		},
+		nil,
 	},
 	{
 		"count a",
@@ -50,6 +52,7 @@ var testCodeGenPrograms = []struct {
 			{code.Inc, nil, 1},
 			{code.Setmatched, true, 1},
 		},
+		nil,
 	},
 	{
 		"strptime and capref",
@@ -69,6 +72,7 @@ var testCodeGenPrograms = []struct {
 			{code.Inc, nil, 2},
 			{code.Setmatched, true, 1},
 		},
+		nil,
 	},
 	{
 		"strptime and named capref",
@@ -88,6 +92,7 @@ var testCodeGenPrograms = []struct {
 			{code.Inc, nil, 2},
 			{code.Setmatched, true, 1},
 		},
+		nil,
 	},
 	{
 		"inc by and set",
@@ -114,6 +119,7 @@ var testCodeGenPrograms = []struct {
 			{code.Iset, nil, 4},
 			{code.Setmatched, true, 2},
 		},
+		nil,
 	},
 	{
 		"cond expr gt",
@@ -136,6 +142,7 @@ var testCodeGenPrograms = []struct {
 			{code.Inc, nil, 2},
 			{code.Setmatched, true, 1},
 		},
+		nil,
 	},
 	{
 		"cond expr lt",
@@ -158,6 +165,7 @@ var testCodeGenPrograms = []struct {
 			{code.Inc, nil, 2},
 			{code.Setmatched, true, 1},
 		},
+		nil,
 	},
 	{
 		"cond expr eq",
@@ -180,6 +188,7 @@ var testCodeGenPrograms = []struct {
 			{code.Inc, nil, 2},
 			{code.Setmatched, true, 1},
 		},
+		nil,
 	},
 	{
 		"cond expr le",
@@ -202,6 +211,7 @@ var testCodeGenPrograms = []struct {
 			{code.Inc, nil, 2},
 			{code.Setmatched, true, 1},
 		},
+		nil,
 	},
 	{
 		"cond expr ge",
@@ -224,6 +234,7 @@ var testCodeGenPrograms = []struct {
 			{code.Inc, nil, 2},
 			{code.Setmatched, true, 1},
 		},
+		nil,
 	},
 	{
 		"cond expr ne",
@@ -246,6 +257,7 @@ var testCodeGenPrograms = []struct {
 			{code.Inc, nil, 2},
 			{code.Setmatched, true, 1},
 		},
+		nil,
 	},
 	{
 		"nested cond",
@@ -276,6 +288,7 @@ var testCodeGenPrograms = []struct {
 			{code.Setmatched, true, 2},
 			{code.Setmatched, true, 1},
 		},
+		nil,
 	},
 	{
 		"deco",
@@ -301,6 +314,7 @@ var testCodeGenPrograms = []struct {
 			{code.Inc, nil, 8},
 			{code.Setmatched, true, 3},
 		},
+		nil,
 	},
 	{
 		"length",
@@ -319,6 +333,7 @@ var testCodeGenPrograms = []struct {
 			{code.Setmatched, false, 0},
 			{code.Setmatched, true, 0},
 		},
+		nil,
 	},
 	{
 		"bitwise", `
@@ -353,6 +368,7 @@ a = 1 >> 20
 			{code.Shr, nil, 5},
 			{code.Iset, nil, 5},
 		},
+		nil,
 	},
 	{
 		"pow", `
@@ -377,6 +393,7 @@ gauge a
 			{code.Iset, nil, 3},
 			{code.Setmatched, true, 2},
 		},
+		nil,
 	},
 	{
 		"indexed expr", `
@@ -389,6 +406,7 @@ a["string"]++
 			{code.Dload, 1, 2},
 			{code.Inc, nil, 2},
 		},
+		nil,
 	},
 	{
 		"strtol", `
@@ -399,6 +417,7 @@ strtol("deadbeef", 16)
 			{code.Push, int64(16), 1},
 			{code.S2i, 2, 1},
 		},
+		nil,
 	},
 	{
 		"float", `
@@ -407,6 +426,7 @@ strtol("deadbeef", 16)
 		[]code.Instr{
 			{code.Push, 20.0, 1},
 		},
+		nil,
 	},
 	{
 		"otherwise", `
@@ -424,6 +444,7 @@ otherwise {
 			{code.Inc, nil, 3},
 			{code.Setmatched, true, 2},
 		},
+		nil,
 	},
 	{
 		"cond else",
@@ -453,6 +474,7 @@ counter bar
 			{code.Dload, 0, 5},
 			{code.Inc, nil, 5},
 		},
+		nil,
 	},
 	{
 		"mod",
@@ -468,6 +490,7 @@ a = 3 % 1
 			{code.Imod, nil, 2},
 			{code.Iset, nil, 2},
 		},
+		nil,
 	},
 	{
 		"del", `
@@ -479,6 +502,7 @@ del a["string"]
 			{code.Mload, 0, 2},
 			{code.Del, 1, 2},
 		},
+		nil,
 	},
 	{
 		"del after", `
@@ -491,6 +515,7 @@ del a["string"] after 1h
 			{code.Mload, 0, 2},
 			{code.Expire, 1, 2},
 		},
+		nil,
 	},
 	{
 		"types", `
@@ -525,6 +550,7 @@ gauge f
 			{code.Fset, nil, 7},
 			{code.Setmatched, true, 6},
 		},
+		nil,
 	},
 
 	{
@@ -534,6 +560,7 @@ getfilename()
 		[]code.Instr{
 			{code.Getfilename, 0, 1},
 		},
+		nil,
 	},
 
 	{
@@ -558,6 +585,7 @@ getfilename()
 			{code.Inc, nil, 2},
 			{code.Setmatched, true, 1},
 		},
+		nil,
 	},
 	{
 		"string to int",
@@ -578,6 +606,7 @@ getfilename()
 			{code.Iset, nil, 2},
 			{code.Setmatched, true, 1},
 		},
+		nil,
 	},
 	{
 		"int to float",
@@ -598,6 +627,7 @@ getfilename()
 			{code.Fset, nil, 2},
 			{code.Setmatched, true, 1},
 		},
+		nil,
 	},
 	{
 		"string to float",
@@ -618,6 +648,7 @@ getfilename()
 			{code.Fset, nil, 2},
 			{code.Setmatched, true, 1},
 		},
+		nil,
 	},
 	{
 		"float to string",
@@ -639,6 +670,7 @@ getfilename()
 			{code.Inc, nil, 2},
 			{code.Setmatched, true, 1},
 		},
+		nil,
 	},
 	{
 		"int to string",
@@ -660,6 +692,7 @@ getfilename()
 			{code.Inc, nil, 2},
 			{code.Setmatched, true, 1},
 		},
+		nil,
 	},
 	{
 		"nested comparisons",
@@ -703,6 +736,7 @@ getfilename()
 			{code.Setmatched, true, 2},
 			{code.Setmatched, true, 1},
 		},
+		nil,
 	},
 	{
 		"string concat", `
@@ -725,6 +759,7 @@ counter f by s
 			{code.Inc, nil, 3},
 			{code.Setmatched, true, 2},
 		},
+		nil,
 	},
 	{
 		"add assign float", `
@@ -748,6 +783,7 @@ gauge foo
 			{code.Fset, nil, 3},
 			{code.Setmatched, true, 2},
 		},
+		nil,
 	},
 	{
 		"match expression", `
@@ -772,6 +808,7 @@ gauge foo
 			{code.Setmatched, true, 3},
 			{code.Setmatched, true, 2},
 		},
+		nil,
 	},
 	{
 		"negative match expression", `
@@ -797,6 +834,7 @@ gauge foo
 			{code.Setmatched, true, 3},
 			{code.Setmatched, true, 2},
 		},
+		nil,
 	},
 	{
 		"capref used in def", `
@@ -822,6 +860,7 @@ gauge foo
 			{code.Setmatched, false, 1},
 			{code.Setmatched, true, 1},
 		},
+		nil,
 	},
 	{
 		"binop arith type conversion", `
@@ -846,6 +885,7 @@ gauge var
 			{code.Fset, nil, 3},
 			{code.Setmatched, true, 2},
 		},
+		nil,
 	},
 	{
 		"binop compare type conversion", `
@@ -879,6 +919,7 @@ counter var
 			{code.Setmatched, true, 3},
 			{code.Setmatched, true, 2},
 		},
+		nil,
 	},
 	{"set string", `
 text foo
@@ -895,7 +936,10 @@ text foo
 		{code.Capref, 1, 3},
 		{code.Sset, nil, 3},
 		{code.Setmatched, true, 2},
-	}},
+	},
+		nil,
+	},
+
 	{
 		"concat to text", `
 text foo
@@ -916,6 +960,7 @@ text foo
 			{code.Sset, nil, 3},
 			{code.Setmatched, true, 2},
 		},
+		nil,
 	},
 	{"decrement", `
 counter i
@@ -929,7 +974,9 @@ counter i
 		{code.Dload, 0, 3},
 		{code.Dec, nil, 3},
 		{code.Setmatched, true, 2},
-	}},
+	},
+		nil,
+	},
 	{"capref and settime", `
 /(\d+)/ {
   settime($1)
@@ -942,7 +989,9 @@ counter i
 		{code.S2i, nil, 2},
 		{code.Settime, 1, 2},
 		{code.Setmatched, true, 1},
-	}},
+	},
+		nil,
+	},
 	{"cast to self", `
 /(\d+)/ {
 settime(int($1))
@@ -955,12 +1004,16 @@ settime(int($1))
 		{code.S2i, nil, 2},
 		{code.Settime, 1, 2},
 		{code.Setmatched, true, 1},
-	}},
+	},
+		nil,
+	},
 	{"stop", `
 stop
 `, []code.Instr{
 		{code.Stop, nil, 1},
-	}},
+	},
+		nil,
+	},
 	{"stop inside", `
 // {
 stop
@@ -971,8 +1024,43 @@ stop
 		{code.Setmatched, false, 1},
 		{code.Stop, nil, 2},
 		{code.Setmatched, true, 1},
-	}},
-
+	},
+		nil,
+	},
+	{
+		"logmapping",
+		`logmapping "/tmp/log1", "/tmp/log2"
+`,
+		nil,
+		[]string{
+			"/tmp/log1",
+			"/tmp/log2",
+		},
+	},
+	{
+		"logmapping before clause",
+		`
+logmapping "/tmp/log1", "/tmp/log2"
+20.0
+`,
+		[]code.Instr{
+			{code.Push, 20.0, 2},
+		},
+		[]string{
+			"/tmp/log1",
+			"/tmp/log2",
+		},
+	},
+	{"logmapping after clause", `
+20.0
+logmapping "/tmp/log1", "/tmp/log2"
+`, []code.Instr{
+		{code.Push, 20.0, 1},
+	}, []string{
+		"/tmp/log1",
+		"/tmp/log2",
+	},
+	},
 	{
 		"nested decorators",
 		`def b {
@@ -984,7 +1072,7 @@ stop
   }
 }
 @b {
-}`, nil,
+}`, nil, nil,
 	},
 	{"negative numbers in capture groups", `
 gauge foo
@@ -1007,7 +1095,9 @@ foo += $value_ms / 1000.0
 		{code.Fadd, nil, 3},
 		{code.Fset, nil, 3},
 		{code.Setmatched, true, 2},
-	}},
+	},
+		nil,
+	},
 	{"substitution", `
 gauge foo
 /(\d+,\d)/ {
@@ -1026,7 +1116,9 @@ gauge foo
 		{code.S2i, nil, 3},
 		{code.Iset, nil, 3},
 		{code.Setmatched, true, 2},
-	}},
+	},
+		nil,
+	},
 	{"const term as pattern", `
 const A /n/
 A && 1 {
@@ -1042,7 +1134,9 @@ A && 1 {
 		{code.Jnm, 10, 0},
 		{code.Setmatched, false, 0},
 		{code.Setmatched, true, 0},
-	}},
+	},
+		nil,
+	},
 }
 
 func TestCodeGenFromSource(t *testing.T) {
@@ -1060,6 +1154,7 @@ func TestCodeGenFromSource(t *testing.T) {
 			testutil.FatalIfErr(t, err)
 			obj, err := codegen.CodeGen(tc.name, ast)
 			testutil.FatalIfErr(t, err)
+			testutil.ExpectNoDiff(t, tc.expectedLogs, obj.RelevantLogs, testutil.AllowUnexported(code.Instr{}))
 
 			testutil.ExpectNoDiff(t, tc.prog, obj.Program, testutil.AllowUnexported(code.Instr{}))
 		})
