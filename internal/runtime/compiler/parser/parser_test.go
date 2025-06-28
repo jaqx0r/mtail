@@ -438,6 +438,18 @@ $foo =~ X {
 	/(\d,\d)/ {
 	    subst(/,/, "", $1)
 	}`},
+	{
+		"logmapping",
+		"logmapping \"foo\", \"bar\", \"baz\"\n",
+	},
+	{
+		"logmapping then a clause",
+		"logmapping \"foo\", \"bar\", \"baz\"\n/foo/ {} else {}",
+	},
+	{
+		"clause then a logmapping",
+		"/foo/ {} else {}\nlogmapping \"foo\", \"bar\", \"baz\"\n",
+	},
 }
 
 func TestParserRoundTrip(t *testing.T) {

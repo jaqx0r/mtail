@@ -28,6 +28,8 @@ import (
     n ast.Node
     kind metrics.Kind
     duration time.Duration
+    logMappings []string
+    logMapping *ast.LogMapping // Add this field for *ast.LogMapping
 }
 
 %type <n> stmt_list stmt arg_expr_list compound_stmt conditional_stmt conditional_expr expr_stmt
@@ -42,6 +44,8 @@ import (
 %type <flag> metric_hide_spec
 %type <op> rel_op shift_op bitwise_op logical_op add_op mul_op match_op postfix_op
 %type <floats> metric_buckets_spec metric_buckets_list
+%type <logMapping> log_mapping_spec
+%type <logMappings> log_mapping_list
 // Tokens and types are defined here.
 // Invalid input
 %token <text> INVALID
@@ -73,6 +77,7 @@ import (
 %token LCURLY RCURLY LPAREN RPAREN LSQUARE RSQUARE
 %token COMMA
 %token NL
+%token LOGMAPPING
 
 %start start
 
@@ -112,7 +117,9 @@ stmt_list
 
 /* Types of statements. */
 stmt
-  : conditional_stmt
+  : log_mapping_spec %prec LOGMAPPING
+  { $$ = $1 }
+  | conditional_stmt
   { $$ = $1 }
   | expr_stmt
   { $$ = $1 }
@@ -139,6 +146,27 @@ stmt
   | INVALID
   {
     $$ = &ast.Error{tokenpos(mtaillex), $1}
+  }
+  ;
+
+log_mapping_spec
+  : LOGMAPPING log_mapping_list NL
+  {
+    $$ = &ast.LogMapping{
+      P:        tokenpos(mtaillex),
+      Mappings: $2, // $2 is the list of strings (type []string)
+    }
+  }
+  ;
+
+log_mapping_list
+  : STRING
+  {
+    $$ = []string{$1}
+  }
+  | log_mapping_list COMMA STRING
+  {
+    $$ = append($1, $3)
   }
   ;
 
