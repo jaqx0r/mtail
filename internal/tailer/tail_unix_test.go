@@ -69,7 +69,7 @@ func TestTailerOpenRetries(t *testing.T) {
 
 	received := testutil.LinesReceived(ta.lines)
 	expected := []*logline.LogLine{
-		{Context: context.Background(), Filename: logfile, Line: ""},
+		{Context: context.Background(), Filename: logfile, Line: "", Filenamehash: logline.GetHash(logfile)},
 	}
 	testutil.ExpectNoDiff(t, expected, received, testutil.IgnoreFields(logline.LogLine{}, "Context"))
 }
@@ -92,7 +92,7 @@ func TestAddStdin(t *testing.T) {
 
 	received := testutil.LinesReceived(ta.lines)
 	expected := []*logline.LogLine{
-		{Context: context.Background(), Filename: "-", Line: "content"},
+		{Context: context.Background(), Filename: "-", Line: "content", Filenamehash: logline.GetHash("-")},
 	}
 	testutil.ExpectNoDiff(t, expected, received, testutil.IgnoreFields(logline.LogLine{}, "Context"))
 }

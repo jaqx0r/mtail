@@ -99,10 +99,10 @@ func TestHandleLogUpdate(t *testing.T) {
 
 	received := testutil.LinesReceived(ta.lines)
 	expected := []*logline.LogLine{
-		{Context: context.Background(), Filename: logfile, Line: "a"},
-		{Context: context.Background(), Filename: logfile, Line: "b"},
-		{Context: context.Background(), Filename: logfile, Line: "c"},
-		{Context: context.Background(), Filename: logfile, Line: "d"},
+		{Context: context.Background(), Filename: logfile, Line: "a", Filenamehash: logline.GetHash(logfile)},
+		{Context: context.Background(), Filename: logfile, Line: "b", Filenamehash: logline.GetHash(logfile)},
+		{Context: context.Background(), Filename: logfile, Line: "c", Filenamehash: logline.GetHash(logfile)},
+		{Context: context.Background(), Filename: logfile, Line: "d", Filenamehash: logline.GetHash(logfile)},
 	}
 	testutil.ExpectNoDiff(t, expected, received, testutil.IgnoreFields(logline.LogLine{}, "Context"))
 }
@@ -140,11 +140,11 @@ func TestHandleLogTruncate(t *testing.T) {
 
 	received := testutil.LinesReceived(ta.lines)
 	expected := []*logline.LogLine{
-		{Context: context.Background(), Filename: logfile, Line: "a"},
-		{Context: context.Background(), Filename: logfile, Line: "b"},
-		{Context: context.Background(), Filename: logfile, Line: "c"},
-		{Context: context.Background(), Filename: logfile, Line: "d"},
-		{Context: context.Background(), Filename: logfile, Line: "e"},
+		{Context: context.Background(), Filename: logfile, Line: "a", Filenamehash: logline.GetHash(logfile)},
+		{Context: context.Background(), Filename: logfile, Line: "b", Filenamehash: logline.GetHash(logfile)},
+		{Context: context.Background(), Filename: logfile, Line: "c", Filenamehash: logline.GetHash(logfile)},
+		{Context: context.Background(), Filename: logfile, Line: "d", Filenamehash: logline.GetHash(logfile)},
+		{Context: context.Background(), Filename: logfile, Line: "e", Filenamehash: logline.GetHash(logfile)},
 	}
 	testutil.ExpectNoDiff(t, expected, received, testutil.IgnoreFields(logline.LogLine{}, "Context"))
 }

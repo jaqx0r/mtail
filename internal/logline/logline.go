@@ -19,7 +19,12 @@ type LogLine struct {
 }
 
 // New creates a new LogLine object.
-func New(ctx context.Context, filename string, line string) *LogLine {
+func New(ctx context.Context, filename string, filenamehash uint32, line string) *LogLine {
+	return &LogLine{ctx, filename, filenamehash, line}
+}
+
+// External as unit tests need it
+func GetHash(filename string) uint32 {
 	hash := sha256.Sum256([]byte(filename))
-	return &LogLine{ctx, filename, binary.BigEndian.Uint32(hash[:8]), line}
+	return binary.BigEndian.Uint32(hash[:8])
 }
