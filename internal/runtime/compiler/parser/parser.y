@@ -28,7 +28,6 @@ import (
     n ast.Node
     kind metrics.Kind
     duration time.Duration
-    logFilters []string
     logFilter *ast.LogFilter // Add this field for *ast.LogFilter
 }
 
@@ -39,13 +38,12 @@ import (
 %type <n> delete_stmt metric_name_spec builtin_expr arg_expr
 %type <kind> metric_type_spec
 %type <intVal> metric_limit_spec
-%type <text> metric_as_spec id_or_string metric_by_expr
-%type <texts> metric_by_spec metric_by_expr_list
+%type <text> metric_as_spec id_or_string metric_by_expr log_filter_expr
+%type <texts> metric_by_spec metric_by_expr_list log_filter_list
 %type <flag> metric_hide_spec
 %type <op> rel_op shift_op bitwise_op logical_op add_op mul_op match_op postfix_op
 %type <floats> metric_buckets_spec metric_buckets_list
-%type <logFilter> log_filter_spec
-%type <logFilters> log_filter_list
+%type <logFilter> log_filter_stmt
 // Tokens and types are defined here.
 // Invalid input
 %token <text> INVALID
@@ -117,7 +115,7 @@ stmt_list
 
 /* Types of statements. */
 stmt
-  : log_filter_spec %prec LOGFILTER
+  : log_filter_stmt
   { $$ = $1 }
   | conditional_stmt
   { $$ = $1 }
@@ -149,8 +147,10 @@ stmt
   }
   ;
 
-log_filter_spec
-  : LOGFILTER log_filter_list NL
+
+/* By specification describes index keys for a multidimensional variable. */
+log_filter_stmt
+  : LOGFILTER log_filter_list
   {
     $$ = &ast.LogFilter{
       P:        tokenpos(mtaillex),
@@ -160,14 +160,21 @@ log_filter_spec
   ;
 
 log_filter_list
-  : STRING
+  : log_filter_expr
   {
-    $$ = []string{$1}
+    $$ = make([]string, 0)
+    $$ = append($$, $1)
   }
-  | log_filter_list COMMA STRING
+  | log_filter_list COMMA log_filter_expr
   {
-    $$ = append($1, $3)
+    $$ = $1
+    $$ = append($$, $3)
   }
+  ;
+
+log_filter_expr
+  : id_or_string
+  { $$ = $1 }
   ;
 
 /* Conditional statement is a test condition, and then actions executed depending on the result of the test. */
