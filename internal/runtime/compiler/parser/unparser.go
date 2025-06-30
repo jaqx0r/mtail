@@ -53,10 +53,10 @@ func (u *Unparser) VisitBefore(n ast.Node) (ast.Visitor, ast.Node) {
 	}
 	switch v := n.(type) {
 
-	case *ast.LogMapping:
-		u.emit("logmapping ")
-		if len(v.Mappings) > 0 {
-			u.emit("\"" + strings.Join(v.Mappings, "\", \"") + "\"")
+	case *ast.LogFilter:
+		u.emit("log_filter ")
+		if len(v.Filters) > 0 {
+			u.emit("\"" + strings.Join(v.Filters, "\", \"") + "\"")
 		}
 		u.newline()
 

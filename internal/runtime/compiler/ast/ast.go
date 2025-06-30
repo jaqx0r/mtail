@@ -296,17 +296,17 @@ func (n *PatternLit) Type() types.Type {
 	return types.Pattern
 }
 
-// LogMapping represents a LOGMAPPING construct in the AST.
-type LogMapping struct {
-	P        position.Position // Position of the LOGMAPPING keyword.
-	Mappings []string          // List of strings provided in the LOGMAPPING.
+// LogFilter represents a LOGFILTER construct in the AST.
+type LogFilter struct {
+	P       position.Position // Position of the LOGFILTER keyword.
+	Filters []string          // List of strings provided in the LOGFILTER.
 }
 
-func (n *LogMapping) Pos() *position.Position {
+func (n *LogFilter) Pos() *position.Position {
 	return &n.P
 }
 
-func (n *LogMapping) Type() types.Type {
+func (n *LogFilter) Type() types.Type {
 	return types.Pattern
 }
 

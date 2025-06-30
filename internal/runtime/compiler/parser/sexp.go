@@ -62,10 +62,10 @@ func (s *Sexp) VisitBefore(n ast.Node) (ast.Visitor, ast.Node) {
 	s.indent()
 	switch v := n.(type) {
 
-	case *ast.LogMapping:
-		s.emit("logmapping ")
-		if len(v.Mappings) > 0 {
-			s.emit(strings.Join(v.Mappings, ", "))
+	case *ast.LogFilter:
+		s.emit("log_filter ")
+		if len(v.Filters) > 0 {
+			s.emit(strings.Join(v.Filters, ", "))
 		}
 		s.newline()
 

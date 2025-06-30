@@ -439,16 +439,16 @@ $foo =~ X {
 	    subst(/,/, "", $1)
 	}`},
 	{
-		"logmapping",
-		"logmapping \"foo\", \"bar\", \"baz\"\n",
+		"log_filter",
+		"log_filter \"foo\", \"bar\", \"baz\"\n",
 	},
 	{
-		"logmapping then a clause",
-		"logmapping \"foo\", \"bar\", \"baz\"\n/foo/ {} else {}",
+		"log_filter then a clause",
+		"log_filter \"foo\", \"bar\", \"baz\"\n/foo/ {} else {}",
 	},
 	{
-		"clause then a logmapping",
-		"/foo/ {} else {}\nlogmapping \"foo\", \"bar\", \"baz\"\n",
+		"clause then a log_filter",
+		"/foo/ {} else {}\nlog_filter \"foo\", \"bar\", \"baz\"\n",
 	},
 }
 
