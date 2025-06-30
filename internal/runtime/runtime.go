@@ -9,7 +9,6 @@ package runtime
 import (
 	"bytes"
 	"crypto/sha256"
-	"encoding/binary"
 	"expvar"
 	"io"
 	"os"
@@ -177,8 +176,7 @@ func (r *Runtime) CompileAndRun(name string, input io.Reader) error {
 	r.logmappings[name] = map[uint32]struct{}{}
 
 	for _, log := range obj.RelevantLogs {
-		hash := sha256.Sum256([]byte(log))
-		r.logmappings[name][binary.BigEndian.Uint32(hash[:4])] = struct{}{} // is 8 enough?
+		r.logmappings[name][logline.GetHash(log)] = struct{}{}
 	}
 
 	r.logmappingsMu.RUnlock()
