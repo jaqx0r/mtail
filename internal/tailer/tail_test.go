@@ -172,7 +172,7 @@ func TestHandleLogUpdatePartialLine(t *testing.T) {
 
 	received := testutil.LinesReceived(ta.lines)
 	expected := []*logline.LogLine{
-		{Context: context.Background(), Filename: logfile, Line: "ab"},
+		{Context: context.Background(), Filename: logfile, Line: "ab", Filenamehash: logline.GetHash(logfile)},
 	}
 	testutil.ExpectNoDiff(t, expected, received, testutil.IgnoreFields(logline.LogLine{}, "Context"))
 }
