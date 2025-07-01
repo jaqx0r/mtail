@@ -455,6 +455,11 @@ $foo =~ X {
 		"log_filter foo,bar,baz",
 	},
 	{
+		"log_filter multiple lines",
+		`log_filter foo,bar,baz
+log_filter foo,bar,bee`,
+	},
+	{
 		"log_filter then a clause",
 		"log_filter \"foo\", \"bar\", \"baz\"\n/foo/ {} else {}",
 	},

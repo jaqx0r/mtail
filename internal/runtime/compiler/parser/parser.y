@@ -147,8 +147,6 @@ stmt
   }
   ;
 
-
-/* By specification describes index keys for a multidimensional variable. */
 log_filter_stmt
   : LOGFILTER log_filter_list
   {

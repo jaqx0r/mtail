@@ -134,12 +134,14 @@ Note the position of the underscore in the regular expression match.
 
 ## Log Filtering
 
-The `log_filter` keyword can be used in an mtail program to provide a list of filenames (including the full path to the file). If a `log_filter` is used the program is restricted only to processing logfiles with the names provided. If no `log_filter` keyword is used then all logfiles read by mtail are read by the program. `log_filter` can be used to reduce the resource consumption of mtail by ensuring programs only read the lines they were designed for.
+The `log_filter` keyword can be used in an mtail program to provide a list of filenames (including the full path to the file). If a `log_filter` is used the program is restricted only to processing logfiles with the names provided. If no `log_filter` keyword is used then all logfiles read by mtail are read by the program. `log_filter` can be used to reduce the resource consumption of mtail by ensuring programs only read the lines they were designed for. `log_filter` lists are additive if the keyword is used multiple times and duplicate logfile entries are ignored.
 
 Example use:
 
 ```
 log_filter "/tmp/read_this_log.txt", "/tmp/read_this_log_as_well.txt"
+...
+log_filter "/tmp/and_yet_another_log.txt"
 ```
 
 ## Conditional structures

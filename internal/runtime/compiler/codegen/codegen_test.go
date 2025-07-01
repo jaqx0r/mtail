@@ -1080,6 +1080,18 @@ log_filter "/tmp/log1", "/tmp/log2"
 	},
 	},
 	{
+		"log_filter additive use",
+		`log_filter tmplog1, tmplog2
+log_filter tmplog1, tmplog3`,
+		nil,
+		[]string{
+			"tmplog1",
+			"tmplog2",
+			"tmplog1", // this is de-duplicated later before it is used in the runtime
+			"tmplog3",
+		},
+	},
+	{
 		"nested decorators",
 		`def b {
   def b {
