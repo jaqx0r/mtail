@@ -94,7 +94,7 @@ func TestLoadProg(t *testing.T) {
 	wg.Wait()
 }
 
-func TestNewProcessesLines(t *testing.T) {
+func TestLogLineFilter(t *testing.T) {
 
 	tests := []struct {
 		lines       []*logline.LogLine

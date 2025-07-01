@@ -175,7 +175,7 @@ func (r *Runtime) CompileAndRun(name string, input io.Reader) error {
 	r.logmappingsMu.RLock()
 	r.logmappings[name] = map[uint32]struct{}{}
 
-	for _, log := range obj.RelevantLogs {
+	for _, log := range obj.LogRestriction {
 		r.logmappings[name][logline.GetHash(log)] = struct{}{}
 	}
 
