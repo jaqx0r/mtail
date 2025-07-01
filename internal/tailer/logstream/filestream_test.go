@@ -30,7 +30,7 @@ func TestFileStreamRead(t *testing.T) {
 	testutil.FatalIfErr(t, err)
 
 	expected := []*logline.LogLine{
-		{Context: context.TODO(), Filename: name, Line: "yo"},
+		{Context: context.TODO(), Filename: name, Line: "yo", Filenamehash: logline.GetHash(name)},
 	}
 	checkLineDiff := testutil.ExpectLinesReceivedNoDiff(t, expected, fs.Lines())
 
@@ -66,7 +66,7 @@ func TestFileStreamReadOneShot(t *testing.T) {
 	testutil.FatalIfErr(t, err)
 
 	expected := []*logline.LogLine{
-		{Context: context.TODO(), Filename: name, Line: "yo"},
+		{Context: context.TODO(), Filename: name, Line: "yo", Filenamehash: logline.GetHash(name)},
 	}
 	checkLineDiff := testutil.ExpectLinesReceivedNoDiff(t, expected, fs.Lines())
 
@@ -103,7 +103,7 @@ func TestFileStreamReadNonSingleByteEnd(t *testing.T) {
 	s += "中"
 
 	expected := []*logline.LogLine{
-		{Context: context.TODO(), Filename: name, Line: s},
+		{Context: context.TODO(), Filename: name, Line: s, Filenamehash: logline.GetHash(name)},
 	}
 	checkLineDiff := testutil.ExpectLinesReceivedNoDiff(t, expected, fs.Lines())
 
@@ -151,7 +151,7 @@ func TestStreamDoesntBreakOnCorruptRune(t *testing.T) {
 		s += "a"
 	}
 	expected := []*logline.LogLine{
-		{Context: context.TODO(), Filename: name, Line: s[1:]},
+		{Context: context.TODO(), Filename: name, Line: s[1:], Filenamehash: logline.GetHash(name)},
 	}
 	checkLineDiff := testutil.ExpectLinesReceivedNoDiff(t, expected, fs.Lines())
 
@@ -188,9 +188,9 @@ func TestFileStreamTruncation(t *testing.T) {
 	testutil.FatalIfErr(t, err)
 
 	expected := []*logline.LogLine{
-		{Context: context.TODO(), Filename: name, Line: "1"},
-		{Context: context.TODO(), Filename: name, Line: "2"},
-		{Context: context.TODO(), Filename: name, Line: "3"},
+		{Context: context.TODO(), Filename: name, Line: "1", Filenamehash: logline.GetHash(name)},
+		{Context: context.TODO(), Filename: name, Line: "2", Filenamehash: logline.GetHash(name)},
+		{Context: context.TODO(), Filename: name, Line: "3", Filenamehash: logline.GetHash(name)},
 	}
 	checkLineDiff := testutil.ExpectLinesReceivedNoDiff(t, expected, fs.Lines())
 
@@ -231,7 +231,7 @@ func TestFileStreamPartialRead(t *testing.T) {
 	testutil.FatalIfErr(t, err)
 
 	expected := []*logline.LogLine{
-		{Context: context.TODO(), Filename: name, Line: "yo"},
+		{Context: context.TODO(), Filename: name, Line: "yo", Filenamehash: logline.GetHash(name)},
 	}
 	checkLineDiff := testutil.ExpectLinesReceivedNoDiff(t, expected, fs.Lines())
 
@@ -269,8 +269,8 @@ func TestFileStreamReadToEOFOnCancel(t *testing.T) {
 	testutil.FatalIfErr(t, err)
 
 	expected := []*logline.LogLine{
-		{Context: context.TODO(), Filename: name, Line: "line 1"},
-		{Context: context.TODO(), Filename: name, Line: "line 2"},
+		{Context: context.TODO(), Filename: name, Line: "line 1", Filenamehash: logline.GetHash(name)},
+		{Context: context.TODO(), Filename: name, Line: "line 2", Filenamehash: logline.GetHash(name)},
 	}
 	checkLineDiff := testutil.ExpectLinesReceivedNoDiff(t, expected, fs.Lines())
 

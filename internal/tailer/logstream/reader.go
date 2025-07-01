@@ -18,11 +18,12 @@ var logLines = expvar.NewMap("log_lines_total")
 
 // LineReader reads lines from input and sends lines through the channel
 type LineReader struct {
-	sourcename string                  // name of owner, for sending loglines
-	lines      chan<- *logline.LogLine // not owned
-	f          io.Reader               // not owned
-	cancel     context.CancelFunc
-	staleTimer *time.Timer // call CancelFunc if no read in 24h
+	sourcename     string                  // name of owner, for sending loglines
+	sourcenamehash uint32                  // a hash of the sourcename for efficient lookup
+	lines          chan<- *logline.LogLine // not owned
+	f              io.Reader               // not owned
+	cancel         context.CancelFunc
+	staleTimer     *time.Timer // call CancelFunc if no read in 24h
 
 	size int
 	buf  []byte
@@ -32,12 +33,13 @@ type LineReader struct {
 // NewLineReader creates a new LineReader
 func NewLineReader(sourcename string, lines chan<- *logline.LogLine, f io.Reader, size int, cancel context.CancelFunc) *LineReader {
 	return &LineReader{
-		sourcename: sourcename,
-		lines:      lines,
-		f:          f,
-		cancel:     cancel,
-		size:       size,
-		buf:        make([]byte, 0, size),
+		sourcename:     sourcename,
+		sourcenamehash: logline.GetHash(sourcename),
+		lines:          lines,
+		f:              f,
+		cancel:         cancel,
+		size:           size,
+		buf:            make([]byte, 0, size),
 	}
 }
 
@@ -89,7 +91,7 @@ func (lr *LineReader) send(ctx context.Context) bool {
 
 	line := string(lr.buf[lr.off:end])
 	logLines.Add(lr.sourcename, 1)
-	lr.lines <- logline.New(ctx, lr.sourcename, line)
+	lr.lines <- logline.New(ctx, lr.sourcename, lr.sourcenamehash, line)
 	lr.off = end + skip // move past delim
 	return true
 }
@@ -102,5 +104,5 @@ func (lr *LineReader) Finish(ctx context.Context) {
 		return
 	}
 	logLines.Add(lr.sourcename, 1)
-	lr.lines <- logline.New(ctx, lr.sourcename, line)
+	lr.lines <- logline.New(ctx, lr.sourcename, lr.sourcenamehash, line)
 }
