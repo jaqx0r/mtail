@@ -296,6 +296,20 @@ func (n *PatternLit) Type() types.Type {
 	return types.Pattern
 }
 
+// LogFilter represents a LOGFILTER construct in the AST.
+type LogFilter struct {
+	P       position.Position // Position of the LOGFILTER keyword.
+	Filters []string          // List of strings provided in the LOGFILTER.
+}
+
+func (n *LogFilter) Pos() *position.Position {
+	return &n.P
+}
+
+func (n *LogFilter) Type() types.Type {
+	return types.Pattern
+}
+
 // PatternFragment holds a named pattern part.
 type PatternFragment struct {
 	ID      Node

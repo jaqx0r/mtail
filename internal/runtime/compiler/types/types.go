@@ -243,6 +243,8 @@ var (
 	Float         = &Operator{"Float", []Type{}}
 	String        = &Operator{"String", []Type{}}
 	Pattern       = &Operator{"Pattern", []Type{}}
+	// LogFilter represents a type for the LOGFILTER construct.
+	LogFilter = &Operator{"LogFilter", []Type{String}}
 	// TODO(jaq): use composite type so we can typecheck the bucket directly, e.g. hist[j] = i.
 	Buckets = &Operator{"Buckets", []Type{}}
 
@@ -264,6 +266,7 @@ var Builtins = map[string]Type{
 	"tolower":     Function(String, String),
 	"getfilename": Function(String),
 	"subst":       Function(Pattern, String, String, String),
+	"log_filter":  Function(String, LogFilter),
 }
 
 // FreshType returns a new type from the provided type scheme, replacing any

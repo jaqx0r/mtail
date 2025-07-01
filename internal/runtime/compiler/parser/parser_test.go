@@ -438,6 +438,35 @@ $foo =~ X {
 	/(\d,\d)/ {
 	    subst(/,/, "", $1)
 	}`},
+	{
+		"log_filter",
+		"log_filter \"foo\", \"bar\", \"baz\"\n",
+	},
+	{
+		"log_filter no new line",
+		"log_filter \"foo\", \"bar\", \"baz\"",
+	},
+	{
+		"log_filter unquoted strings",
+		"log_filter foo, bar, baz",
+	},
+	{
+		"log_filter no spaces",
+		"log_filter foo,bar,baz",
+	},
+	{
+		"log_filter multiple lines",
+		`log_filter foo,bar,baz
+log_filter foo,bar,bee`,
+	},
+	{
+		"log_filter then a clause",
+		"log_filter \"foo\", \"bar\", \"baz\"\n/foo/ {} else {}",
+	},
+	{
+		"clause then a log_filter",
+		"/foo/ {} else {}\nlog_filter \"foo\", \"bar\", \"baz\"\n",
+	},
 }
 
 func TestParserRoundTrip(t *testing.T) {
@@ -507,7 +536,13 @@ var parserInvalidPrograms = []parserInvalidProgram{
 			"unterminated regex:1:2-4: syntax error: unexpected end of file, expecting '/' to end regex",
 		},
 	},
-
+	{
+		"log_filter empty",
+		`log_filter`,
+		[]string{
+			"log_filter empty:1:11: syntax error: unexpected $end, expecting STRING or ID",
+		},
+	},
 	{
 		"unterminated string",
 		" \"foo }\n",
