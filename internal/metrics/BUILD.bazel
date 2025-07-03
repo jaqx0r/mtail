@@ -26,6 +26,7 @@ go_test(
         "store_test.go",
     ],
     embed = [":metrics"],
+    tags = ["benchmark"],
     deps = [
         "//internal/metrics/datum",
         "//internal/testutil",
