@@ -62,6 +62,7 @@ go_test(
         "//examples",
     ],
     embed = [":mtail"],
+    tags = ["benchmark"],
     deps = [
         "//internal/metrics",
         "//internal/metrics/datum",
