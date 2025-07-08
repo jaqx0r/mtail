@@ -40,8 +40,8 @@ func TestFileStreamRotation(t *testing.T) {
 	testutil.FatalIfErr(t, err)
 
 	expected := []*logline.LogLine{
-		{Context: context.TODO(), Filename: name, Line: "1"},
-		{Context: context.TODO(), Filename: name, Line: "2"},
+		{Context: context.TODO(), Filename: name, Line: "1", Filenamehash: logline.GetHash(name)},
+		{Context: context.TODO(), Filename: name, Line: "2", Filenamehash: logline.GetHash(name)},
 	}
 	checkLineDiff := testutil.ExpectLinesReceivedNoDiff(t, expected, fs.Lines())
 
@@ -89,7 +89,7 @@ func TestFileStreamURL(t *testing.T) {
 	testutil.FatalIfErr(t, err)
 
 	expected := []*logline.LogLine{
-		{Context: context.TODO(), Filename: name, Line: "yo"},
+		{Context: context.TODO(), Filename: name, Line: "yo", Filenamehash: logline.GetHash(name)},
 	}
 	checkLineDiff := testutil.ExpectLinesReceivedNoDiff(t, expected, fs.Lines())
 

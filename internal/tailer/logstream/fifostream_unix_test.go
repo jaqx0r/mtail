@@ -43,7 +43,7 @@ func TestFifoStreamReadCompletedBecauseClosed(t *testing.T) {
 		testutil.FatalIfErr(t, err)
 
 		expected := []*logline.LogLine{
-			{Context: context.TODO(), Filename: name, Line: "1"},
+			{Context: context.TODO(), Filename: name, Line: "1", Filenamehash: logline.GetHash(name)},
 		}
 		checkLineDiff := testutil.ExpectLinesReceivedNoDiff(t, expected, ps.Lines())
 
@@ -81,7 +81,7 @@ func TestFifoStreamReadCompletedBecauseCancel(t *testing.T) {
 		ps, err := logstream.New(ctx, &wg, waker, name, logstream.OneShotDisabled)
 		testutil.FatalIfErr(t, err)
 		expected := []*logline.LogLine{
-			{Context: context.TODO(), Filename: name, Line: "1"},
+			{Context: context.TODO(), Filename: name, Line: "1", Filenamehash: logline.GetHash(name)},
 		}
 		checkLineDiff := testutil.ExpectLinesReceivedNoDiff(t, expected, ps.Lines())
 
@@ -115,8 +115,8 @@ func TestFifoStreamReadURL(t *testing.T) {
 	testutil.FatalIfErr(t, err)
 
 	expected := []*logline.LogLine{
-		{Context: context.TODO(), Filename: name, Line: "1"},
-		{Context: context.TODO(), Filename: name, Line: "2"},
+		{Context: context.TODO(), Filename: name, Line: "1", Filenamehash: logline.GetHash(name)},
+		{Context: context.TODO(), Filename: name, Line: "2", Filenamehash: logline.GetHash(name)},
 	}
 	checkLineDiff := testutil.ExpectLinesReceivedNoDiff(t, expected, ps.Lines())
 
@@ -164,8 +164,8 @@ func TestFifoStreamReadStdin(t *testing.T) {
 	testutil.FatalIfErr(t, err)
 
 	expected := []*logline.LogLine{
-		{Context: context.TODO(), Filename: "-", Line: "1"},
-		{Context: context.TODO(), Filename: "-", Line: "2"},
+		{Context: context.TODO(), Filename: "-", Line: "1", Filenamehash: logline.GetHash("-")},
+		{Context: context.TODO(), Filename: "-", Line: "2", Filenamehash: logline.GetHash("-")},
 	}
 	checkLineDiff := testutil.ExpectLinesReceivedNoDiff(t, expected, ps.Lines())
 
