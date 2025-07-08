@@ -28,6 +28,7 @@ import (
     n ast.Node
     kind metrics.Kind
     duration time.Duration
+    logFilter *ast.LogFilter // Add this field for *ast.LogFilter
 }
 
 %type <n> stmt_list stmt arg_expr_list compound_stmt conditional_stmt conditional_expr expr_stmt
@@ -37,11 +38,12 @@ import (
 %type <n> delete_stmt metric_name_spec builtin_expr arg_expr
 %type <kind> metric_type_spec
 %type <intVal> metric_limit_spec
-%type <text> metric_as_spec id_or_string metric_by_expr
-%type <texts> metric_by_spec metric_by_expr_list
+%type <text> metric_as_spec id_or_string metric_by_expr log_filter_expr
+%type <texts> metric_by_spec metric_by_expr_list log_filter_list
 %type <flag> metric_hide_spec
 %type <op> rel_op shift_op bitwise_op logical_op add_op mul_op match_op postfix_op
 %type <floats> metric_buckets_spec metric_buckets_list
+%type <logFilter> log_filter_stmt
 // Tokens and types are defined here.
 // Invalid input
 %token <text> INVALID
@@ -73,6 +75,7 @@ import (
 %token LCURLY RCURLY LPAREN RPAREN LSQUARE RSQUARE
 %token COMMA
 %token NL
+%token LOGFILTER
 
 %start start
 
@@ -112,7 +115,9 @@ stmt_list
 
 /* Types of statements. */
 stmt
-  : conditional_stmt
+  : log_filter_stmt
+  { $$ = $1 }
+  | conditional_stmt
   { $$ = $1 }
   | expr_stmt
   { $$ = $1 }
@@ -140,6 +145,34 @@ stmt
   {
     $$ = &ast.Error{tokenpos(mtaillex), $1}
   }
+  ;
+
+log_filter_stmt
+  : LOGFILTER log_filter_list
+  {
+    $$ = &ast.LogFilter{
+      P:        tokenpos(mtaillex),
+      Filters: $2, // $2 is the list of strings (type []string)
+    }
+  }
+  ;
+
+log_filter_list
+  : log_filter_expr
+  {
+    $$ = make([]string, 0)
+    $$ = append($$, $1)
+  }
+  | log_filter_list COMMA log_filter_expr
+  {
+    $$ = $1
+    $$ = append($$, $3)
+  }
+  ;
+
+log_filter_expr
+  : id_or_string
+  { $$ = $1 }
   ;
 
 /* Conditional statement is a test condition, and then actions executed depending on the result of the test. */

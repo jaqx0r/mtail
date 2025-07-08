@@ -81,7 +81,7 @@ func Walk(v Visitor, node Node) Node {
 	case *PatternFragment:
 		n.Expr = Walk(v, n.Expr)
 
-	case *IDTerm, *CaprefTerm, *VarDecl, *StringLit, *IntLit, *FloatLit, *PatternLit, *NextStmt, *OtherwiseStmt, *DelStmt, *StopStmt:
+	case *LogFilter, *IDTerm, *CaprefTerm, *VarDecl, *StringLit, *IntLit, *FloatLit, *PatternLit, *NextStmt, *OtherwiseStmt, *DelStmt, *StopStmt:
 		// These nodes are terminals, thus have no children to walk.
 
 	default:

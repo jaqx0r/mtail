@@ -7,10 +7,6 @@ Can't put trailing newlines in cases in parser test, requires changes to expr st
 parse tree/ast testing? - expected AST as result from parse/check instead of
     merely getting a result.  A similar version of this is in codegen_test.go:TestCodeGenFromAST
 
-A mapping between progs and logs to reduce wasted processing- issue #35
-  Means we don't fan out log lines to every VM if reading from multiple sources.
-  Requires figuring out how to provide this configuration.  Special syntax in a program?  Not very flexible.  A real config file?  Been trying to avoid that.  Commandline flag?  Seems difficult to maintain.
-
 bytecode like
 [{push 1} {push 0} {cmp 1}
 {jm 6} {push 0} {jmp 7} {push 1} {jnm 13}

@@ -1,0 +1,10 @@
+# Copyright 2025 The mtail Authors. All Rights Reserved.
+# This file is available under the Apache license.
+# SPDX-License-Identifier: Apache-2.0
+
+log_filter "do_not_read_this_log"
+counter lines_total
+
+/$/ {
+  lines_total++
+}

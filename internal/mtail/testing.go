@@ -57,6 +57,7 @@ func TestMakeServer(tb testing.TB, patternWakers int, streamWakers int, options 
 	expvar.Get("log_closes_total").(*expvar.Map).Init()
 	expvar.Get("file_truncates_total").(*expvar.Map).Init()
 	expvar.Get("prog_loads_total").(*expvar.Map).Init()
+	expvar.Get("prog_lines_total").(*expvar.Map).Init()
 
 	ctx, cancel := context.WithCancel(context.Background())
 	ts := &TestServer{
