@@ -1095,7 +1095,7 @@ func TestRuntimeEndToEnd(t *testing.T) {
 			lineCount := 0
 			for scanner.Scan() {
 				lineCount++
-				lines <- logline.New(context.Background(), tc.name, scanner.Text())
+				lines <- logline.New(context.Background(), tc.name, logline.GetHash(tc.name), scanner.Text())
 			}
 			close(lines)
 			wg.Wait()

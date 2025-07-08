@@ -49,7 +49,7 @@ func TestDgramStreamReadCompletedBecauseSocketClosed(t *testing.T) {
 			testutil.FatalIfErr(t, err)
 
 			expected := []*logline.LogLine{
-				{Context: context.TODO(), Filename: sockName, Line: "1"},
+				{Context: context.TODO(), Filename: sockName, Line: "1", Filenamehash: logline.GetHash(sockName)},
 			}
 			checkLineDiff := testutil.ExpectLinesReceivedNoDiff(t, expected, ds.Lines())
 
@@ -99,7 +99,7 @@ func TestDgramStreamReadCompletedBecauseCancel(t *testing.T) {
 			testutil.FatalIfErr(t, err)
 
 			expected := []*logline.LogLine{
-				{Context: context.TODO(), Filename: sockName, Line: "1"},
+				{Context: context.TODO(), Filename: sockName, Line: "1", Filenamehash: logline.GetHash(sockName)},
 			}
 			checkLineDiff := testutil.ExpectLinesReceivedNoDiff(t, expected, ds.Lines())
 
