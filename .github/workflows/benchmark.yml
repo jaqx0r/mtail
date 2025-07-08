@@ -23,5 +23,5 @@ jobs:
       - run: bazel build --build_tag_filters=benchmark //...
       - run: |
           for target in $(bazel query "attr(tags, '\\bbenchmark\\b', //...)"); do
-            bazel run ${target} -- -test.bench
+            bazel run ${target} -- -test.bench=.*
           done
