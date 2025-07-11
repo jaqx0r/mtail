@@ -22,5 +22,6 @@ go_test(
         "int_test.go",
     ],
     embed = [":datum"],
+    tags = ["benchmark"],
     deps = ["//internal/testutil"],
 )

@@ -9,30 +9,19 @@ on:
 
 jobs:
   benchmark:
-    if: ${{ false }}
     runs-on: ubuntu-latest
     permissions:
       # For benchmark-action comment-always
       pull-requests: write
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: bazel-contrib/setup-bazel@0.15.0
         with:
-          go-version-file: 'go.mod'
-          cache: true
-      - run: make bench
-        env:
-          HEAD_REF: ${{ env.GITHUB_REF_NAME }}
-      - uses: actions/cache@v4
-        with:
-          path: ./cache
-          key: ${{ runner.os }}-benchmark
-      - uses: benchmark-action/github-action-benchmark@v1.20.4
-        with:
-          tool: 'go'
-          output-file-path: test-results/benchmark-results-${{ env.GITHUB_REF_NAME }}.txt
-          external-data-json-path: ./cache/benchmark-data.json
-          save-data-file: ${{ github.event_name != 'pull_request' }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          comment-on-alert: true
-          summary-always: true
+          bazelisk-cache: true
+          disk-cache: ${{ github.workflow }}
+          repository-cache: true
+      - run: bazel build --build_tag_filters=benchmark //...
+      - run: |
+          for target in $(bazel query "attr(tags, '\\bbenchmark\\b', //...)"); do
+            bazel run ${target} -- -test.bench=.*
+          done
