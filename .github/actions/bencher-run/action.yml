@@ -1,0 +1,25 @@
+# Run bencher on a benchmark result artifact.
+# Assumes BENCHER_API_TOKEN and GITHUB_TOKEN secrets exist.
+
+name: bencher run
+description: Run bencher on a benchmark result artifact
+inputs:
+  benchmark_results_artifact:
+    description: Name of the artifact to download, to find the benchmark results within.
+    required: true
+    default: benchmark_results
+runs:
+  using: composite
+  steps:
+    - uses: bencherdev/bencher@main
+    - uses: actions/download-artifact@v4
+      with:
+        name: ${{ inputs.benchmark_results_artifact }}
+        run_id: ${{ github.event.workflow_run.id || github.run_id }}
+    - name: bencher run
+      shell: bash
+      run: |
+        bencher run \
+          --token ${{ secrets.BENCHER_API_TOKEN }} \
+          --github-actions ${{ secrets.GITHUB_TOKEN }} \
+          --file "${{ inputs.benchmark_results_action }}
