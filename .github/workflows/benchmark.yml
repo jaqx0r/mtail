@@ -11,8 +11,8 @@ jobs:
   benchmark:
     runs-on: ubuntu-latest
     permissions:
-      # For benchmark-action comment-always
-      pull-requests: write
+      # Allo bencher to write to the checks API
+      checks: write
     steps:
       - uses: actions/checkout@v4
       - uses: bazel-contrib/setup-bazel@0.15.0
@@ -26,5 +26,8 @@ jobs:
           for target in $(bazel query "attr(tags, '\\bbenchmark\\b', //...)"); do
             bencher run \
               --adapter go_bench \
+              --project mtail \
+              --token '${{ secrets.BENCHER_API_TOKEN }}' \
+              --github-actions '${{ secrets.GITHUB.TOKEN }}' \
               bazel run ${target} -- -test.bench=.*
           done
