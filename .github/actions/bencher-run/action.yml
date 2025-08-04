@@ -20,6 +20,6 @@ runs:
       shell: bash
       run: |
         bencher run \
-          --token ${{ secrets.BENCHER_API_TOKEN }} \
-          --github-actions ${{ secrets.GITHUB_TOKEN }} \
-          --file "${{ inputs.benchmark_results_action }}
+          --token '${{ secrets.BENCHER_API_TOKEN }}' \
+          --github-actions '${{ secrets.GITHUB_TOKEN }}' \
+          --file ${{ inputs.benchmark_results_action }}
