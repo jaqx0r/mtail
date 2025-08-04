@@ -6,6 +6,10 @@ on:
   merge_group:
   push: # testing, unless there's a tag (steps.0.if below)
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   REGISTRY: ghcr.io
 

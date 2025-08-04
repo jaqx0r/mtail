@@ -1,0 +1,38 @@
+# Run benchmark tests under bazedl
+# Assumes bazel exists, use `bazel-contrib/setup-bazel` before calling this action.
+name: bazel benchmark
+description: Run benchmarks under Bazel and save output
+inputs:
+  build_tag_filters:
+    description: Tag to filter on to find benchmarks to build
+    required: true
+    default: benchmark
+  targets:
+    description: Bazel targets to build
+    required: true
+    default: //...
+  bazel_run_flags:
+    description: Flags to pass to Bazel to run the benchmarks
+    required: true
+    default: -test.bench=.*
+  output_artifact:
+    description: Name of the output artifact
+    required: true
+    default: benchmark_results
+runs:
+  using: composite
+  steps:
+    - name: build benchmarks
+      run: bazel build --build_tag_filters=${{ inputs.build_tag_filters }} ${{ inputs.targets }}
+      shell: bash
+    - name: run benchmarks
+      shell: bash
+      run: |
+        for target in $(bazel query "attr(tags, '\\b${{ inputs.build_tag_filters }}\\b', ${{ inputs.targets }})"); do
+          bazel run ${target} -- ${{ inputs.bazel_run_flags }}
+        done | tee benchmark_results.txt
+    - name: upload benchmark results artfact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.output_artifact }}
+        path: benchmark_results.txt

@@ -7,12 +7,13 @@ on:
       # Record on merges to main
       - main
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   benchmark:
     runs-on: ubuntu-latest
-    permissions:
-      # Allo bencher to write to the checks API
-      checks: write
     steps:
       - uses: actions/checkout@v4
       - uses: bazel-contrib/setup-bazel@0.15.0
@@ -20,14 +21,4 @@ jobs:
           bazelisk-cache: true
           disk-cache: ${{ github.workflow }}
           repository-cache: true
-      - uses: bencherdev/bencher@main
-      - run: bazel build --build_tag_filters=benchmark //...
-      - run: |
-          for target in $(bazel query "attr(tags, '\\bbenchmark\\b', //...)"); do
-            bencher run \
-              --adapter go_bench \
-              --project mtail \
-              --token '${{ secrets.BENCHER_API_TOKEN }}' \
-              --github-actions '${{ secrets.GITHUB.TOKEN }}' \
-              bazel run ${target} -- -test.bench=.*
-          done
+      - uses: ./.github/actions/bazel-benchmark
