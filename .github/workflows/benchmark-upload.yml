@@ -8,7 +8,7 @@ on:
       - completed
 
 jobs:
-  doit:
+  bencher-upload:
     if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     permissions:
