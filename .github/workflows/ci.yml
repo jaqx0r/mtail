@@ -51,11 +51,11 @@ jobs:
         run: |
           bazel info bazel-testlogs output_path | sed -e 's/: /=/' >> $GITHUB_OUTPUT
       - uses: EnricoMi/publish-unit-test-result-action/linux@v2
-        if: always()
+        if: (!cancelled())
         with:
           files: ${{ steps.bazel_info.outputs.bazel-testlogs }}/**/test.xml
       - uses: codecov/codecov-action@v5
-        if: always()
+        if: (!cancelled())
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
