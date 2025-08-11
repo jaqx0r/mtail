@@ -4,6 +4,9 @@
 name: bencher run
 description: Run bencher on a benchmark result artifact
 inputs:
+  BENCHER_API_TOKEN:
+    description: Token to interact with Bencher.dev
+    required: true
   benchmark_results_artifact:
     description: Name of the artifact to download, to find the benchmark results within.
     required: true
@@ -20,6 +23,6 @@ runs:
       shell: bash
       run: |
         bencher run \
-          --token '${{ secrets.BENCHER_API_TOKEN }}' \
-          --github-actions '${{ secrets.GITHUB_TOKEN }}' \
+          --token '${{ inputs.BENCHER_API_TOKEN }}' \
+          --github-actions '${{ github.token }}' \
           --file ${{ inputs.benchmark_results_action }}
