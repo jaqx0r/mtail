@@ -23,7 +23,7 @@ runs:
       with:
         name: ${{ inputs.benchmark_results_artifact }}
         run-id: ${{ github.event.workflow_run.id || github.run_id }}
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v5
       with:
         name: ${{ inputs.workflow_event }}
         run-id: ${{ github.event.workflow_run.id || github.run_id }}
