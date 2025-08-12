@@ -11,6 +11,10 @@ inputs:
     description: Name of the artifact to download, to find the benchmark results within.
     required: true
     default: benchmark_results
+  workflow_event:
+    description: Name of the workflow trigger event json to download
+    required: true
+    default: event.json
 runs:
   using: composite
   steps:
@@ -18,11 +22,31 @@ runs:
     - uses: actions/download-artifact@v5
       with:
         name: ${{ inputs.benchmark_results_artifact }}
-        run_id: ${{ github.event.workflow_run.id || github.run_id }}
+        run-id: ${{ github.event.workflow_run.id || github.run_id }}
+    - uses: actions/download-artifact@v4
+      with:
+        name: ${{ inputs.workflow_event }}
+        run-id: ${{ github.event.workflow_run.id || github.run_id }}
+    - uses: actions/github-script@v6
+      with:
+        script: |
+          let fs = require('fs')
+          let event = JSON.parse(fs.readFileSync(github.event.inputs.workflow_event, {encoding: 'utf8'}));
+          flags = [];
+          if (!!event.pull_request) {
+            flags.push("--branch", event.pull_request.head.ref);
+            flags.push("--hash", event.pull_request.head.sha);
+            flags.push("--start-point", event.pull_request.base.ref);
+            flags.push("--start-point-hash", event.pull_request.head.sha);
+            flags.push("--start-point-clone-thresholds")
+            flags.push("--start-point-reset")
+            flags.push("--ci-number", event.number);
+          core.exportVariable("BENCHER_FLAGS", flags.join(" "));
     - name: bencher run
       shell: bash
       run: |
         bencher run \
           --token '${{ inputs.BENCHER_API_TOKEN }}' \
           --github-actions '${{ github.token }}' \
+          ${{ BENCHER_FLAGS }} \
           --file ${{ inputs.benchmark_results_action }}
