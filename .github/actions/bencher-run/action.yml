@@ -48,5 +48,5 @@ runs:
         bencher run \
           --token '${{ inputs.BENCHER_API_TOKEN }}' \
           --github-actions '${{ github.token }}' \
-          ${{ BENCHER_FLAGS }} \
+          $BENCHER_FLAGS \
           --file ${{ inputs.benchmark_results_action }}
