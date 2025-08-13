@@ -23,10 +23,12 @@ runs:
       with:
         name: ${{ inputs.benchmark_results_artifact }}
         run-id: ${{ github.event.workflow_run.id }}
+        github-token: ${{ github.token }}
     - uses: actions/download-artifact@v5
       with:
         name: ${{ inputs.workflow_event }}
         run-id: ${{ github.event.workflow_run.id }}
+        github-token: ${{ github.token }}
     - uses: actions/github-script@v7
       with:
         script: |
