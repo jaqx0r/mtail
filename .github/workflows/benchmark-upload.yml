@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
+      actions: read
     steps:
       - uses: actions/checkout@v5
       - uses: ./.github/actions/bencher-run
