@@ -43,6 +43,7 @@ runs:
             flags.push("--start-point-clone-thresholds")
             flags.push("--start-point-reset")
             flags.push("--ci-number", event.number);
+        }
           core.exportVariable("BENCHER_FLAGS", flags.join(" "));
     - name: bencher run
       shell: bash
