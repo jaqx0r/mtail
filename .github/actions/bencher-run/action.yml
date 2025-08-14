@@ -30,10 +30,13 @@ runs:
         run-id: ${{ github.event.workflow_run.id }}
         github-token: ${{ github.token }}
     - uses: actions/github-script@v7
+      env:
+        EVT: ${{ inputs.workflow_event }}
       with:
         script: |
           let fs = require('fs');
-          let event = JSON.parse(fs.readFileSync(core.getInput('workflow_event'), {encoding: 'utf8'}));
+          let event = JSON.parse(fs.readFileSync(process
+env.EVT, {encoding: 'utf8'}));
           flags = [];
           if (!!event.pull_request) {
             flags.push("--branch", event.pull_request.head.ref);
