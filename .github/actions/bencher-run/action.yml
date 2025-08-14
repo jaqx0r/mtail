@@ -33,7 +33,7 @@ runs:
       with:
         script: |
           let fs = require('fs');
-          let event = JSON.parse(fs.readFileSync(github.event.inputs.workflow_event, {encoding: 'utf8'}));
+          let event = JSON.parse(fs.readFileSync(core.getInput('workflow_event'), {encoding: 'utf8'}));
           flags = [];
           if (!!event.pull_request) {
             flags.push("--branch", event.pull_request.head.ref);
