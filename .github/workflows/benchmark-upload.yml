@@ -12,8 +12,11 @@ jobs:
     if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     permissions:
+      # Allow bencher-run to write to the PR comments
       pull-requests: write
+      # Allow bencher-run to read the benchmark results artifact
       actions: read
+      # Allow bencher-run to write to the checks api
       checks: write
     steps:
       - uses: actions/checkout@v5
