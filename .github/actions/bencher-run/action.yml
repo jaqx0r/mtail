@@ -54,4 +54,4 @@ runs:
           --token '${{ inputs.BENCHER_API_TOKEN }}' \
           --github-actions '${{ github.token }}' \
           $BENCHER_FLAGS \
-          --file ${{ inputs.benchmark_results_action }}
+          --file ${{ inputs.benchmark_results_artifact }}
