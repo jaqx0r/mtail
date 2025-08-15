@@ -10,7 +10,7 @@ inputs:
   benchmark_results_artifact:
     description: Name of the artifact to download, to find the benchmark results within.
     required: true
-    default: benchmark_results
+    default: benchmark_results.txt
   workflow_event:
     description: Name of the workflow trigger event json to download
     required: true

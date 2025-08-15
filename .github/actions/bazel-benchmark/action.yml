@@ -18,7 +18,7 @@ inputs:
   output_artifact:
     description: Name of the output artifact
     required: true
-    default: benchmark_results
+    default: benchmark_results.txt
 runs:
   using: composite
   steps:
