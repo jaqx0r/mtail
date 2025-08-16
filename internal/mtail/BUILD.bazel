@@ -43,6 +43,7 @@ go_test(
         "examples_integration_unix_test.go",
         "exec_integration_test.go",
         "log_deletion_integration_unix_test.go",
+        "log_filter_integration_test.go",
         "log_glob_integration_test.go",
         "log_rotation_integration_test.go",
         "log_rotation_integration_unix_test.go",
