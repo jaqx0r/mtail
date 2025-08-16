@@ -1,4 +1,4 @@
-# Run benchmark tests under bazedl
+# Run benchmark tests under bazel
 # Assumes bazel exists, use `bazel-contrib/setup-bazel` before calling this action.
 name: bazel benchmark
 description: Run benchmarks under Bazel and save output
