@@ -5,7 +5,7 @@ name: bencher run
 description: Run bencher on a benchmark result artifact
 inputs:
   BENCHER_API_TOKEN:
-    description: Token to interact with Bencher.dev
+    description: Token to interact with Bencher.dev; https://bencher.dev/docs/explanation/bencher-run/#--token-token
     required: true
   benchmark_results_artifact:
     description: Name of the artifact to download, to find the benchmark results within.
@@ -15,6 +15,9 @@ inputs:
     description: Name of the workflow trigger event json to download
     required: true
     default: event.json
+  project:
+    required: true
+    description: Project slug or UUID for Bencher.dev; https://bencher.dev/docs/explanation/bencher-run/#--project-project
 runs:
   using: composite
   steps:
@@ -53,5 +56,6 @@ runs:
         bencher run \
           --token '${{ inputs.BENCHER_API_TOKEN }}' \
           --github-actions '${{ github.token }}' \
+          --project '${{ inputs.project }}' \
           $BENCHER_FLAGS \
           --file ${{ inputs.benchmark_results_artifact }}

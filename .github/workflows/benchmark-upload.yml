@@ -23,4 +23,4 @@ jobs:
       - uses: ./.github/actions/bencher-run
         with:
           BENCHER_API_TOKEN: ${{ secrets.BENCHER_API_TOKEN }}
-
+          project: 238e7993-fc7a-4a69-aa82-470abd249c8b
