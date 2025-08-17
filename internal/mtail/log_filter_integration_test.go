@@ -1,4 +1,4 @@
-// Copyright 2019 Google Inc. All Rights Reserved.
+// Copyright 2025 The mtail Authors. All Rights Reserved.
 // This file is available under the Apache license.
 
 package mtail_test
