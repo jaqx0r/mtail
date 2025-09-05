@@ -11,7 +11,7 @@ require (
 	github.com/golang/groupcache v0.0.0-20241129210726-2c02b8208cf8
 	github.com/google/go-cmp v0.7.0
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus/client_golang v1.23.1
+	github.com/prometheus/client_golang v1.23.2
 	github.com/prometheus/common v0.66.1
 	go.opencensus.io v0.24.0
 	go.opentelemetry.io/otel v1.38.0
