@@ -1,6 +1,6 @@
 module github.com/jaqx0r/mtail
 
-go 1.23.0
+go 1.24.0
 
 toolchain go1.24.6
 
@@ -18,7 +18,7 @@ require (
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v1.38.0
 	go.opentelemetry.io/otel/sdk v1.38.0
 	go.opentelemetry.io/otel/sdk/metric v1.38.0
-	golang.org/x/sys v0.35.0
+	golang.org/x/sys v0.36.0
 	golang.org/x/tools v0.36.0
 )
 
