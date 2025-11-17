@@ -22,12 +22,12 @@ runs:
   using: composite
   steps:
     - uses: bencherdev/bencher@main
-    - uses: actions/download-artifact@v5
+    - uses: actions/download-artifact@v6
       with:
         name: ${{ inputs.benchmark_results_artifact }}
         run-id: ${{ github.event.workflow_run.id }}
         github-token: ${{ github.token }}
-    - uses: actions/download-artifact@v5
+    - uses: actions/download-artifact@v6
       with:
         name: ${{ inputs.workflow_event }}
         run-id: ${{ github.event.workflow_run.id }}
