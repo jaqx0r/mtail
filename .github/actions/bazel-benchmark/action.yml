@@ -32,7 +32,7 @@ runs:
           bazel run ${target} -- ${{ inputs.bazel_run_flags }}
         done | tee benchmark_results.txt
     - name: upload benchmark results artfact
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ inputs.output_artifact }}
         path: benchmark_results.txt
