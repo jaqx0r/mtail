@@ -22,7 +22,7 @@ jobs:
           disk-cache: ${{ github.workflow }}
           repository-cache: true
       - uses: ./.github/actions/bazel-benchmark
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: event.json
           path: ${{ github.event_path }}
