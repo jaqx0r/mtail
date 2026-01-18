@@ -246,9 +246,11 @@ func (s *Sexp) emitScope(scope *symbol.Scope) {
 		}
 		if len(scope.Symbols) > 0 {
 			s.indent()
-			for name, sym := range scope.Symbols {
-				s.emit(fmt.Sprintf("%q: %v %q %v", name, sym.Kind, sym.Name, sym.Used))
-				s.newline()
+			for name, syms := range scope.Symbols {
+				for _, sym  := range syms {
+					s.emit(fmt.Sprintf("%q: %v %q %v", name, sym.Kind, sym.Name, sym.Used))
+					s.newline()
+				}
 			}
 			s.outdent()
 		}

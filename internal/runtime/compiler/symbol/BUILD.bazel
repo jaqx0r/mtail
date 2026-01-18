@@ -6,8 +6,10 @@ go_library(
     importpath = "github.com/jaqx0r/mtail/internal/runtime/compiler/symbol",
     visibility = ["//:__subpackages__"],
     deps = [
+        "//internal/runtime/compiler/errors",
         "//internal/runtime/compiler/position",
         "//internal/runtime/compiler/types",
+        "@com_github_golang_glog//:glog",
     ],
 )
 
@@ -16,5 +18,11 @@ go_test(
     size = "small",
     srcs = ["symtab_test.go"],
     embed = [":symbol"],
-    deps = ["//internal/testutil"],
+    deps = [
+        "//internal/runtime/compiler/errors",
+        "//internal/runtime/compiler/position",
+        "//internal/testutil",
+        "@com_github_google_go_cmp//cmp",
+        "@com_github_google_go_cmp//cmp/cmpopts",
+    ],
 )

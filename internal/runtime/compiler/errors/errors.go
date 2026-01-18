@@ -20,6 +20,13 @@ func (e compileError) Error() string {
 	return e.pos.String() + ": " + e.msg
 }
 
+func (e compileError) Equal(f compileError) bool {
+	if e.pos != f.pos {
+		return false
+	}
+	return e.msg == f.msg
+}
+
 // ErrorList contains a list of compile errors.
 type ErrorList []*compileError
 

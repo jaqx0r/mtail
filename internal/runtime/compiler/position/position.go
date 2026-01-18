@@ -50,3 +50,16 @@ func Merge(a, b *Position) *Position {
 	}
 	return &r
 }
+
+func (p Position) Equal(q Position) bool {
+	if p.Line != q.Line {
+		return false
+	}
+	if p.Startcol != q.Startcol {
+		return false
+	}
+	if p.Endcol != q.Endcol {
+		return false
+	}
+	return p.Filename == q.Filename
+}

@@ -113,7 +113,6 @@ func (c *checker) VisitBefore(node ast.Node) (ast.Visitor, ast.Node) {
 	case *ast.VarDecl:
 		n.Symbol = symbol.NewSymbol(n.Name, symbol.VarSymbol, n.Pos())
 		if alt := c.scope.Insert(n.Symbol); alt != nil {
-			c.errors.Add(n.Pos(), fmt.Sprintf("Redeclaration of metric `%s' previously declared at %s", n.Name, alt.Pos))
 			c.depth--
 			return nil, n
 		}
@@ -248,22 +247,7 @@ func (c *checker) VisitBefore(node ast.Node) (ast.Visitor, ast.Node) {
 // checkSymbolTable emits errors if any eligible symbols in the current scope
 // are not marked as used or have an invalid type.
 func (c *checker) checkSymbolTable() {
-	for _, sym := range c.scope.Symbols {
-		if !sym.Used {
-			// Users don't have control over the patterns given from decorators
-			// so this should never be an error; but it can be useful to know
-			// if a program is doing unnecessary work.
-			if sym.Kind == symbol.CaprefSymbol {
-				if sym.Addr == 0 {
-					// Don't warn about the zeroth capture group; it's not user-defined.
-					continue
-				}
-				glog.Infof("capture group reference `%s' at %s appears to be unused", sym.Name, sym.Pos)
-				continue
-			}
-			c.errors.Add(sym.Pos, fmt.Sprintf("Declaration of %s `%s' here is never used.", sym.Kind, sym.Name))
-		}
-	}
+	c.scope.Check(&c.errors)
 }
 
 // VisitAfter performs the type annotation and checking, once the child nodes
