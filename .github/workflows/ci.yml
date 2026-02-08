@@ -42,7 +42,9 @@ jobs:
           disk-cache: ${{ github.workflow }}
           # Share repository cache between workflows
           repository-cache: true
-      - run: bazel build //...
+      - name: bazel build
+        # Speed up CI build by only doing compilation outputs
+        run: bazel build --output_groups=compilation_outputs //...
       - name: bazel test
         run: bazel coverage --test_output=all --combined_report=lcov --instrument_test_targets --nocache_test_results --instrumentation_filter="^//" //...
       - name: output bazel paths for test and coverage
