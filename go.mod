@@ -2,7 +2,7 @@ module github.com/jaqx0r/mtail
 
 go 1.24.0
 
-toolchain go1.25.7
+toolchain go1.26.0
 
 require (
 	contrib.go.opencensus.io/exporter/jaeger v0.2.1
