@@ -16,8 +16,8 @@ require (
 	go.opencensus.io v0.24.0
 	go.opentelemetry.io/otel v1.41.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v1.40.0
-	go.opentelemetry.io/otel/sdk v1.40.0
-	go.opentelemetry.io/otel/sdk/metric v1.40.0
+	go.opentelemetry.io/otel/sdk v1.41.0
+	go.opentelemetry.io/otel/sdk/metric v1.41.0
 	golang.org/x/sys v0.41.0
 	golang.org/x/tools v0.42.0
 )
