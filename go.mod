@@ -1,6 +1,6 @@
 module github.com/jaqx0r/mtail
 
-go 1.24.0
+go 1.25.0
 
 toolchain go1.25.7
 
@@ -14,10 +14,10 @@ require (
 	github.com/prometheus/client_golang v1.23.2
 	github.com/prometheus/common v0.67.5
 	go.opencensus.io v0.24.0
-	go.opentelemetry.io/otel v1.41.0
+	go.opentelemetry.io/otel v1.42.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v1.41.0
-	go.opentelemetry.io/otel/sdk v1.41.0
-	go.opentelemetry.io/otel/sdk/metric v1.41.0
+	go.opentelemetry.io/otel/sdk v1.42.0
+	go.opentelemetry.io/otel/sdk/metric v1.42.0
 	golang.org/x/sys v0.41.0
 	golang.org/x/tools v0.42.0
 )
@@ -36,8 +36,8 @@ require (
 	github.com/prometheus/procfs v0.16.1 // indirect
 	github.com/uber/jaeger-client-go v2.25.0+incompatible // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
-	go.opentelemetry.io/otel/metric v1.41.0 // indirect
-	go.opentelemetry.io/otel/trace v1.41.0 // indirect
+	go.opentelemetry.io/otel/metric v1.42.0 // indirect
+	go.opentelemetry.io/otel/trace v1.42.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.9.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.3 // indirect
 	golang.org/x/net v0.50.0 // indirect
