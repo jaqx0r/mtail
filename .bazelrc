@@ -3,3 +3,10 @@ build --workspace_status_command=build/workspace_status.sh
 
 # Enable build stamping to inject the workspace status variables.
 build --stamp
+
+build:remotecache --bes_results_url=https://app.buildbuddy.io/invocation/
+build:remotecache --bes_backend=grpcs://remote.buildbuddy.io
+common:remotecache --remote_cache=grpcs://remote.buildbuddy.io
+common:remotecache --noremote_upload_local_results # Uploads logs & artifacts without writing to cache
+common:remotecache --remote_timeout=10m
+common:remotecache --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}
