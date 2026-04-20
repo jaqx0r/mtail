@@ -14,7 +14,7 @@ on:
 
 jobs:
   enable-automerge-and-approve:
-    if: github.event.workflow_run.conclusion == 'success' && ((github.event.workflow_run.pull_requests[0].user.login == 'dependabot[bot]' && contains(github.event.workflow_run.pull_requests[0].labels.*.name, 'dependencies')) || (github.event.workflow_run.pull_requests[0].user.login == 'renovate[bot]' && contains(github.event.workflow_run.pull_requests[0].labels.*.name, 'renovate'))) 
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.pull_requests[0] && ((github.event.workflow_run.pull_requests[0].user.login == 'dependabot[bot]' && contains(github.event.workflow_run.pull_requests[0].labels.*.name, 'dependencies')) || (github.event.workflow_run.pull_requests[0].user.login == 'renovate[bot]' && contains(github.event.workflow_run.pull_requests[0].labels.*.name, 'renovate'))) 
     runs-on: ubuntu-latest
     # https://github.com/orgs/community/discussions/24686
     permissions:
