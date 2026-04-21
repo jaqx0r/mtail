@@ -38,22 +38,19 @@ use_repo(
     "org_golang_x_tools",
 )
 
-# `rules_oci` and `aspect_bazel_lib`'s `tar` for making container images.
 bazel_dep(name = "aspect_bazel_lib", version = "2.22.5")
-bazel_dep(name = "rules_oci", version = "2.3.0")
+bazel_dep(name = "rules_img", version = "0.3.8")
 bazel_dep(name = "platforms", version = "1.0.0")
 
-oci = use_extension("@rules_oci//oci:extensions.bzl", "oci")
-oci.pull(
+pull = use_repo_rule("@rules_img//img:pull.bzl", "pull")
+
+pull(
     name = "distroless_base",
     digest = "sha256:c83f022002fc917a92501a8c30c605efdad3010157ba2c8998a2cbf213299201",
-    image = "gcr.io/distroless/base",
-    platforms = [
-        "linux/amd64",
-        "linux/arm64/v8",
-    ],
+    layer_handling = "lazy",
+    registry = "gcr.io",
+    repository = "distroless/base",
 )
-use_repo(oci, "distroless_base", "distroless_base_linux_amd64", "distroless_base_linux_arm64_v8")
 
 # `rules_pkg` for making releases
 bazel_dep(name = "rules_pkg", version = "1.2.0")
