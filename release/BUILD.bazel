@@ -55,29 +55,6 @@ image_layer(
 _TIMESTAMP_STRING = "2006-01-02T15:04:05Z"
 
 expand_template(
-    name = "labels",
-    out = "labels.txt",
-    stamp_substitutions = {
-        "0.0.0": "{{STABLE_GIT_SEMVER}}",
-        "deadbeef": "{{STABLE_GIT_REVISION}}",
-        _TIMESTAMP_STRING: "{{BUILD_TIMESTAMP}}",
-    },
-    template = [
-        "org.opencontainers.image.ref.name=jaqx0r/mtail",
-        "org.opencontainers.image.title=mtail",
-        "org.opencontainers.image.description=extract internal monitoring data from application logs for collection in a timeseries database",
-        "org.opencontainers.image.authors=Jamie Wilkinson (@jaqx0r)",
-        "org.opencontainers.image.licenses=Apache-2.0",
-        "org.opencontainers.image.version=0.0.0",
-        "org.opencontainers.image.revision=deadbeef",
-        "org.opencontainers.image.source=https://github.com/jaqx0r/mtail/",
-        "org.opencontainers.image.documentation=https://jaqx0r.github.io/mtail/",
-        "org.opencontainers.image.created=" + _TIMESTAMP_STRING,
-        "org.opencontainers.image.url=https://github.com/jaqx0r/mtail",
-    ],
-)
-
-expand_template(
     name = "timestamp",
     out = "timestamp.txt",
     stamp_substitutions = {
@@ -88,11 +65,23 @@ expand_template(
 
 image_manifest(
     name = "manifest",
-    annotations_file = ":labels",
     base = "@distroless_base",
     config_fragment = "config.json",
     created = ":timestamp",
     entrypoint = ["/mtail"],
+    labels = {
+        "org.opencontainers.image.ref.name": "jaqx0r/mtail",
+        "org.opencontainers.image.title": "mtail",
+        "org.opencontainers.image.description": "extract internal monitoring data from application logs for collection in a timeseries database",
+        "org.opencontainers.image.authors": "Jamie Wilkinson (@jaqx0r)",
+        "org.opencontainers.image.licenses": "Apache-2.0",
+        "org.opencontainers.image.version": "{{if .STABLE_GIT_SEMVER}}{{.STABLE_GIT_SEMVER}}{{else}}0.0.0{{end}}",
+        "org.opencontainers.image.revision": "{{if .STABLE_GIT_REVISION}}{{.STABLE_GIT_REVISION}}{{else}}unknown{{end}}",
+        "org.opencontainers.image.source": "https://github.com/jaqx0r/mtail/",
+        "org.opencontainers.image.documentation": "https://jaqx0r.github.io/mtail/",
+        "org.opencontainers.image.created": "{{.BUILD_TIMESTAMP}}",
+        "org.opencontainers.image.url": "https://github.com/jaqx0r/mtail",
+    },
     layers = [":mtail_layer"],
 )
 
