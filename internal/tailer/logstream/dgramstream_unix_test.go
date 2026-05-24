@@ -98,24 +98,21 @@ func TestDgramStreamReadCompletedBecauseCancel(t *testing.T) {
 			ds, err := logstream.New(ctx, &wg, waker, sockName, logstream.OneShotDisabled)
 			testutil.FatalIfErr(t, err)
 
-			expected := []*logline.LogLine{
-				{Context: context.TODO(), Filename: sockName, Line: "1", Filenamehash: logline.GetHash(sockName)},
-			}
-			checkLineDiff := testutil.ExpectLinesReceivedNoDiff(t, expected, ds.Lines())
-
 			s, err := net.Dial(scheme, addr)
 			testutil.FatalIfErr(t, err)
 
 			_, err = s.Write([]byte("1\n"))
 			testutil.FatalIfErr(t, err)
 
-			// Yield to give the stream a chance to read.
-			time.Sleep(10 * time.Millisecond)
+			// Read from Lines to synchronise with the stream goroutine: this
+			// blocks until the stream has consumed the data, proving it read
+			// "1\n" from the socket before we cancel.
+			expected := &logline.LogLine{Context: context.TODO(), Filename: sockName, Line: "1", Filenamehash: logline.GetHash(sockName)}
+			received := <-ds.Lines()
+			testutil.ExpectNoDiff(t, expected, received, testutil.IgnoreFields(logline.LogLine{}, "Context"))
 
 			cancel() // This cancellation should cause the stream to shut down.
 			wg.Wait()
-
-			checkLineDiff()
 
 			if v := <-ds.Lines(); v != nil {
 				t.Errorf("expecting dgramstream to be complete because cancel")

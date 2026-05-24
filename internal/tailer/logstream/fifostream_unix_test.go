@@ -80,17 +80,18 @@ func TestFifoStreamReadCompletedBecauseCancel(t *testing.T) {
 
 		ps, err := logstream.New(ctx, &wg, waker, name, logstream.OneShotDisabled)
 		testutil.FatalIfErr(t, err)
-		expected := []*logline.LogLine{
-			{Context: context.TODO(), Filename: name, Line: "1", Filenamehash: logline.GetHash(name)},
-		}
-		checkLineDiff := testutil.ExpectLinesReceivedNoDiff(t, expected, ps.Lines())
 
 		testutil.WriteString(t, f, "1\n")
 
+		// Read from Lines to synchronise with the stream goroutine: this
+		// blocks until the stream has consumed the data, proving it read "1\n"
+		// from the fifo before we cancel.
+		expected := &logline.LogLine{Context: context.TODO(), Filename: name, Line: "1", Filenamehash: logline.GetHash(name)}
+		received := <-ps.Lines()
+		testutil.ExpectNoDiff(t, expected, received, testutil.IgnoreFields(logline.LogLine{}, "Context"))
+
 		cancel() // Cancellation here should cause the stream to shut down.
 		wg.Wait()
-
-		checkLineDiff()
 
 		if v := <-ps.Lines(); v != nil {
 			t.Errorf("expecting pipestream to be complete because cancelled")
