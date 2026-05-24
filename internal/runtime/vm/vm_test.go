@@ -31,7 +31,7 @@ var instructions = []struct {
 }{
 	{
 		"match",
-		code.Instr{code.Match, 0, 0},
+		code.Instr{Opcode: code.Match, Operand: 0, SourceLine: 0},
 		[]*regexp.Regexp{regexp.MustCompile("a*b")},
 		[]string{},
 		[]interface{}{},
@@ -40,7 +40,7 @@ var instructions = []struct {
 	},
 	{
 		"cmp lt",
-		code.Instr{code.Cmp, -1, 0},
+		code.Instr{Opcode: code.Cmp, Operand: -1, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{1, "2"},
@@ -49,7 +49,7 @@ var instructions = []struct {
 	},
 	{
 		"cmp eq",
-		code.Instr{code.Cmp, 0, 0},
+		code.Instr{Opcode: code.Cmp, Operand: 0, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{"2", "2"},
@@ -58,7 +58,7 @@ var instructions = []struct {
 	},
 	{
 		"cmp gt",
-		code.Instr{code.Cmp, 1, 0},
+		code.Instr{Opcode: code.Cmp, Operand: 1, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{2, 1},
@@ -67,7 +67,7 @@ var instructions = []struct {
 	},
 	{
 		"cmp le",
-		code.Instr{code.Cmp, 1, 0},
+		code.Instr{Opcode: code.Cmp, Operand: 1, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{2, "2"},
@@ -76,7 +76,7 @@ var instructions = []struct {
 	},
 	{
 		"cmp ne",
-		code.Instr{code.Cmp, 0, 0},
+		code.Instr{Opcode: code.Cmp, Operand: 0, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{"1", "2"},
@@ -85,7 +85,7 @@ var instructions = []struct {
 	},
 	{
 		"cmp ge",
-		code.Instr{code.Cmp, -1, 0},
+		code.Instr{Opcode: code.Cmp, Operand: -1, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{2, 2},
@@ -94,7 +94,7 @@ var instructions = []struct {
 	},
 	{
 		"cmp gt float float",
-		code.Instr{code.Cmp, 1, 0},
+		code.Instr{Opcode: code.Cmp, Operand: 1, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{"2.0", "1.0"},
@@ -103,7 +103,7 @@ var instructions = []struct {
 	},
 	{
 		"cmp gt float int",
-		code.Instr{code.Cmp, 1, 0},
+		code.Instr{Opcode: code.Cmp, Operand: 1, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{"1.0", "2"},
@@ -112,7 +112,7 @@ var instructions = []struct {
 	},
 	{
 		"cmp gt int float",
-		code.Instr{code.Cmp, 1, 0},
+		code.Instr{Opcode: code.Cmp, Operand: 1, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{"1", "2.0"},
@@ -121,7 +121,7 @@ var instructions = []struct {
 	},
 	{
 		"cmp eq string string false",
-		code.Instr{code.Cmp, 0, 0},
+		code.Instr{Opcode: code.Cmp, Operand: 0, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{"abc", "def"},
@@ -130,7 +130,7 @@ var instructions = []struct {
 	},
 	{
 		"cmp eq string string true",
-		code.Instr{code.Cmp, 0, 0},
+		code.Instr{Opcode: code.Cmp, Operand: 0, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{"abc", "abc"},
@@ -139,7 +139,7 @@ var instructions = []struct {
 	},
 	{
 		"cmp gt float float",
-		code.Instr{code.Cmp, 1, 0},
+		code.Instr{Opcode: code.Cmp, Operand: 1, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{2.0, 1.0},
@@ -148,7 +148,7 @@ var instructions = []struct {
 	},
 	{
 		"cmp gt float int",
-		code.Instr{code.Cmp, 1, 0},
+		code.Instr{Opcode: code.Cmp, Operand: 1, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{1.0, 2},
@@ -157,7 +157,7 @@ var instructions = []struct {
 	},
 	{
 		"cmp gt int float",
-		code.Instr{code.Cmp, 1, 0},
+		code.Instr{Opcode: code.Cmp, Operand: 1, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{1, 2.0},
@@ -166,7 +166,7 @@ var instructions = []struct {
 	},
 	{
 		"jnm",
-		code.Instr{code.Jnm, 37, 0},
+		code.Instr{Opcode: code.Jnm, Operand: 37, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{false},
@@ -175,7 +175,7 @@ var instructions = []struct {
 	},
 	{
 		"jm",
-		code.Instr{code.Jm, 37, 0},
+		code.Instr{Opcode: code.Jm, Operand: 37, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{false},
@@ -184,7 +184,7 @@ var instructions = []struct {
 	},
 	{
 		"jmp",
-		code.Instr{code.Jmp, 37, 0},
+		code.Instr{Opcode: code.Jmp, Operand: 37, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{},
@@ -193,7 +193,7 @@ var instructions = []struct {
 	},
 	{
 		"strptime",
-		code.Instr{code.Strptime, 0, 0},
+		code.Instr{Opcode: code.Strptime, Operand: 0, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{"2012/01/18 06:25:00", "2006/01/02 15:04:05"},
@@ -205,7 +205,7 @@ var instructions = []struct {
 	},
 	{
 		"iadd",
-		code.Instr{code.Iadd, 0, 0},
+		code.Instr{Opcode: code.Iadd, Operand: 0, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{2, 1},
@@ -214,7 +214,7 @@ var instructions = []struct {
 	},
 	{
 		"isub",
-		code.Instr{code.Isub, 0, 0},
+		code.Instr{Opcode: code.Isub, Operand: 0, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{2, 1},
@@ -223,7 +223,7 @@ var instructions = []struct {
 	},
 	{
 		"imul",
-		code.Instr{code.Imul, 0, 0},
+		code.Instr{Opcode: code.Imul, Operand: 0, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{2, 1},
@@ -232,7 +232,7 @@ var instructions = []struct {
 	},
 	{
 		"idiv",
-		code.Instr{code.Idiv, 0, 0},
+		code.Instr{Opcode: code.Idiv, Operand: 0, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{4, 2},
@@ -241,7 +241,7 @@ var instructions = []struct {
 	},
 	{
 		"imod",
-		code.Instr{code.Imod, 0, 0},
+		code.Instr{Opcode: code.Imod, Operand: 0, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{4, 2},
@@ -250,7 +250,7 @@ var instructions = []struct {
 	},
 	{
 		"imod 2",
-		code.Instr{code.Imod, 0, 0},
+		code.Instr{Opcode: code.Imod, Operand: 0, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{3, 2},
@@ -259,7 +259,7 @@ var instructions = []struct {
 	},
 	{
 		"tolower",
-		code.Instr{code.Tolower, 0, 0},
+		code.Instr{Opcode: code.Tolower, Operand: 0, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{"mIxeDCasE"},
@@ -268,7 +268,7 @@ var instructions = []struct {
 	},
 	{
 		"length",
-		code.Instr{code.Length, 0, 0},
+		code.Instr{Opcode: code.Length, Operand: 0, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{"1234"},
@@ -277,7 +277,7 @@ var instructions = []struct {
 	},
 	{
 		"length 0",
-		code.Instr{code.Length, 0, 0},
+		code.Instr{Opcode: code.Length, Operand: 0, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{""},
@@ -286,7 +286,7 @@ var instructions = []struct {
 	},
 	{
 		"shl",
-		code.Instr{code.Shl, 0, 0},
+		code.Instr{Opcode: code.Shl, Operand: 0, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{2, 1},
@@ -295,7 +295,7 @@ var instructions = []struct {
 	},
 	{
 		"shr",
-		code.Instr{code.Shr, 0, 0},
+		code.Instr{Opcode: code.Shr, Operand: 0, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{2, 1},
@@ -304,7 +304,7 @@ var instructions = []struct {
 	},
 	{
 		"and",
-		code.Instr{code.And, 0, 0},
+		code.Instr{Opcode: code.And, Operand: 0, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{2, 1},
@@ -313,7 +313,7 @@ var instructions = []struct {
 	},
 	{
 		"or",
-		code.Instr{code.Or, 0, 0},
+		code.Instr{Opcode: code.Or, Operand: 0, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{2, 1},
@@ -322,7 +322,7 @@ var instructions = []struct {
 	},
 	{
 		"xor",
-		code.Instr{code.Xor, 0, 0},
+		code.Instr{Opcode: code.Xor, Operand: 0, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{2, 1},
@@ -331,7 +331,7 @@ var instructions = []struct {
 	},
 	{
 		"xor 2",
-		code.Instr{code.Xor, 0, 0},
+		code.Instr{Opcode: code.Xor, Operand: 0, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{2, 3},
@@ -340,7 +340,7 @@ var instructions = []struct {
 	},
 	{
 		"xor 3",
-		code.Instr{code.Xor, 0, 0},
+		code.Instr{Opcode: code.Xor, Operand: 0, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{-1, 3},
@@ -349,7 +349,7 @@ var instructions = []struct {
 	},
 	{
 		"neg",
-		code.Instr{code.Neg, 0, 0},
+		code.Instr{Opcode: code.Neg, Operand: 0, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{0},
@@ -358,7 +358,7 @@ var instructions = []struct {
 	},
 	{
 		"not",
-		code.Instr{code.Not, 0, 0},
+		code.Instr{Opcode: code.Not, Operand: 0, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{false},
@@ -367,7 +367,7 @@ var instructions = []struct {
 	},
 	{
 		"pow",
-		code.Instr{code.Ipow, 0, 0},
+		code.Instr{Opcode: code.Ipow, Operand: 0, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{2, 2},
@@ -376,7 +376,7 @@ var instructions = []struct {
 	},
 	{
 		"s2i pop",
-		code.Instr{code.S2i, 1, 0},
+		code.Instr{Opcode: code.S2i, Operand: 1, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{"ff", 16},
@@ -385,7 +385,7 @@ var instructions = []struct {
 	},
 	{
 		"s2i",
-		code.Instr{code.S2i, nil, 0},
+		code.Instr{Opcode: code.S2i, Operand: nil, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{"190"},
@@ -394,7 +394,7 @@ var instructions = []struct {
 	},
 	{
 		"s2f",
-		code.Instr{code.S2f, nil, 0},
+		code.Instr{Opcode: code.S2f, Operand: nil, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{"1.0"},
@@ -403,7 +403,7 @@ var instructions = []struct {
 	},
 	{
 		"i2f",
-		code.Instr{code.I2f, nil, 0},
+		code.Instr{Opcode: code.I2f, Operand: nil, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{1},
@@ -412,7 +412,7 @@ var instructions = []struct {
 	},
 	{
 		"settime",
-		code.Instr{code.Settime, 0, 0},
+		code.Instr{Opcode: code.Settime, Operand: 0, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{int64(0)},
@@ -421,7 +421,7 @@ var instructions = []struct {
 	},
 	{
 		"push int",
-		code.Instr{code.Push, 1, 0},
+		code.Instr{Opcode: code.Push, Operand: 1, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{},
@@ -430,7 +430,7 @@ var instructions = []struct {
 	},
 	{
 		"push float",
-		code.Instr{code.Push, 1.0, 0},
+		code.Instr{Opcode: code.Push, Operand: 1.0, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{},
@@ -439,7 +439,7 @@ var instructions = []struct {
 	},
 	{
 		"setmatched false",
-		code.Instr{code.Setmatched, false, 0},
+		code.Instr{Opcode: code.Setmatched, Operand: false, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{},
@@ -448,7 +448,7 @@ var instructions = []struct {
 	},
 	{
 		"setmatched true",
-		code.Instr{code.Setmatched, true, 0},
+		code.Instr{Opcode: code.Setmatched, Operand: true, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{},
@@ -457,7 +457,7 @@ var instructions = []struct {
 	},
 	{
 		"otherwise",
-		code.Instr{code.Otherwise, nil, 0},
+		code.Instr{Opcode: code.Otherwise, Operand: nil, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{},
@@ -466,7 +466,7 @@ var instructions = []struct {
 	},
 	{
 		"fadd",
-		code.Instr{code.Fadd, nil, 0},
+		code.Instr{Opcode: code.Fadd, Operand: nil, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{1.0, 2.0},
@@ -475,7 +475,7 @@ var instructions = []struct {
 	},
 	{
 		"fsub",
-		code.Instr{code.Fsub, nil, 0},
+		code.Instr{Opcode: code.Fsub, Operand: nil, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{1.0, 2.0},
@@ -484,7 +484,7 @@ var instructions = []struct {
 	},
 	{
 		"fmul",
-		code.Instr{code.Fmul, nil, 0},
+		code.Instr{Opcode: code.Fmul, Operand: nil, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{1.0, 2.0},
@@ -493,7 +493,7 @@ var instructions = []struct {
 	},
 	{
 		"fdiv",
-		code.Instr{code.Fdiv, nil, 0},
+		code.Instr{Opcode: code.Fdiv, Operand: nil, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{1.0, 2.0},
@@ -502,7 +502,7 @@ var instructions = []struct {
 	},
 	{
 		"fmod",
-		code.Instr{code.Fmod, nil, 0},
+		code.Instr{Opcode: code.Fmod, Operand: nil, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{1.0, 2.0},
@@ -511,7 +511,7 @@ var instructions = []struct {
 	},
 	{
 		"fpow",
-		code.Instr{code.Fpow, nil, 0},
+		code.Instr{Opcode: code.Fpow, Operand: nil, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{2.0, 2.0},
@@ -520,7 +520,7 @@ var instructions = []struct {
 	},
 	{
 		"getfilename",
-		code.Instr{code.Getfilename, nil, 0},
+		code.Instr{Opcode: code.Getfilename, Operand: nil, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{},
@@ -529,7 +529,7 @@ var instructions = []struct {
 	},
 	{
 		"i2s",
-		code.Instr{code.I2s, nil, 0},
+		code.Instr{Opcode: code.I2s, Operand: nil, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{1},
@@ -538,7 +538,7 @@ var instructions = []struct {
 	},
 	{
 		"f2s",
-		code.Instr{code.F2s, nil, 0},
+		code.Instr{Opcode: code.F2s, Operand: nil, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{3.1},
@@ -547,7 +547,7 @@ var instructions = []struct {
 	},
 	{
 		"cat",
-		code.Instr{code.Cat, 0, 0},
+		code.Instr{Opcode: code.Cat, Operand: 0, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{"first", "second"},
@@ -556,7 +556,7 @@ var instructions = []struct {
 	},
 	{
 		"icmp gt false",
-		code.Instr{code.Icmp, 1, 0},
+		code.Instr{Opcode: code.Icmp, Operand: 1, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{1, 2},
@@ -565,7 +565,7 @@ var instructions = []struct {
 	},
 	{
 		"fcmp gt false",
-		code.Instr{code.Fcmp, 1, 0},
+		code.Instr{Opcode: code.Fcmp, Operand: 1, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{1.0, 2.0},
@@ -574,7 +574,7 @@ var instructions = []struct {
 	},
 	{
 		"scmp eq false",
-		code.Instr{code.Scmp, 0, 0},
+		code.Instr{Opcode: code.Scmp, Operand: 0, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{"abc", "def"},
@@ -583,7 +583,7 @@ var instructions = []struct {
 	},
 	{
 		"subst",
-		code.Instr{code.Subst, 0, 0},
+		code.Instr{Opcode: code.Subst, Operand: 0, SourceLine: 0},
 		[]*regexp.Regexp{},
 		[]string{},
 		[]interface{}{"aa" /*old*/, "a" /*new*/, "caat"},
@@ -664,7 +664,7 @@ func TestDatumSetInstrs(t *testing.T) {
 	tests := []datumStoreTests{
 		{
 			name: "simple inc",
-			i:    code.Instr{code.Inc, nil, 0},
+			i:    code.Instr{Opcode: code.Inc, Operand: nil, SourceLine: 0},
 			d:    0,
 			setup: func(t *thread, d datum.Datum) {
 				t.Push(d)
@@ -673,7 +673,7 @@ func TestDatumSetInstrs(t *testing.T) {
 		},
 		{
 			name: "inc by int",
-			i:    code.Instr{code.Inc, 0, 0},
+			i:    code.Instr{Opcode: code.Inc, Operand: 0, SourceLine: 0},
 			d:    0,
 			setup: func(t *thread, d datum.Datum) {
 				t.Push(d)
@@ -683,7 +683,7 @@ func TestDatumSetInstrs(t *testing.T) {
 		},
 		{
 			name: "inc by str",
-			i:    code.Instr{code.Inc, 0, 0},
+			i:    code.Instr{Opcode: code.Inc, Operand: 0, SourceLine: 0},
 			d:    0,
 			setup: func(t *thread, d datum.Datum) {
 				t.Push(d)
@@ -693,7 +693,7 @@ func TestDatumSetInstrs(t *testing.T) {
 		},
 		{
 			name: "iset",
-			i:    code.Instr{code.Iset, nil, 0},
+			i:    code.Instr{Opcode: code.Iset, Operand: nil, SourceLine: 0},
 			d:    0,
 			setup: func(t *thread, d datum.Datum) {
 				t.Push(d)
@@ -703,7 +703,7 @@ func TestDatumSetInstrs(t *testing.T) {
 		},
 		{
 			name: "iset str",
-			i:    code.Instr{code.Iset, nil, 0},
+			i:    code.Instr{Opcode: code.Iset, Operand: nil, SourceLine: 0},
 			d:    0,
 			setup: func(t *thread, d datum.Datum) {
 				t.Push(d)
@@ -713,7 +713,7 @@ func TestDatumSetInstrs(t *testing.T) {
 		},
 		{
 			name: "fset",
-			i:    code.Instr{code.Fset, nil, 0},
+			i:    code.Instr{Opcode: code.Fset, Operand: nil, SourceLine: 0},
 			d:    1,
 			setup: func(t *thread, d datum.Datum) {
 				t.Push(d)
@@ -723,7 +723,7 @@ func TestDatumSetInstrs(t *testing.T) {
 		},
 		{
 			name: "fset str",
-			i:    code.Instr{code.Fset, nil, 0},
+			i:    code.Instr{Opcode: code.Fset, Operand: nil, SourceLine: 0},
 			d:    1,
 			setup: func(t *thread, d datum.Datum) {
 				t.Push(d)
@@ -733,7 +733,7 @@ func TestDatumSetInstrs(t *testing.T) {
 		},
 		{
 			name: "sset",
-			i:    code.Instr{code.Sset, nil, 0},
+			i:    code.Instr{Opcode: code.Sset, Operand: nil, SourceLine: 0},
 			d:    2,
 			setup: func(t *thread, d datum.Datum) {
 				t.Push(d)
@@ -743,7 +743,7 @@ func TestDatumSetInstrs(t *testing.T) {
 		},
 		{
 			name: "dec",
-			i:    code.Instr{code.Dec, nil, 0},
+			i:    code.Instr{Opcode: code.Dec, Operand: nil, SourceLine: 0},
 			d:    0,
 			setup: func(t *thread, d datum.Datum) {
 				datum.SetInt(d, 1, time.Now())
@@ -753,7 +753,7 @@ func TestDatumSetInstrs(t *testing.T) {
 		},
 		{
 			name: "set hist",
-			i:    code.Instr{code.Fset, nil, 0},
+			i:    code.Instr{Opcode: code.Fset, Operand: nil, SourceLine: 0},
 			d:    3,
 			setup: func(t *thread, d datum.Datum) {
 				t.Push(d)
@@ -788,7 +788,7 @@ func TestStrptimeWithTimezone(t *testing.T) {
 	if err != nil {
 		t.Skip("Skipping, timezone database not available:", err)
 	}
-	obj := &code.Object{Program: []code.Instr{{code.Strptime, 0, 0}}}
+	obj := &code.Object{Program: []code.Instr{{Opcode: code.Strptime, Operand: 0, SourceLine: 0}}}
 	vm := New("strptimezone", obj, true, loc, false, false)
 	vm.t = new(thread)
 	vm.t.stack = make([]interface{}, 0)
@@ -801,7 +801,7 @@ func TestStrptimeWithTimezone(t *testing.T) {
 }
 
 func TestStrptimeWithoutTimezone(t *testing.T) {
-	obj := &code.Object{Program: []code.Instr{{code.Strptime, 0, 0}}}
+	obj := &code.Object{Program: []code.Instr{{Opcode: code.Strptime, Operand: 0, SourceLine: 0}}}
 	vm := New("strptimezone", obj, true, nil, false, false)
 	vm.t = new(thread)
 	vm.t.stack = make([]interface{}, 0)
@@ -823,7 +823,7 @@ func TestDatumFetchInstrs(t *testing.T) {
 
 	{
 		// iget
-		v := makeVM(code.Instr{code.Iget, nil, 0}, m)
+		v := makeVM(code.Instr{Opcode: code.Iget, Operand: nil, SourceLine: 0}, m)
 		d, err := m[0].GetDatum()
 		testutil.FatalIfErr(t, err)
 		datum.SetInt(d, 37, time.Now())
@@ -843,7 +843,7 @@ func TestDatumFetchInstrs(t *testing.T) {
 
 	{
 		// fget
-		v := makeVM(code.Instr{code.Fget, nil, 0}, m)
+		v := makeVM(code.Instr{Opcode: code.Fget, Operand: nil, SourceLine: 0}, m)
 		d, err := m[1].GetDatum()
 		testutil.FatalIfErr(t, err)
 		datum.SetFloat(d, 12.1, time.Now())
@@ -863,7 +863,7 @@ func TestDatumFetchInstrs(t *testing.T) {
 
 	{
 		// sget
-		v := makeVM(code.Instr{code.Sget, nil, 0}, m)
+		v := makeVM(code.Instr{Opcode: code.Sget, Operand: nil, SourceLine: 0}, m)
 		d, err := m[2].GetDatum()
 		testutil.FatalIfErr(t, err)
 		datum.SetString(d, "aba", time.Now())
@@ -891,7 +891,7 @@ func TestDeleteInstrs(t *testing.T) {
 	_, err := m[0].GetDatum("z")
 	testutil.FatalIfErr(t, err)
 
-	v := makeVM(code.Instr{code.Expire, 1, 0}, m)
+	v := makeVM(code.Instr{Opcode: code.Expire, Operand: 1, SourceLine: 0}, m)
 	v.t.Push(time.Hour)
 	v.t.Push("z")
 	v.t.Push(m[0])
@@ -911,7 +911,7 @@ func TestDeleteInstrs(t *testing.T) {
 func TestTimestampInstr(t *testing.T) {
 	var m []*metrics.Metric
 	now := time.Now().UTC()
-	v := makeVM(code.Instr{code.Timestamp, nil, 0}, m)
+	v := makeVM(code.Instr{Opcode: code.Timestamp, Operand: nil, SourceLine: 0}, m)
 	v.execute(v.t, v.prog[0])
 	if v.terminate {
 		t.Fatal("execution failed, see info log")
@@ -944,11 +944,11 @@ func TestProcessLogLineDoesNotPinLargeCaptureGroup(t *testing.T) {
 		metrics.NewMetric("m", "tst", metrics.Counter, metrics.Int, "label"),
 	}
 	prog := []code.Instr{
-		{code.Match, 0, 0},
-		{code.Push, 0, 0},
-		{code.Capref, 1, 0},
-		{code.Mload, 0, 0},
-		{code.Dload, 1, 0},
+		{Opcode: code.Match, Operand: 0, SourceLine: 0},
+		{Opcode: code.Push, Operand: 0, SourceLine: 0},
+		{Opcode: code.Capref, Operand: 1, SourceLine: 0},
+		{Opcode: code.Mload, Operand: 0, SourceLine: 0},
+		{Opcode: code.Dload, Operand: 1, SourceLine: 0},
 	}
 	obj := &code.Object{
 		Metrics: m,
