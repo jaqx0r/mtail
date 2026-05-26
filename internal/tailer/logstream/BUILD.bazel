@@ -8,6 +8,8 @@ go_library(
         "dgramstream.go",
         "fifostream.go",
         "filestream.go",
+        "filestream_open_unix.go",
+        "filestream_open_windows.go",
         "logstream.go",
         "reader.go",
         "socketstream.go",
