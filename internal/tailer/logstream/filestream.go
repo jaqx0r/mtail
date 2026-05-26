@@ -59,7 +59,7 @@ func newFileStream(ctx context.Context, wg *sync.WaitGroup, waker waker.Waker, p
 }
 
 func (fs *fileStream) stream(ctx context.Context, wg *sync.WaitGroup, waker waker.Waker, fi os.FileInfo, oneShot OneShotMode, streamFromStart bool) error {
-	fd, err := os.OpenFile(fs.pathname, os.O_RDONLY, 0o600)
+	fd, err := openFile(fs.pathname)
 	if err != nil {
 		logErrors.Add(fs.sourcename, 1)
 		return err
