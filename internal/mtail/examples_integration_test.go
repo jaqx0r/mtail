@@ -116,6 +116,9 @@ func TestExamplePrograms(t *testing.T) {
 
 				var storeList metrics.MetricSlice
 				store.Range(func(m *metrics.Metric) error {
+					if m.Hidden {
+						return nil
+					}
 					storeList = append(storeList, m)
 					return nil
 				})

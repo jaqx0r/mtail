@@ -1104,6 +1104,9 @@ func TestRuntimeEndToEnd(t *testing.T) {
 
 			var ms metrics.MetricSlice
 			store.Range(func(m *metrics.Metric) error {
+				if m.Hidden {
+					return nil
+				}
 				ms = append(ms, m)
 				return nil
 			})

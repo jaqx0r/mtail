@@ -13,6 +13,33 @@ import (
 	"github.com/jaqx0r/mtail/internal/testutil"
 )
 
+func TestLimitWithHidden(t *testing.T) {
+	s := NewStore()
+	m := NewMetric("hidden_metric", "prog", Counter, Int, "foo")
+	m.Hidden = true
+	m.Limit = 1
+	testutil.FatalIfErr(t, s.Add(m))
+
+	_, err := m.GetDatum("a")
+	testutil.FatalIfErr(t, err)
+	testutil.FatalIfErr(t, s.Gc())
+
+	_, err = m.GetDatum("b")
+	testutil.FatalIfErr(t, err)
+	testutil.FatalIfErr(t, s.Gc())
+
+	_, err = m.GetDatum("c")
+	testutil.FatalIfErr(t, err)
+	testutil.FatalIfErr(t, s.Gc())
+
+	if len(m.LabelValues) > 2 {
+		t.Errorf("Expected 2 labelvalues got %#v", m.LabelValues)
+	}
+	if x := m.FindLabelValueOrNil([]string{"a"}); x != nil {
+		t.Errorf("found label a which is unexpected: %#v", x)
+	}
+}
+
 func TestMatchingKind(t *testing.T) {
 	s := NewStore()
 	m1 := NewMetric("foo", "prog", Counter, Int)

@@ -34,6 +34,9 @@ func (e *Exporter) Collect(c chan<- prometheus.Metric) {
 
 	/* #nosec G104 always retursn nil */
 	e.store.Range(func(m *metrics.Metric) error {
+		if m.Hidden {
+			return nil
+		}
 		m.RLock()
 		// We don't have a way of converting text metrics to prometheus format.
 		if m.Kind == metrics.Text {

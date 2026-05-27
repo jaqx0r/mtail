@@ -27,6 +27,9 @@ func (e *Exporter) HandleVarz(w http.ResponseWriter, r *http.Request) {
 			return r.Context().Err()
 		default:
 		}
+		if m.Hidden {
+			return nil
+		}
 		m.RLock()
 		exportVarzTotal.Add(1)
 		lc := make(chan *metrics.LabelSet)
