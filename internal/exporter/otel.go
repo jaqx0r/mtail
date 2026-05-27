@@ -29,6 +29,9 @@ func (e *Exporter) Produce(context.Context) ([]metricdata.ScopeMetrics, error) {
 	scopedOtelMetrics := make(map[string][]metricdata.Metrics)
 
 	e.store.Range(func(m *metrics.Metric) error {
+		if m.Hidden {
+			return nil
+		}
 		m.RLock()
 		defer m.RUnlock()
 

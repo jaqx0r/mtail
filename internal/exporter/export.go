@@ -25,7 +25,7 @@ import (
 
 // Commandline Flags.
 var (
-	writeDeadline = flag.Duration("metric_push_write_deadline", 10*time.Second, "Time to wait for a push to succeed before exiting with an error.")
+	writeDeadline       = flag.Duration("metric_push_write_deadline", 10*time.Second, "Time to wait for a push to succeed before exiting with an error.")
 	enableOpenTelemetry = flag.Bool("experimental_enable_opentelemetry", false, "Enable the experimental Open Telemetry metric pusher.")
 )
 
@@ -37,7 +37,7 @@ type Exporter struct {
 	store          *metrics.Store
 	pushInterval   time.Duration
 	hostname       string
-	version string
+	version        string
 	omitProgLabel  bool
 	emitTimestamp  bool
 	exportDisabled bool
@@ -59,7 +59,7 @@ func Hostname(hostname string) Option {
 
 // Version specifies the mtail version to use in exported metrics.
 func Version(version string) Option {
-	return func (e *Exporter) error {
+	return func(e *Exporter) error {
 		e.version = version
 		return nil
 	}
@@ -199,6 +199,9 @@ type formatter func(string, *metrics.Metric, *metrics.LabelSet, time.Duration) s
 
 func (e *Exporter) writeSocketMetrics(c io.Writer, f formatter, exportTotal *expvar.Int, exportSuccess *expvar.Int) error {
 	return e.store.Range(func(m *metrics.Metric) error {
+		if m.Hidden {
+			return nil
+		}
 		m.RLock()
 		// Don't try to send text metrics to any push service.
 		if m.Kind == metrics.Text {

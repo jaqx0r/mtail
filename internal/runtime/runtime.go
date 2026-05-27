@@ -183,14 +183,12 @@ func (r *Runtime) CompileAndRun(name string, input io.Reader) error {
 
 	// Load the metrics from the compilation into the global metric storage for export.
 	for _, m := range v.Metrics {
-		if !m.Hidden {
-			if r.omitMetricSource {
-				m.Source = ""
-			}
-			err := r.ms.Add(m)
-			if err != nil {
-				return err
-			}
+		if r.omitMetricSource {
+			m.Source = ""
+		}
+		err := r.ms.Add(m)
+		if err != nil {
+			return err
 		}
 	}
 

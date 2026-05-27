@@ -35,6 +35,9 @@ func (e *Exporter) HandleGraphite(w http.ResponseWriter, r *http.Request) {
 			return r.Context().Err()
 		default:
 		}
+		if m.Hidden {
+			return nil
+		}
 		m.RLock()
 		graphiteExportTotal.Add(1)
 		lc := make(chan *metrics.LabelSet)
