@@ -121,6 +121,7 @@ func (fs *fileStream) stream(ctx context.Context, wg *sync.WaitGroup, waker wake
 					// streamFromStart always true on a stream reopen
 					if nerr := fs.stream(ctx, wg, waker, fi, oneShot, true); nerr != nil {
 						glog.Infof("stream(%s): new stream: %v", fs.sourcename, nerr)
+						close(fs.lines)
 					}
 					// Close this stream.
 					return
@@ -157,6 +158,7 @@ func (fs *fileStream) stream(ctx context.Context, wg *sync.WaitGroup, waker wake
 					// Stream from start always true on a stream reopen
 					if err := fs.stream(ctx, wg, waker, newfi, oneShot, true); err != nil {
 						glog.Info("stream(%s): new stream: %v", fs.sourcename, err)
+						close(fs.lines)
 					}
 					// We're at EOF so there's nothing left to read here.
 					return
