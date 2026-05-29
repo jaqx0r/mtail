@@ -330,6 +330,31 @@ func (c *codegen) VisitBefore(node ast.Node) (ast.Visitor, ast.Node) {
 		c.obj.LogRestriction = append(c.obj.LogRestriction, n.Filters...)
 		return nil, n
 
+	case *ast.BuiltinExpr:
+		if n.Name == "defined" {
+			// Don't walk children: defined() requires special codegen
+			// to avoid emitting Capref/S2i for its capref argument,
+			// which would cause a runtime error on undefined groups.
+			args := n.Args.(*ast.ExprList).Children
+			if len(args) != 1 {
+				c.errorf(n.Pos(), "defined expects 1 argument, got %d", len(args))
+				return nil, n
+			}
+			capref, ok := args[0].(*ast.CaprefTerm)
+			if !ok {
+				c.errorf(n.Pos(), "defined expects a capture group reference")
+				return nil, n
+			}
+			if capref.Symbol == nil || capref.Symbol.Binding == nil {
+				c.errorf(n.Pos(), "No regular expression bound to capref %q", capref.Name)
+				return nil, n
+			}
+			rn := capref.Symbol.Binding.(*ast.PatternExpr)
+			c.emit(n, code.Push, rn.Index)
+			c.emit(n, code.Defined, capref.Symbol.Addr)
+			return nil, n
+		}
+
 	case *ast.BinaryExpr:
 		switch n.Op {
 		case parser.AND:

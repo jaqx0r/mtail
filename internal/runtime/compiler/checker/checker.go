@@ -276,6 +276,10 @@ func (c *checker) VisitAfter(node ast.Node) ast.Node {
 		switch n.Cond.(type) {
 		case *ast.BinaryExpr, *ast.OtherwiseStmt, *ast.UnaryExpr:
 			// OK as conditions
+		case *ast.BuiltinExpr:
+			if !types.Equals(n.Cond.Type(), types.Bool) {
+				c.errors.Add(n.Cond.Pos(), fmt.Sprintf("Can't interpret %s as a boolean expression here.\n\tTry using comparison operators to make the condition explicit.", n.Cond.Type()))
+			}
 		case *ast.PatternExpr:
 			// If the parser saw an IDTerm with type Pattern, then we know it's really a pattern constant and need to wrap it in an unary match in this context.
 			cond := &ast.UnaryExpr{Expr: n.Cond, Op: parser.MATCH}
@@ -819,6 +823,12 @@ func (c *checker) VisitAfter(node ast.Node) ast.Node {
 		case "tolower":
 			if !types.Equals(gotType.Args[0], types.String) {
 				c.errors.Add(n.Args.(*ast.ExprList).Children[0].Pos(), fmt.Sprintf("Expecting a String for argument 1 of tolower(), not %v.", gotType.Args[0]))
+				n.SetType(types.Error)
+				return n
+			}
+		case "defined":
+			if _, ok := n.Args.(*ast.ExprList).Children[0].(*ast.CaprefTerm); !ok {
+				c.errors.Add(n.Args.(*ast.ExprList).Children[0].Pos(), "defined() expects a capture group reference as its argument")
 				n.SetType(types.Error)
 				return n
 			}
