@@ -607,6 +607,28 @@ N {
 const N /n/
 N && 1 {
 }`},
+
+	{"const pattern with named capref as cond", `
+counter c
+const P /(?P<x>n)/
+P {
+  c++
+}`},
+
+	{"const pattern with positional capref as cond", `
+counter c
+const P /(n)/
+P {
+  c += $1
+}`},
+
+	{"const pattern in a binary expr in cond", `
+counter c
+const P /(?P<x>n)/
+P && 1 {
+  c++
+}`},
+
 	{"negative numbers in capture groups", `
 gauge foo
 /(?P<value_ms>-?\d+)/ {
