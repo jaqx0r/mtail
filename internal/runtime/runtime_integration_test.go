@@ -258,6 +258,35 @@ test -
 		},
 	},
 	{
+		"defined capture group",
+		`counter total
+/^[a-z]+ ((?P<response_size>\d+)|-)$/ {
+  defined($response_size) {
+    total = $response_size
+  }
+}`,
+		`test 99
+test -
+`,
+		0,
+		metrics.MetricSlice{
+			{
+				Name:    "total",
+				Program: "defined capture group",
+				Kind:    metrics.Counter,
+				Type:    metrics.Int,
+				Keys:    []string{},
+				LabelValues: []*metrics.LabelValue{
+					{
+						Value: &datum.Int{
+							Value: 99,
+						},
+					},
+				},
+			},
+		},
+	},
+	{
 		"add_assign_float",
 		`gauge metric
 /(\d+\.\d+)/ {

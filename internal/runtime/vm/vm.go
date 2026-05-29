@@ -855,6 +855,32 @@ func (v *VM) execute(t *thread, i code.Instr) {
 		}
 		t.Push(len(s))
 
+	case code.Defined:
+		// Check if a capture group is defined (was matched) in the current match.
+		val := t.Pop()
+		re, ok := val.(int)
+		if !ok {
+			v.errorf("Invalid re index %v, not an int", val)
+			return
+		}
+		op, ok := i.Operand.(int)
+		if !ok {
+			v.errorf("Invalid operand %v, not an int", i.Operand)
+			return
+		}
+		m, ok := t.matches[re]
+		if !ok {
+			v.errorf("No match result for regex index %d", re)
+			return
+		}
+		if len(m.indices) >= 2*(op+1) && m.indices[2*op] != -1 {
+			t.matched = true
+			t.Push(true)
+		} else {
+			t.matched = false
+			t.Push(false)
+		}
+
 	case code.S2i:
 		base := 10
 		var err error

@@ -78,6 +78,9 @@ const (
 	Subst
 	Rsubst
 
+	// Capture group queries.
+	Defined // Check if a capture group is defined.
+
 	lastOpcode
 )
 
@@ -140,6 +143,7 @@ var opNames = map[Opcode]string{
 	Scmp:        "scmp",
 	Subst:       "subst",
 	Rsubst:      "rsubst",
+	Defined:     "defined",
 }
 
 func (o Opcode) String() string {

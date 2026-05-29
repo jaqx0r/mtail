@@ -446,8 +446,20 @@ counter total
 }
 ```
 
-`mtail` does not presently have a way to test if a capture group is defined or
-not.
+Use the `defined()` builtin to test if a capture group was matched:
+
+```
+counter total
+
+/^[a-z]+ ((?P<response_size>\d+)|-)$/ {
+  defined($response_size) {
+    total = $response_size
+  }
+}
+```
+
+`defined()` takes a capture group reference and returns true if it was
+matched in the current line.
 
 ## Parsing numbers with extra characters
 
