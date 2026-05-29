@@ -1196,6 +1196,36 @@ baz
 			},
 		},
 	},
+	{
+		name: "chained match capref",
+		prog: `counter c
+const PAT /n/
+/(\w+)/ && PAT {
+    c++
+}
+`,
+		log: `n
+x
+n
+`,
+		errs: 0,
+		metrics: metrics.MetricSlice{
+			{
+				Name:    "c",
+				Program: "chained match capref",
+				Kind:    metrics.Counter,
+				Type:    metrics.Int,
+				Keys:    []string{},
+				LabelValues: []*metrics.LabelValue{
+					{
+						Value: &datum.Int{
+							Value: 2,
+						},
+					},
+				},
+			},
+		},
+	},
 }
 
 func TestRuntimeEndToEnd(t *testing.T) {
