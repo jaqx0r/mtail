@@ -214,6 +214,67 @@ func TestFileStreamRotationPermissionDenied(t *testing.T) {
 	checkLineDiff2()
 }
 
+// TestFileStreamStatErrorNotExist tests that when a file being tailed is
+// deleted, the filestream's stat call returns a NotExist error and the
+// stream properly closes its Lines channel, letting the tailer clean up
+// and retry later.  This exercises the same stat-error path that handles
+// ESTALE in production (both trigger stream shutdown).
+func TestFileStreamStatErrorNotExist(t *testing.T) {
+	var wg sync.WaitGroup
+
+	tmpDir := testutil.TestTempDir(t)
+
+	name := filepath.Join(tmpDir, "log")
+	f := testutil.TestOpenFile(t, name)
+	defer f.Close()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	mw := &manualWaker{wake: make(chan struct{})}
+
+	fs, err := logstream.New(ctx, &wg, mw, name, logstream.OneShotDisabled)
+	testutil.FatalIfErr(t, err)
+
+	expected := []*logline.LogLine{
+		{Context: context.TODO(), Filename: name, Line: "1", Filenamehash: logline.GetHash(name)},
+	}
+	checkLineDiff := testutil.ExpectLinesReceivedNoDiff(t, expected, fs.Lines())
+
+	mw.wakeAndReset() // sync to EOF
+
+	testutil.WriteString(t, f, "1\n")
+	mw.wakeAndReset()
+
+	// Delete the file.  The stream will stat the path at the next EOF,
+	// get a NotExist error, and close its Lines channel.
+	testutil.FatalIfErr(t, os.Remove(name))
+	mw.wakeAndReset()
+
+	// Wait for the Lines channel to close.
+	ok, err := testutil.DoOrTimeout(func() (bool, error) {
+		select {
+		case _, stillOpen := <-fs.Lines():
+			return !stillOpen, nil
+		default:
+			return false, nil
+		}
+	}, time.Second, 10*time.Millisecond)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
+		t.Error("Lines channel not closed after file deletion")
+	}
+	wg.Wait()
+
+	checkLineDiff()
+
+	if v := <-fs.Lines(); v != nil {
+		t.Errorf("expecting filestream to be complete because file deleted")
+	}
+}
+
 // TestFileStreamOpenFailure is a unix-specific test because on Windows, it is not possible to create a file
 // that you yourself cannot read (minimum permissions are 0222).
 func TestFileStreamOpenFailure(t *testing.T) {

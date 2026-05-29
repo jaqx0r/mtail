@@ -11,6 +11,7 @@ import (
 	"os"
 	"sync"
 	"syscall"
+	"time"
 
 	"github.com/golang/glog"
 	"github.com/jaqx0r/mtail/internal/logline"
@@ -113,17 +114,21 @@ func (fs *fileStream) stream(ctx context.Context, wg *sync.WaitGroup, waker wake
 
 			if err != nil && !errors.Is(err, io.EOF) {
 				logErrors.Add(fs.sourcename, 1)
-				// TODO: This could be generalised to check for any retryable
-				// errors, and end on unretriables; e.g. ESTALE looks
-				// retryable.
 				if errors.Is(err, syscall.ESTALE) {
 					glog.Infof("stream(%s): reopening stream due to %s", fs.sourcename, err)
-					// streamFromStart always true on a stream reopen
-					if nerr := fs.stream(ctx, wg, waker, fi, oneShot, true); nerr != nil {
+					// Rate-limit ESTALE retries to prevent CPU thrashing
+					// on NFS when the stale handle condition persists.
+					time.Sleep(time.Second)
+					newfi, serr := os.Stat(fs.pathname)
+					if serr != nil {
+						glog.Infof("stream(%s): stat after ESTALE: %v", fs.sourcename, serr)
+						close(fs.lines)
+						return
+					}
+					if nerr := fs.stream(ctx, wg, waker, newfi, oneShot, true); nerr != nil {
 						glog.Infof("stream(%s): new stream: %v", fs.sourcename, nerr)
 						close(fs.lines)
 					}
-					// Close this stream.
 					return
 				}
 				glog.Infof("stream(%s): read error: %v", fs.sourcename, err)
@@ -138,12 +143,12 @@ func (fs *fileStream) stream(ctx context.Context, wg *sync.WaitGroup, waker wake
 				newfi, serr := os.Stat(fs.pathname)
 				if serr != nil {
 					glog.Infof("stream(%s): stat error: %v", serr)
-					// If this is a NotExist error, then we should wrap up this
-					// goroutine. The Tailer will create a new logstream if the
-					// file is in the middle of a rotation and gets recreated
-					// in the next moment.  We can't rely on the Tailer to tell
-					// us we're deleted because the tailer can only tell us to
-					// cancel.
+					if errors.Is(serr, syscall.ESTALE) {
+						glog.V(2).Infof("stream(%s): stale NFS handle on stat, exiting", fs.sourcename)
+						lr.Finish(ctx)
+						close(fs.lines)
+						return
+					}
 					if os.IsNotExist(serr) {
 						glog.V(2).Infof("stream(%s): source no longer exists, exiting", fs.sourcename)
 						lr.Finish(ctx)
