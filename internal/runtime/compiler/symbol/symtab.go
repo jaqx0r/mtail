@@ -6,6 +6,7 @@ package symbol
 import (
 	"bytes"
 	"fmt"
+	"strconv"
 
 	"github.com/golang/glog"
 	"github.com/jaqx0r/mtail/internal/runtime/compiler/errors"
@@ -144,7 +145,14 @@ func (s *Scope) Check(errors *errors.ErrorList) {
 	for _, symList := range s.Symbols {
 		multiple := len(symList) > 1
 		for i, sym := range symList {
-			if multiple && i > 0{
+			if multiple && i > 0 {
+				if sym.Kind == CaprefSymbol {
+					// Numbered caprefs may be redeclared in chained
+					// match expressions (last pattern wins).
+					if _, err := strconv.Atoi(sym.Name); err == nil {
+						continue
+					}
+				}
 				errors.Add(sym.Pos, fmt.Sprintf("Redeclaration of %s `%s' previously declared at %s", sym.Kind, sym.Name, symList[0].Pos))
 				continue
 			}

@@ -196,6 +196,40 @@ operator, or to negate the match the `!~`, like so:
   }
 ```
 
+### Chaining match conditions
+
+Multiple patterns can be combined in a single condition using the `&&` and `||`
+logical operators.  This is useful for filtering log lines based on both the
+filename and the line content:
+
+```mtail
+getfilename() =~ /apache/ && /HTTP\/1\.1/ {
+    apache_http11_requests++
+}
+```
+
+Both patterns are tried in order (left to right), and the condition short
+circuits as normal for `&&` and `||`.
+
+When multiple patterns appear in the same condition, each registers its capture
+group references (such as `$0`, `$1`, etc.) in the same scope.  The capture
+group references after the condition refer to the *last* executed match,
+consistent with the runtime order of evaluation:
+
+```mtail
+const PAT /n/
+/(?P<word>\w+)/ && PAT {
+    # $0 refers to PAT's match, not the first pattern's match.
+    # Use named capture groups if you need the first pattern's captures:
+    # $word still refers to the \w+ capture group from the first pattern.
+}
+```
+
+This is known as *last pattern match wins* semantics.  `mtail` will emit a
+notice when numbered capture group bindings are updated in a chained match
+expression.  Use named capture groups for unambiguous references when chaining
+patterns.
+
 ## Storing intermediate state
 
 Hidden metrics are metrics that can be used for internal state and are never

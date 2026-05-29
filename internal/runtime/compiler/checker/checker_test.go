@@ -333,11 +333,6 @@ l++=l
 		[]string{"dec non var:1:1-16: Can't assign to expression; expecting a variable here."},
 	},
 
-	// TODO(jaq): This is an instance of bug #190, the capref is ambiguous.
-	// 	{"regexp with no zero capref",
-	// 		`//||/;0/ {$0||// {}}
-	// `, []string{"regexp with no zero capref:1:5-6: Nonexistent capref =."}},
-
 	{
 		"cmp to None",
 		`strptime("","")<5{}
@@ -646,6 +641,12 @@ subst(/\d+/, "d", "1234")
 text value
 value = subst(/[a-zA-Z]+/, "a", "1234abcd")
 value = subst(/\d+/, "d", value)
+`},
+	{"chained match OR capref", `
+const X /x/
+// || X {
+    $0
+}
 `},
 }
 

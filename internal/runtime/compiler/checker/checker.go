@@ -884,7 +884,16 @@ func (c *checker) checkRegex(pattern string, n ast.Node) {
 			sym.Binding = n
 			sym.Addr = i
 			if alt := c.scope.Insert(sym); alt != nil {
-				c.errors.Add(n.Pos(), fmt.Sprintf("Redeclaration of capture group `%s' previously declared at %s", sym.Name, alt.Pos))
+				// If this is a numbered capref, we allow chained match
+				// expressions to each define the same implicit capture
+				// groups.  The last pattern's binding is used at runtime
+				// ("last match wins").
+				if capref == "" {
+					alt.Binding = n
+					glog.Infof("Update of capref `%s' binding in chained match expression", sym.Name)
+				} else {
+					c.errors.Add(n.Pos(), fmt.Sprintf("Redeclaration of capture group `%s' previously declared at %s", sym.Name, alt.Pos))
+				}
 				// No return, let this loop collect all errors
 			}
 			if capref != "" {
