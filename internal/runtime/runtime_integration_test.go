@@ -1106,6 +1106,66 @@ hello world
 		},
 	},
 	{
+		name: "const pattern as match condition with named capref",
+		prog: `counter c
+const A /(?P<x>n)/
+A {
+  c++
+}
+`,
+		log: `n
+x
+n
+`,
+		errs: 0,
+		metrics: metrics.MetricSlice{
+			{
+				Name:    "c",
+				Program: "const pattern as match condition with named capref",
+				Kind:    metrics.Counter,
+				Type:    metrics.Int,
+				Keys:    []string{},
+				LabelValues: []*metrics.LabelValue{
+					{
+						Value: &datum.Int{
+							Value: 2,
+						},
+					},
+				},
+			},
+		},
+	},
+	{
+		name: "const pattern as match condition simple",
+		prog: `counter c
+const A /n/
+A {
+  c++
+}
+`,
+		log: `n
+x
+n
+`,
+		errs: 0,
+		metrics: metrics.MetricSlice{
+			{
+				Name:    "c",
+				Program: "const pattern as match condition simple",
+				Kind:    metrics.Counter,
+				Type:    metrics.Int,
+				Keys:    []string{},
+				LabelValues: []*metrics.LabelValue{
+					{
+						Value: &datum.Int{
+							Value: 2,
+						},
+					},
+				},
+			},
+		},
+	},
+	{
 		name: "concat start match",
 		prog: `counter c
 const X /foo/
