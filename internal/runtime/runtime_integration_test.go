@@ -1072,6 +1072,70 @@ N && 1 {
 		errs:    0,
 		metrics: nil,
 	},
+	{
+		name: "const with id concat pattern",
+		prog: `counter c
+const GREET /hello/
+const SEP / /
+const PUNCT /world/
+const FULL GREET + SEP + PUNCT
+FULL {
+  c++
+}
+`,
+		log: `hello world
+other
+hello world
+`,
+		errs: 0,
+		metrics: metrics.MetricSlice{
+			{
+				Name:    "c",
+				Program: "const with id concat pattern",
+				Kind:    metrics.Counter,
+				Type:    metrics.Int,
+				Keys:    []string{},
+				LabelValues: []*metrics.LabelValue{
+					{
+						Value: &datum.Int{
+							Value: 2,
+						},
+					},
+				},
+			},
+		},
+	},
+	{
+		name: "concat start match",
+		prog: `counter c
+const X /foo/
+/(?P<line>.*)/ {
+  $line =~ X + /bar/ {
+    c++
+  }
+}
+`,
+		log: `foobar
+baz
+`,
+		errs: 0,
+		metrics: metrics.MetricSlice{
+			{
+				Name:    "c",
+				Program: "concat start match",
+				Kind:    metrics.Counter,
+				Type:    metrics.Int,
+				Keys:    []string{},
+				LabelValues: []*metrics.LabelValue{
+					{
+						Value: &datum.Int{
+							Value: 1,
+						},
+					},
+				},
+			},
+		},
+	},
 }
 
 func TestRuntimeEndToEnd(t *testing.T) {
