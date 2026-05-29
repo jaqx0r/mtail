@@ -522,6 +522,35 @@ const X /foo/
 const X /foo/
 X {
 }`},
+	{"concat start with id plus regex", `
+const A /foo/
+A + /bar/ {
+}`},
+	{"concat start with id plus id", `
+const X /foo/
+const Y /bar/
+X + Y {
+}`},
+	{"concat start multi", `
+const X /foo/
+const Y /bar/
+X + Y + /baz/ {
+}`},
+	{"concat start match", `
+const X /foo/
+"" =~ X + /bar/ {
+}`},
+	{"const with id concat", `
+const A /foo/
+const B A + /bar/
+B {
+}`},
+	{"const with id id", `
+const A /foo/
+const B /bar/
+const C A + B
+C {
+}`},
 	{"match expression 3", `
 const X /foo/
 "a" =~ X {

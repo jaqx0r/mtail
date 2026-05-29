@@ -33,7 +33,7 @@ import (
 
 %type <n> stmt_list stmt arg_expr_list compound_stmt conditional_stmt conditional_expr expr_stmt
 %type <n> expr primary_expr multiplicative_expr additive_expr postfix_expr unary_expr assign_expr
-%type <n> rel_expr shift_expr bitwise_expr logical_expr indexed_expr id_expr concat_expr pattern_expr
+%type <n> rel_expr shift_expr bitwise_expr logical_expr indexed_expr id_expr concat_expr pattern_expr const_pattern concat_start
 %type <n> metric_declaration metric_decl_attr_spec decorator_declaration decoration_stmt regex_pattern match_expr
 %type <n> delete_stmt metric_name_spec builtin_expr arg_expr
 %type <kind> metric_type_spec
@@ -133,7 +133,7 @@ stmt
   {
     $$ = &ast.NextStmt{tokenpos(mtaillex)}
   }
-  | CONST id_expr opt_nl concat_expr
+  | CONST id_expr opt_nl const_pattern
   {
     $$ = &ast.PatternFragment{ID: $2, Expr: $4}
   }
@@ -205,6 +205,18 @@ conditional_expr
   {
     $$ = &ast.BinaryExpr{
       LHS: &ast.UnaryExpr{P: tokenpos(mtaillex), Expr: $1, Op: MATCH},
+      RHS: $4,
+      Op: $2,
+    }
+  }
+  | concat_start
+  {
+    $$ = &ast.UnaryExpr{P: tokenpos(mtaillex), Expr: &ast.PatternExpr{Expr: $1}, Op: MATCH}
+  }
+  | concat_start logical_op opt_nl logical_expr
+  {
+    $$ = &ast.BinaryExpr{
+      LHS: &ast.UnaryExpr{P: tokenpos(mtaillex), Expr: &ast.PatternExpr{Expr: $1}, Op: MATCH},
       RHS: $4,
       Op: $2,
     }
@@ -360,6 +372,14 @@ match_expr
   {
     $$ = &ast.BinaryExpr{LHS: $1, RHS: $4, Op: $2}
   }
+  | primary_expr match_op opt_nl concat_start
+  {
+    $$ = &ast.BinaryExpr{
+      LHS: $1,
+      RHS: &ast.PatternExpr{Expr: $4},
+      Op: $2,
+    }
+  }
   ;
 
 match_op
@@ -375,6 +395,42 @@ pattern_expr
   : concat_expr
   {
     $$ = &ast.PatternExpr{Expr: $1}
+  }
+  ;
+
+/* Const pattern fragment expression allows identifiers in addition to regex patterns. */
+const_pattern
+  : regex_pattern
+  { $$ = $1 }
+  | id_expr
+  { $$ = $1 }
+  | const_pattern PLUS opt_nl regex_pattern
+  {
+    $$ = &ast.BinaryExpr{LHS: $1, RHS: $4, Op: PLUS}
+  }
+  | const_pattern PLUS opt_nl id_expr
+  {
+    $$ = &ast.BinaryExpr{LHS: $1, RHS: $4, Op: PLUS}
+  }
+  ;
+
+/* Concatenation start expression handles id_expr at the start of a pattern concatenation. */
+concat_start
+  : id_expr PLUS opt_nl regex_pattern
+  {
+    $$ = &ast.BinaryExpr{LHS: $1, RHS: $4, Op: PLUS}
+  }
+  | id_expr PLUS opt_nl id_expr
+  {
+    $$ = &ast.BinaryExpr{LHS: $1, RHS: $4, Op: PLUS}
+  }
+  | concat_start PLUS opt_nl regex_pattern
+  {
+    $$ = &ast.BinaryExpr{LHS: $1, RHS: $4, Op: PLUS}
+  }
+  | concat_start PLUS opt_nl id_expr
+  {
+    $$ = &ast.BinaryExpr{LHS: $1, RHS: $4, Op: PLUS}
   }
   ;
 

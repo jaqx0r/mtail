@@ -400,6 +400,36 @@ const X /foo/
 X {
 }`},
 
+	{"concat start with id plus regex", `
+const A /foo/
+A + /bar/ {
+}`},
+	{"concat start with id plus id", `
+const X /foo/
+const Y /bar/
+X + Y {
+}`},
+	{"concat start multi", `
+const X /foo/
+const Y /bar/
+X + Y + /baz/ {
+}`},
+	{"concat start match", `
+const X /foo/
+$uri =~ X + /bar/ {
+}`},
+	{"const with id concat", `
+const A /foo/
+const B A + /bar/
+B {
+}`},
+	{"const with id id", `
+const A /foo/
+const B /bar/
+const C A + B
+C {
+}`},
+
 	{"match expression 1", `
 $foo =~ /bar/ {
 }
@@ -671,8 +701,7 @@ var parsePositionTests = []struct {
 		"const ID\n" +
 			"/foo/ +\n" +
 			"/bar/",
-		// TODO: Update position for the first token to `1, 0, 4` when position tracking is fixed
-		[]*position.Position{{"multiline regex", 1, 4, 4}, {"multiline regex", 2, 0, 4}},
+		[]*position.Position{{"multiline regex", 1, 0, 4}, {"multiline regex", 2, 0, 4}},
 	},
 }
 
