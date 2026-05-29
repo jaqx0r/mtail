@@ -90,6 +90,27 @@ func TestDuplicateMetric(t *testing.T) {
 	}
 }
 
+func TestDuplicateMetricWithDifferentSource(t *testing.T) {
+	// Simulates SIGHUP reload where the same metric from the same program
+	// has a different source location (line number changed due to file edit).
+	// Should still be treated as a duplicate and replaced, not appended.
+	s := NewStore()
+	m1 := NewMetric("foo", "prog", Counter, Int)
+	m1.SetSource("test.mtail:5:1")
+	testutil.FatalIfErr(t, s.Add(m1))
+
+	m2 := NewMetric("foo", "prog", Counter, Int)
+	m2.SetSource("test.mtail:11:1")
+	testutil.FatalIfErr(t, s.Add(m2))
+
+	if len(s.Metrics["foo"]) != 1 {
+		t.Fatalf("expected 1 metric after reload with changed source, got %d: %v", len(s.Metrics["foo"]), s.Metrics["foo"])
+	}
+	if s.Metrics["foo"][0].Source != "test.mtail:11:1" {
+		t.Fatalf("expected metric source to be updated to new source, got %q", s.Metrics["foo"][0].Source)
+	}
+}
+
 // A program can add a metric with the same name and of different type.
 // Prometheus behavior in this case is undefined.  @see
 // https://github.com/jaqx0r/mtail/issues/130
