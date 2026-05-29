@@ -53,9 +53,6 @@ func (s *Store) Add(m *Metric) error {
 			if v.Type != m.Type {
 				continue
 			}
-			if v.Source != m.Source {
-				continue
-			}
 			dupeIndex = i
 			glog.V(2).Infof("v keys: %v m.keys: %v", v.Keys, m.Keys)
 			// If a set of label keys has changed, discard
