@@ -20,7 +20,6 @@ import (
 	"time"
 
 	"github.com/golang/glog"
-	"github.com/golang/groupcache/lru"
 	"github.com/jaqx0r/mtail/internal/logline"
 	"github.com/jaqx0r/mtail/internal/metrics"
 	"github.com/jaqx0r/mtail/internal/metrics/datum"
@@ -28,6 +27,33 @@ import (
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 )
+
+// timeParseCache is a fixed-size cache for strptime parse results.
+// It uses FIFO eviction when the cache reaches capacity.
+type timeParseCache struct {
+	entries map[string]time.Time
+	order   []string
+	max     int
+}
+
+// Get retrieves a cached parse result.
+func (c *timeParseCache) Get(key string) (time.Time, bool) {
+	v, ok := c.entries[key]
+	return v, ok
+}
+
+// Add stores a parse result. If the cache is full, the oldest entry is evicted.
+func (c *timeParseCache) Add(key string, val time.Time) {
+	if len(c.entries) >= c.max {
+		oldest := c.order[0]
+		delete(c.entries, oldest)
+		c.order = c.order[1:]
+	}
+	if _, exists := c.entries[key]; !exists {
+		c.order = append(c.order, key)
+	}
+	c.entries[key] = val
+}
 
 var (
 	ProgRuntimeErrors = expvar.NewMap("prog_runtime_errors_total")
@@ -54,11 +80,12 @@ func (m matchResult) captureGroup(n int) string {
 }
 
 type thread struct {
-	pc      int                 // Program counter.
-	matched bool                // Flag set if any match has been found.
-	matches map[int]matchResult // Match result variables, accessed as text[indices[n]:indices[n+1]].
-	time    time.Time           // Time register.
-	stack   []interface{}       // Data stack.
+	pc      int           // Program counter.
+	matched bool          // Flag set if any match has been found.
+	matches []matchResult // Match result variables, accessed as text[indices[n]:indices[n+1]].
+	time    time.Time     // Time register.
+	stack   []interface{} // Data stack.
+	keysBuf []string      // Pre-allocated buffer for dimension keys in Dload/Del/Expire.
 }
 
 // VM describes the virtual machine for each program.  It contains virtual
@@ -66,14 +93,15 @@ type thread struct {
 // expressions), mutable state (metrics), and a stack for the current thread of
 // execution.
 type VM struct {
-	name string
-	prog []code.Instr
+	name     string
+	prog     []code.Instr
+	initProg []code.Instr // Startup init program (from BEGIN blocks)
 
 	re      []*regexp.Regexp  // Regular expression constants
 	str     []string          // String constants
 	Metrics []*metrics.Metric // Metrics accessible to this program.
 
-	timeMemos *lru.Cache // memo of time string parse results
+	timeMemos timeParseCache // memo of time string parse results
 
 	threadPool sync.Pool // pool of re-used thread structs
 
@@ -606,7 +634,7 @@ func (v *VM) execute(t *thread, i code.Instr) {
 			v.timeMemos.Add(ts, tm)
 			t.time = tm
 		} else {
-			t.time = cached.(time.Time)
+			t.time = cached
 		}
 
 	case code.Timestamp:
@@ -643,11 +671,11 @@ func (v *VM) execute(t *thread, i code.Instr) {
 			v.errorf("Invalid operand %v, not an int", i.Operand)
 			return
 		}
-		m, ok := t.matches[re]
-		if !ok {
+		if re < 0 || re >= len(t.matches) || len(t.matches[re].indices) == 0 {
 			v.errorf("No match result for regex index %d", re)
 			return
 		}
+		m := t.matches[re]
 		if len(m.indices) < 2*(op+1) {
 			v.errorf("Not enough capture groups matched from %d indices to select %dth", len(m.indices)/2, op)
 			return
@@ -765,7 +793,7 @@ func (v *VM) execute(t *thread, i code.Instr) {
 		m := t.Pop().(*metrics.Metric)
 		// fmt.Printf("Metric: %v\n", m)
 		index := i.Operand.(int)
-		keys := make([]string, index)
+		keys := t.keysBuf[:index]
 		// fmt.Printf("keys: %v\n", keys)
 		for a := index - 1; a >= 0; a-- {
 			s, err := t.PopString()
@@ -778,7 +806,11 @@ func (v *VM) execute(t *thread, i code.Instr) {
 			// fmt.Printf("Keys: %v\n", keys)
 		}
 		// fmt.Printf("Keys: %v\n", keys)
-		d, err := m.GetDatum(keys...)
+		// GetDatum stores the keys slice in LabelValue.Labels, so we must
+		// pass an independent copy, not the shared keysBuf slice.
+		keysCopy := make([]string, index)
+		copy(keysCopy, keys)
+		d, err := m.GetDatum(keysCopy...)
 		if err != nil {
 			v.errorf("dload (GetDatum) failed: %s", err)
 			return
@@ -804,7 +836,7 @@ func (v *VM) execute(t *thread, i code.Instr) {
 	case code.Del:
 		m := t.Pop().(*metrics.Metric)
 		index := i.Operand.(int)
-		keys := make([]string, index)
+		keys := t.keysBuf[:index]
 		for j := index - 1; j >= 0; j-- {
 			s, err := t.PopString()
 			if err != nil {
@@ -822,7 +854,7 @@ func (v *VM) execute(t *thread, i code.Instr) {
 	case code.Expire:
 		m := t.Pop().(*metrics.Metric)
 		index := i.Operand.(int)
-		keys := make([]string, index)
+		keys := t.keysBuf[:index]
 		for j := index - 1; j >= 0; j-- {
 			s, err := t.PopString()
 			if err != nil {
@@ -868,11 +900,11 @@ func (v *VM) execute(t *thread, i code.Instr) {
 			v.errorf("Invalid operand %v, not an int", i.Operand)
 			return
 		}
-		m, ok := t.matches[re]
-		if !ok {
+		if re < 0 || re >= len(t.matches) || len(t.matches[re].indices) == 0 {
 			v.errorf("No match result for regex index %d", re)
 			return
 		}
+		m := t.matches[re]
 		if len(m.indices) >= 2*(op+1) && m.indices[2*op] != -1 {
 			t.matched = true
 			t.Push(true)
@@ -1023,8 +1055,8 @@ func (v *VM) ProcessLogLine(_ context.Context, line *logline.LogLine) {
 			v.t.matched = false
 			v.t.time = time.Time{}
 			v.t.stack = v.t.stack[:0]
-			for k := range v.t.matches {
-				delete(v.t.matches, k)
+			for i := range v.t.matches {
+				v.t.matches[i] = matchResult{}
 			}
 			v.threadPool.Put(v.t)
 			v.t = nil
@@ -1058,21 +1090,43 @@ func New(name string, obj *code.Object, syslogUseCurrentYear bool, loc *time.Loc
 		str:                  obj.Strings,
 		Metrics:              obj.Metrics,
 		prog:                 obj.Program,
-		timeMemos:            lru.New(64),
+		initProg:             obj.InitProgram,
+		timeMemos:            timeParseCache{max: 64, entries: make(map[string]time.Time)},
 		syslogUseCurrentYear: syslogUseCurrentYear,
 		loc:                  loc,
 		logRuntimeErrors:     log,
 		threadPool: sync.Pool{
 			New: func() any {
 				return &thread{
-					matches: make(map[int]matchResult, len(obj.Regexps)),
+					matches: make([]matchResult, len(obj.Regexps)),
 					stack:   make([]interface{}, 0),
+					keysBuf: make([]string, obj.MaxDimensions),
 				}
 			},
 		},
 	}
 	if trace {
 		v.trace = make([]int, 0, len(v.prog))
+	}
+	// Execute the init program (from BEGIN blocks) at startup.
+	if len(obj.InitProgram) > 0 {
+		savedProg := v.prog
+		v.prog = obj.InitProgram
+		// Set a dummy input so errorf() can safely reference v.input.Filename and v.input.Line.
+		v.input = &logline.LogLine{Filename: v.name, Line: "<init>"}
+		initT := v.threadPool.Get().(*thread)
+		for initT.pc = 0; initT.pc < len(v.prog); {
+			i := v.prog[initT.pc]
+			initT.pc++
+			v.execute(initT, i)
+			if v.terminate {
+				v.terminate = false
+				break
+			}
+		}
+		v.threadPool.Put(initT)
+		v.prog = savedProg
+		v.input = nil
 	}
 	return v
 }
@@ -1104,6 +1158,18 @@ func (v *VM) DumpByteCode() string {
 	}
 	if err := w.Flush(); err != nil {
 		glog.Infof("flush error: %s", err)
+	}
+	if len(v.initProg) > 0 {
+		fmt.Fprintln(b, "\nInit Program:")
+		w2 := new(tabwriter.Writer)
+		w2.Init(b, 0, 0, 1, ' ', tabwriter.AlignRight)
+		fmt.Fprintln(w2, "disasm\tl\top\topnd\tline\t")
+		for n, i := range v.initProg {
+			fmt.Fprintf(w2, "\t%d\t%s\t%v\t%d\t\n", n, i.Opcode, i.Operand, i.SourceLine+1)
+		}
+		if err := w2.Flush(); err != nil {
+			glog.Infof("flush error: %s", err)
+		}
 	}
 	return b.String()
 }

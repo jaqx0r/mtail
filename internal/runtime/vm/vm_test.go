@@ -36,7 +36,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{},
 		[]interface{}{true},
-		thread{pc: 0, matches: map[int]matchResult{0: {text: "aaaab", indices: []int{0, 5}}}},
+		thread{pc: 0, matches: []matchResult{{text: "aaaab", indices: []int{0, 5}}}},
 	},
 	{
 		"cmp lt",
@@ -45,7 +45,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{1, "2"},
 		[]interface{}{true},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"cmp eq",
@@ -54,7 +54,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{"2", "2"},
 		[]interface{}{true},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"cmp gt",
@@ -63,7 +63,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{2, 1},
 		[]interface{}{true},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"cmp le",
@@ -72,7 +72,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{2, "2"},
 		[]interface{}{false},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"cmp ne",
@@ -81,7 +81,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{"1", "2"},
 		[]interface{}{false},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"cmp ge",
@@ -90,7 +90,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{2, 2},
 		[]interface{}{false},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"cmp gt float float",
@@ -99,7 +99,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{"2.0", "1.0"},
 		[]interface{}{true},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"cmp gt float int",
@@ -108,7 +108,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{"1.0", "2"},
 		[]interface{}{false},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"cmp gt int float",
@@ -117,7 +117,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{"1", "2.0"},
 		[]interface{}{false},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"cmp eq string string false",
@@ -126,7 +126,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{"abc", "def"},
 		[]interface{}{false},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"cmp eq string string true",
@@ -135,7 +135,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{"abc", "abc"},
 		[]interface{}{true},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"cmp gt float float",
@@ -144,7 +144,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{2.0, 1.0},
 		[]interface{}{true},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"cmp gt float int",
@@ -153,7 +153,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{1.0, 2},
 		[]interface{}{false},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"cmp gt int float",
@@ -162,7 +162,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{1, 2.0},
 		[]interface{}{false},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"jnm",
@@ -171,7 +171,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{false},
 		[]interface{}{},
-		thread{pc: 37, matches: map[int]matchResult{}},
+		thread{pc: 37, matches: []matchResult{}},
 	},
 	{
 		"jm",
@@ -180,7 +180,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{false},
 		[]interface{}{},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"jmp",
@@ -189,7 +189,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{},
 		[]interface{}{},
-		thread{pc: 37, matches: map[int]matchResult{}},
+		thread{pc: 37, matches: []matchResult{}},
 	},
 	{
 		"strptime",
@@ -200,7 +200,7 @@ var instructions = []struct {
 		[]interface{}{},
 		thread{
 			pc: 0, time: time.Date(2012, 1, 18, 6, 25, 0, 0, time.UTC),
-			matches: map[int]matchResult{},
+			matches: []matchResult{},
 		},
 	},
 	{
@@ -210,7 +210,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{2, 1},
 		[]interface{}{int64(3)},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"isub",
@@ -219,7 +219,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{2, 1},
 		[]interface{}{int64(1)},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"imul",
@@ -228,7 +228,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{2, 1},
 		[]interface{}{int64(2)},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"idiv",
@@ -237,7 +237,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{4, 2},
 		[]interface{}{int64(2)},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"imod",
@@ -246,7 +246,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{4, 2},
 		[]interface{}{int64(0)},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"imod 2",
@@ -255,7 +255,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{3, 2},
 		[]interface{}{int64(1)},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"tolower",
@@ -264,7 +264,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{"mIxeDCasE"},
 		[]interface{}{"mixedcase"},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"length",
@@ -273,7 +273,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{"1234"},
 		[]interface{}{4},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"length 0",
@@ -282,7 +282,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{""},
 		[]interface{}{0},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"shl",
@@ -291,7 +291,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{2, 1},
 		[]interface{}{int64(4)},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"shr",
@@ -300,7 +300,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{2, 1},
 		[]interface{}{int64(1)},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"and",
@@ -309,7 +309,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{2, 1},
 		[]interface{}{int64(0)},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"or",
@@ -318,7 +318,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{2, 1},
 		[]interface{}{int64(3)},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"xor",
@@ -327,7 +327,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{2, 1},
 		[]interface{}{int64(3)},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"xor 2",
@@ -336,7 +336,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{2, 3},
 		[]interface{}{int64(1)},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"xor 3",
@@ -345,7 +345,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{-1, 3},
 		[]interface{}{int64(^3)},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"neg",
@@ -354,7 +354,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{0},
 		[]interface{}{int64(-1)},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"not",
@@ -363,7 +363,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{false},
 		[]interface{}{true},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"pow",
@@ -372,7 +372,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{2, 2},
 		[]interface{}{int64(4)},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"s2i pop",
@@ -381,7 +381,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{"ff", 16},
 		[]interface{}{int64(255)},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"s2i",
@@ -390,7 +390,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{"190"},
 		[]interface{}{int64(190)},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"s2f",
@@ -399,7 +399,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{"1.0"},
 		[]interface{}{float64(1.0)},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"i2f",
@@ -408,7 +408,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{1},
 		[]interface{}{float64(1.0)},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"settime",
@@ -417,7 +417,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{int64(0)},
 		[]interface{}{},
-		thread{pc: 0, time: time.Unix(0, 0).UTC(), matches: map[int]matchResult{}},
+		thread{pc: 0, time: time.Unix(0, 0).UTC(), matches: []matchResult{}},
 	},
 	{
 		"push int",
@@ -426,7 +426,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{},
 		[]interface{}{1},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"push float",
@@ -435,7 +435,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{},
 		[]interface{}{1.0},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"setmatched false",
@@ -444,7 +444,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{},
 		[]interface{}{},
-		thread{matched: false, pc: 0, matches: map[int]matchResult{}},
+		thread{matched: false, pc: 0, matches: []matchResult{}},
 	},
 	{
 		"setmatched true",
@@ -453,7 +453,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{},
 		[]interface{}{},
-		thread{matched: true, pc: 0, matches: map[int]matchResult{}},
+		thread{matched: true, pc: 0, matches: []matchResult{}},
 	},
 	{
 		"otherwise",
@@ -462,7 +462,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{},
 		[]interface{}{true},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"fadd",
@@ -471,7 +471,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{1.0, 2.0},
 		[]interface{}{3.0},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"fsub",
@@ -480,7 +480,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{1.0, 2.0},
 		[]interface{}{-1.0},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"fmul",
@@ -489,7 +489,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{1.0, 2.0},
 		[]interface{}{2.0},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"fdiv",
@@ -498,7 +498,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{1.0, 2.0},
 		[]interface{}{0.5},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"fmod",
@@ -507,7 +507,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{1.0, 2.0},
 		[]interface{}{1.0},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"fpow",
@@ -516,7 +516,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{2.0, 2.0},
 		[]interface{}{4.0},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"getfilename",
@@ -525,7 +525,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{},
 		[]interface{}{testFilename},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"i2s",
@@ -534,7 +534,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{1},
 		[]interface{}{"1"},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"f2s",
@@ -543,7 +543,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{3.1},
 		[]interface{}{"3.1"},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"cat",
@@ -552,7 +552,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{"first", "second"},
 		[]interface{}{"firstsecond"},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"icmp gt false",
@@ -561,7 +561,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{1, 2},
 		[]interface{}{false},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"fcmp gt false",
@@ -570,7 +570,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{1.0, 2.0},
 		[]interface{}{false},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"scmp eq false",
@@ -579,7 +579,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{"abc", "def"},
 		[]interface{}{false},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 	{
 		"subst",
@@ -588,7 +588,7 @@ var instructions = []struct {
 		[]string{},
 		[]interface{}{"aa" /*old*/, "a" /*new*/, "caat"},
 		[]interface{}{"cat"},
-		thread{pc: 0, matches: map[int]matchResult{}},
+		thread{pc: 0, matches: []matchResult{}},
 	},
 }
 
@@ -612,7 +612,7 @@ func TestInstrs(t *testing.T) {
 			for _, item := range tc.reversedStack {
 				v.t.Push(item)
 			}
-			v.t.matches = make(map[int]matchResult)
+			v.t.matches = make([]matchResult, len(obj.Regexps))
 			v.input = logline.New(context.Background(), testFilename, logline.GetHash(testFilename), "aaaab")
 			v.execute(v.t, tc.i)
 			if v.terminate {
@@ -634,7 +634,8 @@ func makeVM(i code.Instr, m []*metrics.Metric) *VM {
 	v := New("test", obj, true, nil, false, false)
 	v.t = new(thread)
 	v.t.stack = make([]interface{}, 0)
-	v.t.matches = make(map[int]matchResult)
+	v.t.matches = make([]matchResult, 0)
+	v.t.keysBuf = make([]string, 64)
 	v.input = logline.New(context.Background(), testFilename, logline.GetHash(testFilename), "aaaab")
 	return v
 }

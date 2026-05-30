@@ -20,6 +20,7 @@ import (
 var keywords = map[string]Kind{
 	"after":      AFTER,
 	"as":         AS,
+	"begin":      BEGIN,
 	"buckets":    BUCKETS,
 	"by":         BY,
 	"const":      CONST,

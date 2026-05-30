@@ -36,6 +36,7 @@ type checker struct {
 	maxRecursionDepth int
 	maxRegexLength    int
 	noRegexSymbols    bool
+	insideBegin       bool // Set when typechecking inside a BEGIN block
 }
 
 // Check performs a semantic check of the astNode, and returns a potentially
@@ -78,6 +79,10 @@ func (c *checker) VisitBefore(node ast.Node) (ast.Visitor, ast.Node) {
 		glog.V(2).Infof("Created new scope %v in stmtlist", n.Scope)
 		return c, n
 
+	case *ast.BeginStmt:
+		c.insideBegin = true
+		return c, n
+
 	case *ast.CondStmt:
 		n.Scope = symbol.NewScope(c.scope)
 		c.scope = n.Scope
@@ -91,6 +96,11 @@ func (c *checker) VisitBefore(node ast.Node) (ast.Visitor, ast.Node) {
 		return c, n
 
 	case *ast.CaprefTerm:
+		if c.insideBegin {
+			c.errors.Add(n.Pos(), "Can't use capture group references inside a BEGIN block")
+			c.depth--
+			return nil, n
+		}
 		if n.Symbol == nil {
 			sym := c.scope.Lookup(n.Name, symbol.CaprefSymbol)
 			if sym == nil {
@@ -272,7 +282,21 @@ func (c *checker) VisitAfter(node ast.Node) ast.Node {
 		c.scope = n.Scope.Parent
 		return n
 
+	case *ast.BeginStmt:
+		c.insideBegin = false
+		return n
+
 	case *ast.CondStmt:
+		if c.insideBegin {
+			switch cond := n.Cond.(type) {
+			case *ast.PatternExpr:
+				c.errors.Add(cond.Pos(), "Can't use pattern matching inside a BEGIN block")
+			case *ast.UnaryExpr:
+				if cond.Op == parser.MATCH {
+					c.errors.Add(cond.Pos(), "Can't use pattern matching inside a BEGIN block")
+				}
+			}
+		}
 		switch n.Cond.(type) {
 		case *ast.BinaryExpr, *ast.OtherwiseStmt, *ast.UnaryExpr:
 			// OK as conditions
