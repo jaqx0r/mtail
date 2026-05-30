@@ -278,6 +278,14 @@ func (u *Unparser) VisitBefore(n ast.Node) (ast.Visitor, ast.Node) {
 	case *ast.StopStmt:
 		u.emit("stop")
 
+	case *ast.BeginStmt:
+		u.emit("begin {")
+		u.newline()
+		u.indent()
+		ast.Walk(u, v.Block)
+		u.outdent()
+		u.emit("}")
+
 	default:
 		panic(fmt.Sprintf("unfound undefined type %T", n))
 	}

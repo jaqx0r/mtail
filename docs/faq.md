@@ -21,7 +21,7 @@ metric_relabel_configs:
 
 ## `mtail` isn't propagating the scraped timestamp to Prometheus
 
-`mtail` lets you use the `settimestamp()` function to extract a timestamp from
+`mtail` lets you use the `settime()` function to extract a timestamp from
 a log file, and use that timestamp to carry to the monitoring system the
 closest thing that `mtail` knows to be the actual time of the event, and not
 the time at which `mtail` scraped the log.
@@ -51,8 +51,8 @@ Basics](https://prometheus.io/docs/prometheus/latest/querying/basics/#staleness)
 in the Prometheus docs.
 
 If you are looking to expose the timestamp of an event, for example the start time of
-a process, you can create a timestamp metric. This is a metric that contains
-the timestamp as the value:
+a process, you can create a timestamp metric. Note that gauges assigned from
+`timestamp()` are `Time`-typed.
 
 ```mtail
 counter mtail_lines_read_count by filename

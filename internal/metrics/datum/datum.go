@@ -142,6 +142,26 @@ func GetString(d Datum) string {
 	}
 }
 
+// GetTime returns the time.Time value of a Time datum, or panics if the Datum is not a Time.
+func GetTime(d Datum) time.Time {
+	switch d := d.(type) {
+	case *Time:
+		return d.Get()
+	default:
+		panic(fmt.Sprintf("datum %v is not a Time", d))
+	}
+}
+
+// GetDuration returns the time.Duration value of a Duration datum, or panics if the Datum is not a Duration.
+func GetDuration(d Datum) time.Duration {
+	switch d := d.(type) {
+	case *Duration:
+		return d.Get()
+	default:
+		panic(fmt.Sprintf("datum %v is not a Duration", d))
+	}
+}
+
 // SetInt sets an integer datum to the provided value and timestamp, or panics if the Datum is not an IntDatum.
 func SetInt(d Datum, v int64, ts time.Time) {
 	switch d := d.(type) {

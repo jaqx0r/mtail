@@ -50,7 +50,7 @@ import (
 // Types
 %token COUNTER GAUGE TIMER TEXT HISTOGRAM
 // Reserved words
-%token AFTER AS BY CONST HIDDEN DEF DEL NEXT OTHERWISE ELSE STOP BUCKETS LIMIT
+%token AFTER AS BEGIN BY CONST HIDDEN DEF DEL NEXT OTHERWISE ELSE STOP BUCKETS LIMIT
 // Builtins
 %token <text> BUILTIN
 // Literals: re2 syntax regular expression, quoted strings, regex capture group
@@ -140,6 +140,10 @@ stmt
   | STOP
   {
     $$ = &ast.StopStmt{tokenpos(mtaillex)}
+  }
+  | BEGIN compound_stmt
+  {
+    $$ = &ast.BeginStmt{P: tokenpos(mtaillex), Block: $2}
   }
   | INVALID
   {

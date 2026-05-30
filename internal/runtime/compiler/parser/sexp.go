@@ -203,6 +203,9 @@ func (s *Sexp) VisitBefore(n ast.Node) (ast.Visitor, ast.Node) {
 	case *ast.StopStmt:
 		s.emit("stop")
 
+	case *ast.BeginStmt:
+		s.emit("begin")
+
 	case *ast.DecoDecl:
 		s.emit(fmt.Sprintf("%q", v.Name))
 		s.newline()

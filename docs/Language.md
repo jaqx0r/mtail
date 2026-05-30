@@ -421,14 +421,36 @@ The second dimension is the internal representation of a value, which is used by
 *   Float
 *   Bool
 *   String
+*   Timestamp (Go `time.Time`)
+*   Duration (Go `time.Duration`)
 
 Some of these types can only be used in certain locations -- for example, you
 can't increment a counter by a string, but `mtail` will fall back to a attempt
 to do so, logging an error if a runtime type conversion fails.  Likewise, the
 only type that a `histogram` can observe is a Float.
 
+`Timestamp` is created by `timestamp()` or `strptime()`, or via type conversion.
+`Duration` is created by `Timestamp - Timestamp` or via type conversion.
+
 These types are usually inferred from use, but can be influenced by the
 programmer with builtin functions. Read on.
+
+#### Time Arithmetic
+Arithmetic operations are supported for time types:
+
+* `Timestamp - Timestamp` returns a `Duration`.
+* `Timestamp + Duration` returns a `Timestamp`.
+* `Timestamp - Duration` returns a `Timestamp`.
+
+#### Type Coercions
+Values can be converted between types:
+
+* `int(x)` converts `x` to an `Int`.
+* `float(x)` converts `x` to a `Float`.
+* `string(x)` converts `x` to a `String`.
+* `timestamp(x)` converts `x` (integer Unix seconds) to a `Timestamp`.
+* `duration(x)` converts `x` (integer/float seconds) to a `Duration`.
+
 
 #### Builtin functions
 
@@ -478,15 +500,15 @@ effects for the metric export.
 
 *   `getfilename()`, a function of no arguments, which returns the filename from
     which the current log line input came.
-*   `settime(x)`, a function of one integer argument, which sets the current
-    timestamp register.
+*   `settime(x)`, a function which sets the current timestamp register.
+    `x` can be an `Int` (Unix seconds) or a `Timestamp`.
 *   `strptime(x, y)`, a function of two string arguments, which parses the
     timestamp in the string `x` with the parse format string in `y`, and sets
     the current timestamp register. The parse format string must follow [Go's
     time.Parse() format string](http://golang.org/src/pkg/time/format.go)
 *   `timestamp()`, a function of no arguments, which returns the current
-    timestamp. This is undefined if neither `settime` or `strptime` have been
-    called previously.
+    timestamp as a `Timestamp` type, with nanosecond precision. This is
+    undefined if neither `settime` or `strptime` have been called previously.
 
 The **current timestamp register** refers to `mtail`'s idea of the time
 associated with the current log line. This timestamp is used when the variables
