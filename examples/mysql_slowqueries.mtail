@@ -50,7 +50,7 @@ const END_QUERY_LINE /.*;$/
 
 settime(time)
 
-// + USER_HOST {
+USER_HOST {
   user = $1
   host = $2
 }
@@ -59,7 +59,7 @@ user == "" {
   stop
 }
 
-// + QUERY_TIME {
+QUERY_TIME {
   tmp_query_time = $1
   tmp_lock_time = $2
   query_time_overall_sum += tmp_query_time
@@ -68,7 +68,7 @@ user == "" {
   lock_time_total_count++
 }
 
-// + FULL_QUERY_LINE {
+FULL_QUERY_LINE {
   # We should have everything we need now.
   query_type = tolower($1)
   service = $2
@@ -76,7 +76,7 @@ user == "" {
   lock_time[query_type, host, service, user] += tmp_lock_time
 }
 
-// + UNINSTRUMENTED_QUERY_LINE {
+UNINSTRUMENTED_QUERY_LINE {
   # We should have everything we need now.
   query_type = tolower($1)
   service = "n/a"
@@ -84,12 +84,12 @@ user == "" {
   lock_time[query_type, host, service, user] += tmp_lock_time
 }
 
-// + PARTIAL_QUERY_LINE {
+PARTIAL_QUERY_LINE {
   query_type = tolower($1)
   partial = 1
 }
 
-// + END_QUERY_LINE && partial == 1 {
+END_QUERY_LINE && partial == 1 {
   partial = 0
   /.*# (.*)$/ {
     service = $1

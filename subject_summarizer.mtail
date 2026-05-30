@@ -7,6 +7,6 @@ counter subject_lines_seen by subject
 
 const SUBJECT_LINE /^Subject: (.*)$/
 
-// + SUBJECT_LINE {
+SUBJECT_LINE {
   subject_lines_seen[$1] ++
 }

@@ -27,7 +27,7 @@ def vsftpd_timestamp {
   }
 }
 
-const XFERLOG_RE // +
+const XFERLOG_RE
     # e.g. 1 172.18.115.36 528
     # time spent transferring
     /\s(?P<transfertime>\d+)/ +
@@ -57,7 +57,7 @@ const XFERLOG_RE // +
     # completion status
     /\s(?P<completionstatus>\S)/
 
-const VSFTPD_LOG_RE // +
+const VSFTPD_LOG_RE
     / \[pid \d+\]/ +
     /( \[\w+\])?/ +
     / (?P<command>CONNECT|OK LOGIN|OK UPLOAD|FTP (command|response)):/ +
@@ -70,7 +70,7 @@ const PAYLOAD_COMMAND_RE /^"(\w{4})[" -]/
 
 @vsftpd_timestamp {
   getfilename() =~ /xferlog/ {
-    // + XFERLOG_RE {
+    XFERLOG_RE {
       # Handles log entries from the wuftpd format xferlog.
       $direction == "i" {
         direction = "incoming"
@@ -87,7 +87,7 @@ const PAYLOAD_COMMAND_RE /^"(\w{4})[" -]/
   }
   
   getfilename() =~ /vsftpd.log/ {
-    // + VSFTPD_LOG_RE {
+    VSFTPD_LOG_RE {
       # Handle vsftpd.log log file."""
       $command == "CONNECT" {
         sessions[$client] = timestamp()
@@ -101,7 +101,7 @@ const PAYLOAD_COMMAND_RE /^"(\w{4})[" -]/
         uploads++
       }
       $command == "FTP command" {
-        $payload =~ // + PAYLOAD_COMMAND_RE {
+        $payload =~ PAYLOAD_COMMAND_RE {
           commands[$1]++
           
           $1 == "QUIT" {
@@ -111,7 +111,7 @@ const PAYLOAD_COMMAND_RE /^"(\w{4})[" -]/
         }
       }
       $command == "FTP response" {
-        $payload =~ // + PAYLOAD_RESPONSE_RE {
+        $payload =~ PAYLOAD_RESPONSE_RE {
           responses[$1]++
         }
       }

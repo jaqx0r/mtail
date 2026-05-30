@@ -10,7 +10,7 @@ counter bytes_in by status
 counter requests by proxy_cache
 
 
-const ACCESSLOG_RE // +
+const ACCESSLOG_RE
     /(?P<proxied_for>\S+) (?P<request_ip>\S+) (?P<authuser>\S+)/ +
     / \[(?P<access_time>[^\]]+)\] "(?P<http_method>\S+) (?P<url>.+?) / +
     /(?P<protocol>\S+)" (?P<status>\d+) (?P<bytes_body>\d+) (?P<bytes_in>\d+)/ +
@@ -20,7 +20,7 @@ const ACCESSLOG_RE // +
 
 # /var/log/lighttpd/access.log
 getfilename() =~ /lighttpd.access.log/ {
-  // + ACCESSLOG_RE {
+  ACCESSLOG_RE {
     # Parse an accesslog entry.
     $url == "/healthz" {
       # nothing
