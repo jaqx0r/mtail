@@ -42,7 +42,7 @@ const QMGR_REMOVE_LINE /: removed$/
   # buckets: 1e-3, 1e-2, 1e-1, 1e0, 1e1, 1e2, 1e3
 
   $application == "lmtp" {
-    // + DELIVERY_DELAY_LINE {
+    DELIVERY_DELAY_LINE {
       # 1st field: before_queue_manager
       postfix_lmtp_delivery_delay_seconds["before_queue_manager"] = $bqm
 
@@ -62,7 +62,7 @@ const QMGR_REMOVE_LINE /: removed$/
   # buckets: 1e-3, 1e-2, 1e-1, 1e0, 1e1, 1e2, 1e3
 
   $application == "pipe" {
-    // + DELIVERY_DELAY_LINE {
+    DELIVERY_DELAY_LINE {
       # 1st field: before_queue_manager
       postfix_pipe_delivery_delay_seconds[$relay]["before_queue_manager"] = $bqm
 
@@ -89,11 +89,11 @@ const QMGR_REMOVE_LINE /: removed$/
   counter postfix_qmgr_messages_removed_total
 
   $application == "qmgr" {
-    // + QMGR_INSERT_LINE {
+    QMGR_INSERT_LINE {
       postfix_qmgr_messages_inserted_recipients = $nrcpt
       postfix_qmgr_messages_inserted_size_bytes = $size
       }
-    // + QMGR_REMOVE_LINE {
+    QMGR_REMOVE_LINE {
       postfix_qmgr_messages_removed_total++
       }
     }
@@ -106,7 +106,7 @@ const QMGR_REMOVE_LINE /: removed$/
   counter postfix_smtp_tls_connections_total by trust, protocol, cipher, secret_bits, algorithm_bits
 
   $application == "smtp" {
-      // + DELIVERY_DELAY_LINE {
+      DELIVERY_DELAY_LINE {
         # 1st field: before_queue_manager
         postfix_smtp_delivery_delay_seconds["before_queue_manager"] = $bqm
 
@@ -120,7 +120,7 @@ const QMGR_REMOVE_LINE /: removed$/
       postfix_smtp_delivery_delay_seconds["transmission"] = $tx
       }
 
-      // + SMTP_TLS_LINE {
+      SMTP_TLS_LINE {
         postfix_smtp_tls_connections_total[$1][$2][$3][$4][$5]++
       }
     }
@@ -175,7 +175,7 @@ const QMGR_REMOVE_LINE /: removed$/
     /warning: \S+: SASL \S+ authentication failed: / {
       postfix_smtpd_sasl_authentication_failures_total++
       }
-    // + SMTPD_TLS_LINE {
+    SMTPD_TLS_LINE {
       postfix_smtpd_tls_connections_total[$1][$2][$3][$4][$5]++
       }
     }
