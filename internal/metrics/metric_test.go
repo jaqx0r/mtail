@@ -272,3 +272,64 @@ func TestMetricLabelValueRemovePastLimit(t *testing.T) {
 		t.Errorf("found label a which is unexpected: %#v", x)
 	}
 }
+
+func TestGetDatumEnforcesLimit(t *testing.T) {
+	m := NewMetric("test", "prog", Counter, Int, "foo")
+	m.Limit = 2
+
+	da, err := m.GetDatum("a")
+	testutil.FatalIfErr(t, err)
+	datum.SetInt(da, 1, time.Unix(1, 0))
+
+	db, err := m.GetDatum("b")
+	testutil.FatalIfErr(t, err)
+	datum.SetInt(db, 1, time.Unix(2, 0))
+
+	// A third distinct series exceeds Limit=2.  GetDatum must bound
+	// cardinality at creation time by evicting the oldest series ("a"),
+	// rather than deferring the cap to the next Store.Gc tick.
+	dc, err := m.GetDatum("c")
+	testutil.FatalIfErr(t, err)
+	datum.SetInt(dc, 1, time.Unix(3, 0))
+
+	if got := len(m.LabelValues); got != 2 {
+		t.Errorf("cardinality not bounded by Limit: got %d labelvalues, want 2: %#v", got, m.LabelValues)
+	}
+	if x := m.FindLabelValueOrNil([]string{"a"}); x != nil {
+		t.Errorf("oldest series \"a\" should have been evicted at the Limit, still present: %#v", x)
+	}
+	if x := m.FindLabelValueOrNil([]string{"c"}); x == nil {
+		t.Errorf("newest series \"c\" should be present")
+	}
+}
+
+// TestGetDatumUnlimitedByDefault guards the default: Limit == 0 means no cap.
+func TestGetDatumUnlimitedByDefault(t *testing.T) {
+	m := NewMetric("test", "prog", Counter, Int, "foo")
+	// Limit left at its zero value.
+	for i := 0; i < 100; i++ {
+		_, err := m.GetDatum(fmt.Sprintf("%d", i))
+		testutil.FatalIfErr(t, err)
+	}
+	if got := len(m.LabelValues); got != 100 {
+		t.Errorf("default Limit=0 should be unbounded: got %d labelvalues, want 100", got)
+	}
+}
+
+// BenchmarkGetDatumAtLimit measures the new-series (cache-miss) path while the
+// metric is already at its cardinality Limit, i.e. the eviction path.  The
+// steady-state cache-hit path is unaffected: the Limit check lives only on the
+// create branch.
+func BenchmarkGetDatumAtLimit(b *testing.B) {
+	m := NewMetric("test", "prog", Counter, Int, "foo")
+	m.Limit = 100
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		d, err := m.GetDatum(fmt.Sprintf("%d", i))
+		if err != nil {
+			b.Fatal(err)
+		}
+		datum.SetInt(d, 1, time.Unix(int64(i), 0))
+	}
+}
