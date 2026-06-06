@@ -202,7 +202,9 @@ func (m *Metric) RemoveOldestDatum() {
 
 // removeOldestDatumLocked removes the LabelValue whose Datum has the oldest
 // timestamp.  The caller must hold m's lock.  It reports whether a datum was
-// removed (false only when the metric has no LabelValues left).
+// removed (false only when the metric has no LabelValues left).  Finding the
+// oldest is a linear scan over LabelValues, the same policy Store.Gc already
+// uses; on the GetDatum path it runs only on a cache miss while at the Limit.
 func (m *Metric) removeOldestDatumLocked() bool {
 	var oldestLV *LabelValue
 	for _, lv := range m.LabelValues {
