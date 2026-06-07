@@ -157,7 +157,20 @@ func (m *Metric) GetDatum(labelvalues ...string) (d datum.Datum, err error) {
 	if lv := m.FindLabelValueOrNil(labelvalues); lv != nil {
 		d = lv.Value
 	} else {
-		// TODO Check m.Limit and expire old data
+		// Enforce the per-metric cardinality Limit before creating a new
+		// series.  Limit == 0 means unbounded (the default, unchanged).  This
+		// mirrors Store.Gc's evict-oldest policy so the cap is also honoured
+		// between GC cycles, not just at GC time -- otherwise a program that
+		// labels a metric by a high-cardinality field (request path,
+		// User-Agent, ...) can grow without bound until the next Gc tick.
+		// Refs google/mtail#1006, #61.
+		if m.Limit > 0 {
+			for len(m.LabelValues) >= m.Limit {
+				if !m.removeOldestDatumLocked() {
+					break
+				}
+			}
+		}
 		switch m.Type {
 		case Int:
 			d = datum.NewInt()
@@ -182,19 +195,29 @@ func (m *Metric) GetDatum(labelvalues ...string) (d datum.Datum, err error) {
 
 // RemoveOldestDatum scans the Metric's LabelValues for the Datum with the oldest timestamp, and removes it.
 func (m *Metric) RemoveOldestDatum() {
+	m.Lock()
+	defer m.Unlock()
+	m.removeOldestDatumLocked()
+}
+
+// removeOldestDatumLocked removes the LabelValue whose Datum has the oldest
+// timestamp.  The caller must hold m's lock.  It reports whether a datum was
+// removed (false only when the metric has no LabelValues left).  Finding the
+// oldest is a linear scan over LabelValues, the same policy Store.Gc already
+// uses; on the GetDatum path it runs only on a cache miss while at the Limit.
+func (m *Metric) removeOldestDatumLocked() bool {
 	var oldestLV *LabelValue
 	for _, lv := range m.LabelValues {
 		if oldestLV == nil || lv.Value.TimeUTC().Before(oldestLV.Value.TimeUTC()) {
 			oldestLV = lv
 		}
 	}
-	if oldestLV != nil {
-		glog.V(1).Infof("removeOldest: removing oldest LV: %v", oldestLV)
-		err := m.RemoveDatum(oldestLV.Labels...)
-		if err != nil {
-			glog.Warning(err)
-		}
+	if oldestLV == nil {
+		return false
 	}
+	glog.V(1).Infof("removeOldest: removing oldest LV: %v", oldestLV)
+	m.removeDatumLocked(oldestLV.Labels...)
+	return true
 }
 
 // RemoveDatum removes the Datum described by labelvalues from the Metric m.
@@ -204,20 +227,26 @@ func (m *Metric) RemoveDatum(labelvalues ...string) error {
 	}
 	m.Lock()
 	defer m.Unlock()
+	m.removeDatumLocked(labelvalues...)
+	return nil
+}
+
+// removeDatumLocked removes the LabelValue keyed by labelvalues.  The caller
+// must hold m's lock.
+func (m *Metric) removeDatumLocked(labelvalues ...string) {
 	k := buildLabelValueKey(labelvalues)
 	olv, ok := m.labelValuesMap[k]
-	if ok {
-		for i := 0; i < len(m.LabelValues); i++ {
-			lv := m.LabelValues[i]
-			if lv == olv {
-				// remove from the slice
-				m.LabelValues = append(m.LabelValues[:i], m.LabelValues[i+1:]...)
-				delete(m.labelValuesMap, k)
-				break
-			}
+	if !ok {
+		return
+	}
+	for i := 0; i < len(m.LabelValues); i++ {
+		if m.LabelValues[i] == olv {
+			// remove from the slice
+			m.LabelValues = append(m.LabelValues[:i], m.LabelValues[i+1:]...)
+			delete(m.labelValuesMap, k)
+			break
 		}
 	}
-	return nil
 }
 
 func (m *Metric) ExpireDatum(expiry time.Duration, labelvalues ...string) error {
