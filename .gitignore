@@ -49,3 +49,4 @@ workdir/*
 /bazel-mtail
 /bazel-out
 /bazel-testlogs
+/.agent-shell/
