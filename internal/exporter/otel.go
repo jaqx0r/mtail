@@ -53,6 +53,10 @@ func (e *Exporter) Produce(context.Context) ([]metricdata.ScopeMetrics, error) {
 				newMetric.Data = otelIntGauge(m)
 			case metrics.Float:
 				newMetric.Data = otelFloatGauge(m)
+			case metrics.Time:
+				newMetric.Data = otelTimeGauge(m)
+			case metrics.Duration:
+				newMetric.Data = otelDurationGauge(m)
 			default:
 				return nil
 			}
@@ -60,6 +64,8 @@ func (e *Exporter) Produce(context.Context) ([]metricdata.ScopeMetrics, error) {
 			switch m.Type {
 			case metrics.Float:
 				newMetric.Data = otelFloatGauge(m)
+			case metrics.Duration:
+				newMetric.Data = otelDurationGauge(m)
 			default:
 				return nil
 			}
@@ -140,6 +146,44 @@ func otelFloatGauge(m *metrics.Metric) metricdata.Gauge[float64] {
 			StartTime:  processStartTime,
 			Time:       ls.Datum.TimeUTC(),
 			Value:      datum.GetFloat(ls.Datum),
+		}
+		gauge.DataPoints = append(gauge.DataPoints, dp)
+	}
+	return gauge
+}
+
+func otelTimeGauge(m *metrics.Metric) metricdata.Gauge[float64] {
+	gauge := metricdata.Gauge[float64]{
+		DataPoints: make([]metricdata.DataPoint[float64], 0, len(m.LabelValues)),
+	}
+	lsc := make(chan *metrics.LabelSet)
+	go m.EmitLabelSets(lsc)
+	for ls := range lsc {
+		t := datum.GetTime(ls.Datum)
+		val := float64(t.Unix()) + float64(t.Nanosecond())/1e9
+		dp := metricdata.DataPoint[float64]{
+			Attributes: otelLabels(ls.Labels),
+			StartTime:  processStartTime,
+			Time:       ls.Datum.TimeUTC(),
+			Value:      val,
+		}
+		gauge.DataPoints = append(gauge.DataPoints, dp)
+	}
+	return gauge
+}
+
+func otelDurationGauge(m *metrics.Metric) metricdata.Gauge[float64] {
+	gauge := metricdata.Gauge[float64]{
+		DataPoints: make([]metricdata.DataPoint[float64], 0, len(m.LabelValues)),
+	}
+	lsc := make(chan *metrics.LabelSet)
+	go m.EmitLabelSets(lsc)
+	for ls := range lsc {
+		dp := metricdata.DataPoint[float64]{
+			Attributes: otelLabels(ls.Labels),
+			StartTime:  processStartTime,
+			Time:       ls.Datum.TimeUTC(),
+			Value:      datum.GetDuration(ls.Datum).Seconds(),
 		}
 		gauge.DataPoints = append(gauge.DataPoints, dp)
 	}

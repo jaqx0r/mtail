@@ -38,12 +38,14 @@ const MATCH_IP /(?P<ip>/ + IP + /)/
 
 `mtail` attributes a timestamp to each event.
 
-If no timestamp exists in the log and none explicitly parsed by the mtail
-program, then mtail will use the current system time as the time of the event.
+If no timestamp exists in the log, `mtail` will use the current system time as
+the time of the event. Explicit parsing can be done via `strptime()`.
 
 Many log files include the timestamp of the event as reported by the logging
 program. To parse the timestamp, use the `strptime` function with a
 [Go time.Parse layout string](https://golang.org/pkg/time/#Parse).
+
+Note: Arithmetic on timestamps produces `Duration` datums instead of `Int`.
 
 ```
 /^(?P<date>\w+\s+\d+\s+\d+:\d+:\d+)\s+[\w\.-]+\s+sftp-server/ {

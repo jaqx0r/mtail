@@ -28,8 +28,9 @@ type codegen struct {
 	errors errors.ErrorList // Any compile errors detected are accumulated here.
 	obj    code.Object      // The object to return, if successful.
 
-	l     []int           // Label table for recording jump destinations.
-	decos []*ast.DecoStmt // Decorator stack to unwind when entering decorated blocks.
+	l       []int           // Label table for recording jump destinations.
+	decos   []*ast.DecoStmt // Decorator stack to unwind when entering decorated blocks.
+	maxDims int             // Track the maximum number of dimension keys across all Dload emissions.
 }
 
 // CodeGen is the function that compiles the program to bytecode and data.
@@ -37,6 +38,7 @@ func CodeGen(name string, n ast.Node) (*code.Object, error) {
 	c := &codegen{name: name}
 	_ = ast.Walk(c, n)
 	c.writeJumps()
+	c.obj.MaxDimensions = c.maxDims
 	if len(c.errors) > 0 {
 		return nil, &c.errors
 	}
@@ -192,6 +194,16 @@ func (c *codegen) VisitBefore(node ast.Node) (ast.Visitor, ast.Node) {
 		c.setLabel(lEnd)
 		return nil, n
 
+	case *ast.BeginStmt:
+		// Save the current program buffer, switch to a fresh one for the BEGIN block.
+		// After walking the block, accumulate the emitted instructions into InitProgram.
+		savedProg := c.obj.Program
+		c.obj.Program = []code.Instr{}
+		n.Block = ast.Walk(c, n.Block)
+		c.obj.InitProgram = append(c.obj.InitProgram, c.obj.Program...)
+		c.obj.Program = savedProg
+		return nil, n
+
 	case *ast.PatternExpr:
 		re, err := regexp.Compile(n.Pattern)
 		if err != nil {
@@ -231,6 +243,9 @@ func (c *codegen) VisitBefore(node ast.Node) (ast.Visitor, ast.Node) {
 		c.emit(n, code.Mload, n.Symbol.Addr)
 		m := n.Symbol.Binding.(*metrics.Metric)
 		c.emit(n, code.Dload, len(m.Keys))
+		if len(m.Keys) > c.maxDims {
+			c.maxDims = len(m.Keys)
+		}
 
 		if !n.Lvalue {
 			t := n.Type()
@@ -643,7 +658,12 @@ func (c *codegen) emitConversion(n ast.Node, inType, outType types.Type) error {
 }
 
 func (c *codegen) writeJumps() {
-	for j, i := range c.obj.Program {
+	c.resolveJumps(c.obj.Program)
+	c.resolveJumps(c.obj.InitProgram)
+}
+
+func (c *codegen) resolveJumps(prog []code.Instr) {
+	for j, i := range prog {
 		switch i.Opcode {
 		case code.Jmp, code.Jm, code.Jnm:
 			index := i.Operand.(int)
@@ -656,7 +676,7 @@ func (c *codegen) writeJumps() {
 				c.errorf(nil, "offset for label %v is negative, table is %v", i.Operand, c.l)
 				continue
 			}
-			c.obj.Program[j].Operand = c.l[index]
+			prog[j].Operand = c.l[index]
 		}
 	}
 }

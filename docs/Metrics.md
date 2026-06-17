@@ -10,7 +10,7 @@ It also has **units**, so that measurements can be compared and calculated with.
 
 It has a **class**, so that tools can automatically perform some aggregation operations on collections of measurements.
 
-It has a **type**, describing the sort of data it contains: floating point or integer values.
+It has a **type**, describing the sort of data it contains: floating point, integer, time, or duration values.
 
 Finally, it has some **labels**, so that additional information about the measurement can be added to assist queries later.  Labels are key/value pairs, where the value may change for a specific measurement, but the keys remain constant across all measurements in a metric.
 

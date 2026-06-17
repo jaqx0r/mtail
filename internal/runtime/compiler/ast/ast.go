@@ -447,6 +447,19 @@ func (n *StopStmt) Type() types.Type {
 	return types.None
 }
 
+type BeginStmt struct {
+	P     position.Position // Position of the BEGIN keyword
+	Block Node              // *StmtList from compound_stmt
+}
+
+func (n *BeginStmt) Pos() *position.Position {
+	return &n.P
+}
+
+func (n *BeginStmt) Type() types.Type {
+	return types.None
+}
+
 // mergepositionlist is a helper that merges the positions of all the nodes in a list.
 func mergepositionlist(l []Node) *position.Position {
 	switch len(l) {

@@ -23,7 +23,9 @@ var testCodeGenPrograms = []struct {
 	name         string
 	source       string
 	prog         []code.Instr // expected bytecode
+	initProg     []code.Instr // expected init bytecode
 	expectedLogs []string
+	maxDimensions int
 }{
 	// Composite literals require too many explicit conversions.
 	{
@@ -39,6 +41,8 @@ var testCodeGenPrograms = []struct {
 			{code.Setmatched, true, 1},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"count a",
@@ -53,6 +57,8 @@ var testCodeGenPrograms = []struct {
 			{code.Setmatched, true, 1},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"strptime and capref",
@@ -73,6 +79,8 @@ var testCodeGenPrograms = []struct {
 			{code.Setmatched, true, 1},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"strptime and named capref",
@@ -93,6 +101,8 @@ var testCodeGenPrograms = []struct {
 			{code.Setmatched, true, 1},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"inc by and set",
@@ -120,6 +130,8 @@ var testCodeGenPrograms = []struct {
 			{code.Setmatched, true, 2},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"cond expr gt",
@@ -143,6 +155,8 @@ var testCodeGenPrograms = []struct {
 			{code.Setmatched, true, 1},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"cond expr lt",
@@ -166,6 +180,8 @@ var testCodeGenPrograms = []struct {
 			{code.Setmatched, true, 1},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"cond expr eq",
@@ -189,6 +205,8 @@ var testCodeGenPrograms = []struct {
 			{code.Setmatched, true, 1},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"cond expr le",
@@ -212,6 +230,8 @@ var testCodeGenPrograms = []struct {
 			{code.Setmatched, true, 1},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"cond expr ge",
@@ -235,6 +255,8 @@ var testCodeGenPrograms = []struct {
 			{code.Setmatched, true, 1},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"cond expr ne",
@@ -258,6 +280,8 @@ var testCodeGenPrograms = []struct {
 			{code.Setmatched, true, 1},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"nested cond",
@@ -289,6 +313,8 @@ var testCodeGenPrograms = []struct {
 			{code.Setmatched, true, 1},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"deco",
@@ -315,6 +341,8 @@ var testCodeGenPrograms = []struct {
 			{code.Setmatched, true, 3},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"length",
@@ -334,6 +362,8 @@ var testCodeGenPrograms = []struct {
 			{code.Setmatched, true, 0},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"bitwise", `
@@ -369,6 +399,8 @@ a = 1 >> 20
 			{code.Iset, nil, 5},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"pow", `
@@ -394,6 +426,8 @@ gauge a
 			{code.Setmatched, true, 2},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"indexed expr", `
@@ -407,6 +441,8 @@ a["string"]++
 			{code.Inc, nil, 2},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"strtol", `
@@ -418,6 +454,8 @@ strtol("deadbeef", 16)
 			{code.S2i, 2, 1},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"float", `
@@ -427,6 +465,8 @@ strtol("deadbeef", 16)
 			{code.Push, 20.0, 1},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"otherwise", `
@@ -445,6 +485,8 @@ otherwise {
 			{code.Setmatched, true, 2},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"cond else",
@@ -475,6 +517,8 @@ counter bar
 			{code.Inc, nil, 5},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"mod",
@@ -491,6 +535,8 @@ a = 3 % 1
 			{code.Iset, nil, 2},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"del", `
@@ -503,6 +549,8 @@ del a["string"]
 			{code.Del, 1, 2},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"del after", `
@@ -516,6 +564,8 @@ del a["string"] after 1h
 			{code.Expire, 1, 2},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"types", `
@@ -551,6 +601,8 @@ gauge f
 			{code.Setmatched, true, 6},
 		},
 		nil,
+		nil,
+		0,
 	},
 
 	{
@@ -561,6 +613,8 @@ getfilename()
 			{code.Getfilename, 0, 1},
 		},
 		nil,
+		nil,
+		0,
 	},
 
 	{
@@ -586,6 +640,8 @@ getfilename()
 			{code.Setmatched, true, 1},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"string to int",
@@ -607,6 +663,8 @@ getfilename()
 			{code.Setmatched, true, 1},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"int to float",
@@ -628,6 +686,8 @@ getfilename()
 			{code.Setmatched, true, 1},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"string to float",
@@ -649,6 +709,8 @@ getfilename()
 			{code.Setmatched, true, 1},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"float to string",
@@ -671,6 +733,8 @@ getfilename()
 			{code.Setmatched, true, 1},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"int to string",
@@ -693,6 +757,8 @@ getfilename()
 			{code.Setmatched, true, 1},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"nested comparisons",
@@ -737,6 +803,8 @@ getfilename()
 			{code.Setmatched, true, 1},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"string concat", `
@@ -760,6 +828,8 @@ counter f by s
 			{code.Setmatched, true, 2},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"add assign float", `
@@ -784,6 +854,8 @@ gauge foo
 			{code.Setmatched, true, 2},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"match expression", `
@@ -809,6 +881,8 @@ gauge foo
 			{code.Setmatched, true, 2},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"negative match expression", `
@@ -835,6 +909,8 @@ gauge foo
 			{code.Setmatched, true, 2},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"capref used in def", `
@@ -861,6 +937,8 @@ gauge foo
 			{code.Setmatched, true, 1},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"binop arith type conversion", `
@@ -886,6 +964,8 @@ gauge var
 			{code.Setmatched, true, 2},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"binop compare type conversion", `
@@ -920,6 +1000,8 @@ counter var
 			{code.Setmatched, true, 2},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{"set string", `
 text foo
@@ -938,6 +1020,8 @@ text foo
 		{code.Setmatched, true, 2},
 	},
 		nil,
+		nil,
+		0,
 	},
 
 	{
@@ -961,6 +1045,8 @@ text foo
 			{code.Setmatched, true, 2},
 		},
 		nil,
+		nil,
+		0,
 	},
 	{"decrement", `
 counter i
@@ -976,6 +1062,8 @@ counter i
 		{code.Setmatched, true, 2},
 	},
 		nil,
+		nil,
+		0,
 	},
 	{"capref and settime", `
 /(\d+)/ {
@@ -991,6 +1079,8 @@ counter i
 		{code.Setmatched, true, 1},
 	},
 		nil,
+		nil,
+		0,
 	},
 	{"cast to self", `
 /(\d+)/ {
@@ -1006,6 +1096,8 @@ settime(int($1))
 		{code.Setmatched, true, 1},
 	},
 		nil,
+		nil,
+		0,
 	},
 	{"stop", `
 stop
@@ -1013,6 +1105,8 @@ stop
 		{code.Stop, nil, 1},
 	},
 		nil,
+		nil,
+		0,
 	},
 	{"stop inside", `
 // {
@@ -1026,34 +1120,42 @@ stop
 		{code.Setmatched, true, 1},
 	},
 		nil,
+		nil,
+		0,
 	},
 	{
 		"log_filter with new line",
 		`log_filter "/tmp/log1", "/tmp/log2"
 `,
 		nil,
+		nil,
 		[]string{
 			"/tmp/log1",
 			"/tmp/log2",
 		},
+		0,
 	},
 	{
 		"log_filter without new line",
 		`log_filter "/tmp/log1", "/tmp/log2"`,
 		nil,
+		nil,
 		[]string{
 			"/tmp/log1",
 			"/tmp/log2",
 		},
+		0,
 	},
 	{
 		"log_filter unquoted", // only works if the logfile is an ID ie a word
 		`log_filter tmplog1, tmplog2`,
 		nil,
+		nil,
 		[]string{
 			"tmplog1",
 			"tmplog2",
 		},
+		0,
 	},
 	{
 		"log_filter before clause",
@@ -1064,25 +1166,34 @@ log_filter "/tmp/log1", "/tmp/log2"
 		[]code.Instr{
 			{code.Push, 20.0, 2},
 		},
+		nil,
 		[]string{
 			"/tmp/log1",
 			"/tmp/log2",
 		},
+		0,
 	},
-	{"log_filter after clause", `
+	{
+		"log_filter after clause",
+		`
 20.0
 log_filter "/tmp/log1", "/tmp/log2"
-`, []code.Instr{
-		{code.Push, 20.0, 1},
-	}, []string{
-		"/tmp/log1",
-		"/tmp/log2",
-	},
+`,
+		[]code.Instr{
+			{code.Push, 20.0, 1},
+		},
+		nil,
+		[]string{
+			"/tmp/log1",
+			"/tmp/log2",
+		},
+		0,
 	},
 	{
 		"log_filter additive use",
 		`log_filter tmplog1, tmplog2
 log_filter tmplog1, tmplog3`,
+		nil,
 		nil,
 		[]string{
 			"tmplog1",
@@ -1090,6 +1201,7 @@ log_filter tmplog1, tmplog3`,
 			"tmplog1", // this is de-duplicated later before it is used in the runtime
 			"tmplog3",
 		},
+		0,
 	},
 	{
 		"nested decorators",
@@ -1102,7 +1214,7 @@ log_filter tmplog1, tmplog3`,
   }
 }
 @b {
-}`, nil, nil,
+}`, nil, nil, nil, 0,
 	},
 	{"negative numbers in capture groups", `
 gauge foo
@@ -1127,6 +1239,8 @@ foo += $value_ms / 1000.0
 		{code.Setmatched, true, 2},
 	},
 		nil,
+		nil,
+		0,
 	},
 	{"substitution", `
 gauge foo
@@ -1148,6 +1262,8 @@ gauge foo
 		{code.Setmatched, true, 2},
 	},
 		nil,
+		nil,
+		0,
 	},
 	{"const term as pattern", `
 const A /n/
@@ -1166,6 +1282,8 @@ A && 1 {
 		{code.Setmatched, true, 0},
 	},
 		nil,
+		nil,
+		0,
 	},
 }
 

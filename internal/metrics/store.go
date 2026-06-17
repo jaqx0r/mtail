@@ -34,7 +34,7 @@ func (s *Store) Add(m *Metric) error {
 	s.insertMu.Lock()
 	defer s.insertMu.Unlock()
 	s.searchMu.RLock()
-	glog.V(1).Infof("Adding a new metric %v", m)
+	glog.V(1).Infof("Adding metric: Name=%s Kind=%v Type=%v Program=%s", m.Name, m.Kind, m.Type, m.Program)
 	dupeIndex := -1
 	if len(s.Metrics[m.Name]) > 0 {
 		t := s.Metrics[m.Name][0].Kind
@@ -47,10 +47,13 @@ func (s *Store) Add(m *Metric) error {
 		// - copy old LabelValues into new metric;
 		// - discard old metric.
 		for i, v := range s.Metrics[m.Name] {
+			glog.V(1).Infof("Checking existing: Name=%s Program=%s Type=%v", v.Name, v.Program, v.Type)
 			if v.Program != m.Program {
 				continue
 			}
+			glog.V(1).Infof("Comparing types: existing=%v, new=%v", v.Type, m.Type)
 			if v.Type != m.Type {
+				glog.Infof("Type mismatch: existing=%v, new=%v", v.Type, m.Type)
 				continue
 			}
 			dupeIndex = i

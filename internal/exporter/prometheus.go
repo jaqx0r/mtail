@@ -140,6 +140,11 @@ func promValueForDatum(d datum.Datum) float64 {
 		return float64(n.Get())
 	case *datum.Float:
 		return n.Get()
+	case *datum.Time:
+		t := n.Get()
+		return float64(t.Unix()) + float64(t.Nanosecond())/1e9
+	case *datum.Duration:
+		return n.Get().Seconds()
 	}
 	return 0.
 }

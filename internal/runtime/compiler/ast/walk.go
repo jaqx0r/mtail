@@ -66,6 +66,9 @@ func Walk(v Visitor, node Node) Node {
 		n.Index = Walk(v, n.Index)
 		n.LHS = Walk(v, n.LHS)
 
+	case *BeginStmt:
+		n.Block = Walk(v, n.Block)
+
 	case *DecoDecl:
 		n.Block = Walk(v, n.Block)
 

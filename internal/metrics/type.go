@@ -20,6 +20,10 @@ const (
 	String
 	// Buckets indicates this metric is a histogram metric type.
 	Buckets
+	// Time indicates this metric stores absolute timestamps.
+	Time
+	// Duration indicates this metric stores time intervals.
+	Duration
 
 	endType // end of enumeration for testing
 )
@@ -34,6 +38,10 @@ func (t Type) String() string {
 		return "String"
 	case Buckets:
 		return "Buckets"
+	case Time:
+		return "Time"
+	case Duration:
+		return "Duration"
 	}
 	return "?"
 }

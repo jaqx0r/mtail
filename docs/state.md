@@ -20,6 +20,8 @@ The example program [`rsyncd.mtail`](../examples/rsyncd.mtail) shows how to use 
       del connection_time[$pid]
     }
 
+In this example, `connection_time` is a `Time`-typed gauge and `connection_time_total` is a `Duration`-typed counter.
+
 `rsyncd` uses a child process for each session so the `pid` field of the log format contains the session identifier in this example.
 
 ## hidden metrics
