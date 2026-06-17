@@ -87,7 +87,7 @@ which accept a time duration string compatible with the Go
 ### Runtime error log rate
 
 If your programs deliberately fail to parse some log lines then you may end up
-generating lots of runtime errors which are normally logged at the standard INFO
+generating lots of runtime errors which are logged at the ERROR
 level, which can fill your disk.
 
 You can disable this with `--novm_logs_runtime_errors` or
