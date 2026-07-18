@@ -146,7 +146,7 @@ func (v *VM) errorf(format string, args ...interface{}) {
 		v.t.pc-1, i.Opcode, i.Operand, v.name, i.SourceLine+1)
 	v.runtimeError += fmt.Sprintf("Full input text from %q was %q", v.input.Filename, v.input.Line)
 	if v.logRuntimeErrors || bool(glog.V(1)) {
-		glog.Info(v.name + ": Runtime error: " + v.runtimeError)
+		glog.Error(v.name + ": Runtime error: " + v.runtimeError)
 
 		glog.Infof("Set logging verbosity higher (-v1 or more) to see full VM state dump.")
 	}
