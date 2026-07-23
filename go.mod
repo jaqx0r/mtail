@@ -6,7 +6,7 @@ toolchain go1.26.5
 
 require (
 	contrib.go.opencensus.io/exporter/jaeger v0.2.1
-	github.com/bazelbuild/rules_go v0.61.1
+	github.com/bazelbuild/rules_go v0.62.0
 	github.com/golang/glog v1.2.5
 	github.com/google/go-cmp v0.7.0
 	github.com/pkg/errors v0.9.1
