@@ -50,3 +50,4 @@ workdir/*
 /bazel-out
 /bazel-testlogs
 /.agent-shell/
+.aider*
