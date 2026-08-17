@@ -353,6 +353,38 @@ l++=l
 	// `,
 	// 		[]string{"match against gauge:2:5-10: Parameter to MATCH has a type mismatch; expected Pattern received Numeric."},
 	// 	},
+	{
+		"duplicate begin block",
+		`counter c
+begin {
+  c = 1
+}
+begin {
+  c = 2
+}
+`,
+		[]string{"duplicate begin block:7:1: begin block already defined"},
+	},
+	{
+		"empty begin block",
+		`begin {}`,
+		[]string{"empty begin block:1:1: begin contains no statements"},
+	},
+	{
+		"counter in begin",
+		`begin {
+counter c
+}`,
+		[]string{"counter in begin:2:9: Can't declare a variable inside a begin block"},
+	},
+	// test case for `begin` with hidden metrics (expect compile-time error)
+	// - Hidden metrics are invalid in `begin` blocks because they are not visible to the runtime.
+	// test case for `begin` with `next`/`stop` statements
+	// test case for `begin` with `del` statements (expect compile-time error)
+	// test case for `begin` with `inc`/`set` on undeclared metrics (expect compile-time error)
+	// test case for `begin` with `export` statements (expect compile-time error)
+	// test case for `begin` with `export` in nested scopes (expect compile-time error)
+	// test case for `begin` with `del` in nested scopes (expect compile-time error)
 }
 
 func TestCheckInvalidPrograms(t *testing.T) {

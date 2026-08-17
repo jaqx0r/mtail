@@ -133,3 +133,15 @@ Both tailer and logstream probably don't need to do URL parsing.  Tailer could d
 Trim unused string and regexp constants, as .e.g /s/ && 1 gets optimised away.
 
 Collapse duplicate string and regexp constants.
+
+
+BEGIN (Issue #180)
+- [ ] 2.1 Add integration test: begin block lifecycle (startup → metric emission → shutdown) with error handling in `runtime_integration_test.go`
+- [] 2.2 Add test for metrics declared in BEGIN block (compile time error)
+- [ ] 2.5 Add test for begin block declaring end-only metrics (expect compile-time error)
+- [ ] 2.6 Add test for `begin` block runtime error handling (e.g., metric emission failure, invalid operations)
+- [ ] 2.7 Add test for `begin` block with runtime metric emission failure (e.g., invalid metric name)
+- [ ] 3.1 Create `examples/begin.mtail`
+- [ ] 3.2 Add documentation for `begin` blocks in `docs/Language.md#begin-blocks`
+  - [ ] 3.2.2 Document metric scoping rules for `begin` blocks
+    - `hidden` metrics are not allowed in `begin` blocks.

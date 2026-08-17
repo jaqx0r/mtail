@@ -97,7 +97,7 @@ func (c *checker) VisitBefore(node ast.Node) (ast.Visitor, ast.Node) {
 
 	case *ast.CaprefTerm:
 		if c.insideBegin {
-			c.errors.Add(n.Pos(), "Can't use capture group references inside a BEGIN block")
+			c.errors.Add(n.Pos(), "Can't use capture group references inside a begin block")
 			c.depth--
 			return nil, n
 		}
@@ -121,6 +121,11 @@ func (c *checker) VisitBefore(node ast.Node) (ast.Visitor, ast.Node) {
 		return c, n
 
 	case *ast.VarDecl:
+		if c.insideBegin {
+			c.errors.Add(n.Pos(), "Can't declare a variable inside a begin block.")
+			c.depth--
+			return nil, n
+		}
 		n.Symbol = symbol.NewSymbol(n.Name, symbol.VarSymbol, n.Pos())
 		if alt := c.scope.Insert(n.Symbol); alt != nil {
 			c.depth--
