@@ -1,0 +1,14 @@
+# This is an example mtail program demonstrating the use of a BEGIN block
+# for initializing metrics at program startup.
+
+counter startup_counter
+counter requests_total by status
+
+begin {
+  startup_counter = 1
+  requests_total["200"] = 0
+}
+
+/HTTP\/(?P<version>[\d\.]+) (?P<status>\d+)/ {
+  requests_total[$status]++
+}

@@ -1255,6 +1255,55 @@ n
 			},
 		},
 	},
+	{
+		name: "begin block initialization",
+		prog: `counter c
+begin {
+  c = 42
+}
+`,
+		log:  "",
+		errs: 0,
+		metrics: metrics.MetricSlice{
+			{
+				Name:    "c",
+				Program: "begin block initialization",
+				Kind:    metrics.Counter,
+				Type:    metrics.Int,
+				Keys:    []string{},
+				LabelValues: []*metrics.LabelValue{
+					{
+						Value: &datum.Int{Value: 42},
+					},
+				},
+			},
+		},
+	},
+	{
+		name: "begin block multi-dimensional",
+		prog: `counter c by key
+begin {
+  c["startup"] = 10
+}
+`,
+		log:  "",
+		errs: 0,
+		metrics: metrics.MetricSlice{
+			{
+				Name:    "c",
+				Program: "begin block multi-dimensional",
+				Kind:    metrics.Counter,
+				Type:    metrics.Int,
+				Keys:    []string{"key"},
+				LabelValues: []*metrics.LabelValue{
+					{
+						Labels: []string{"startup"},
+						Value:  &datum.Int{Value: 10},
+					},
+				},
+			},
+		},
+	},
 }
 
 func TestRuntimeEndToEnd(t *testing.T) {
