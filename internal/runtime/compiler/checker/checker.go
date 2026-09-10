@@ -82,7 +82,7 @@ func (c *checker) VisitBefore(node ast.Node) (ast.Visitor, ast.Node) {
 
 	case *ast.BeginStmt:
 		if c.seenBegin {
-			c.errors.Add(n.Pos(), "begin block already defined")
+			c.errors.Add(n.Pos(), "`begin` block already defined")
 			c.depth--
 			return nil, n
 		}
@@ -90,7 +90,7 @@ func (c *checker) VisitBefore(node ast.Node) (ast.Visitor, ast.Node) {
 		c.insideBegin = true
 		if stmtList, ok := n.Block.(*ast.StmtList); ok {
 			if len(stmtList.Children) == 0 {
-				c.errors.Add(n.Pos(), "begin contains no statements")
+				c.errors.Add(n.Pos(), "`begin` contains no statements")
 			}
 		}
 		return c, n
@@ -142,7 +142,7 @@ func (c *checker) VisitBefore(node ast.Node) (ast.Visitor, ast.Node) {
 
 	case *ast.VarDecl:
 		if c.insideBegin {
-			c.errors.Add(n.Pos(), "Can't declare a variable inside a begin block.")
+			c.errors.Add(n.Pos(), "Can't declare a variable inside a `begin` block.")
 			c.depth--
 			return nil, n
 		}
@@ -274,6 +274,11 @@ func (c *checker) VisitBefore(node ast.Node) (ast.Visitor, ast.Node) {
 
 	case *ast.DelStmt:
 		n.N = ast.Walk(c, n.N)
+		if c.insideBegin {
+			c.errors.Add(n.Pos(), "Can't use `del' inside a `begin` block.")
+			c.depth--
+			return nil, n
+		}
 		return c, n
 	}
 	return c, node

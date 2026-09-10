@@ -363,27 +363,19 @@ begin {
   c = 2
 }
 `,
-		[]string{"duplicate begin block:7:1: begin block already defined"},
+		[]string{"duplicate begin block:7:1: `begin` block already defined"},
 	},
 	{
 		"empty begin block",
 		`begin {}`,
-		[]string{"empty begin block:1:8: begin contains no statements"},
+		[]string{"empty begin block:1:8: `begin` contains no statements"},
 	},
-	// test case for `begin` with hidden metrics (expect compile-time error)
-	// - Hidden metrics are invalid in `begin` blocks because they are not visible to the runtime.
-	// test case for `begin` with `next`/`stop` statements
-	// test case for `begin` with `del` statements (expect compile-time error)
-	// test case for `begin` with `inc`/`set` on undeclared metrics (expect compile-time error)
-	// test case for `begin` with `export` statements (expect compile-time error)
-	// test case for `begin` with `export` in nested scopes (expect compile-time error)
-	// test case for `begin` with `del` in nested scopes (expect compile-time error)
 	{
 		"counter in begin",
 		`begin {
 counter c
 }`,
-		[]string{"counter in begin:2:9: Can't declare a variable inside a begin block."},
+		[]string{"counter in begin:2:9: Can't declare a variable inside a `begin` block."},
 	},
 	{
 		"next in begin",
@@ -411,7 +403,27 @@ counter c
 		`begin {
   hidden counter c
 }`,
-		[]string{"hidden counter in begin:2:18: Can't declare a variable inside a begin block."},
+		[]string{"hidden counter in begin:2:18: Can't declare a variable inside a `begin` block."},
+	},
+	{
+		"begin with del",
+		`gauge t by x
+begin {
+  del t["x"]
+}
+`,
+		[]string{"begin with del:3:3-5: Can't use `del' inside a `begin` block."},
+	},
+	{
+		"begin with del in nested scope",
+		`gauge t by x
+begin {
+  1 > 0 {
+    del t["x"]
+  }
+}
+`,
+		[]string{"begin with del in nested scope:4:5-7: Can't use `del' inside a `begin` block."},
 	},
 }
 
