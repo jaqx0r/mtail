@@ -412,9 +412,11 @@ begin {
 ```
 
 Rules for `begin` blocks:
-* `begin` blocks execute before any log processing.
+* `begin` blocks execute once at program startup before any log processing.
 * Variable declarations are not allowed inside `begin` blocks; all metrics must be declared at the top level of the program.
-* Pattern matching and capture group references (e.g. `$1`) are not supported inside `begin` blocks.
+* Pattern matching headers (`/re/ { }`) and capture group references (e.g. `$1`) are not supported in `begin` block headers.
+* Statements such as `del`, `export`, and operations on hidden metrics are not permitted inside `begin` blocks.
+* Metrics initialized in `begin` blocks are fully available for subsequent log processing and evaluation.
 
 #### Types
 
