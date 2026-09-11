@@ -1304,6 +1304,63 @@ begin {
 			},
 		},
 	},
+	{
+		name: "begin block with log processing",
+		prog: `counter c
+begin {
+  c = 10
+}
+/increment/ {
+  c++
+}
+`,
+		log: `increment
+increment
+`,
+		errs: 0,
+		metrics: metrics.MetricSlice{
+			{
+				Name:    "c",
+				Program: "begin block with log processing",
+				Kind:    metrics.Counter,
+				Type:    metrics.Int,
+				Keys:    []string{},
+				LabelValues: []*metrics.LabelValue{
+					{
+						Value: &datum.Int{Value: 12},
+					},
+				},
+			},
+		},
+	},
+	{
+		name: "begin block with conditional logic",
+		prog: `counter c
+begin {
+  1 == 1 {
+    c = 5
+  } otherwise {
+    c = 0
+  }
+}
+`,
+		log:  "",
+		errs: 0,
+		metrics: metrics.MetricSlice{
+			{
+				Name:    "c",
+				Program: "begin block with conditional logic",
+				Kind:    metrics.Counter,
+				Type:    metrics.Int,
+				Keys:    []string{},
+				LabelValues: []*metrics.LabelValue{
+					{
+						Value: &datum.Int{Value: 5},
+					},
+				},
+			},
+		},
+	},
 }
 
 func TestRuntimeEndToEnd(t *testing.T) {
