@@ -353,6 +353,78 @@ l++=l
 	// `,
 	// 		[]string{"match against gauge:2:5-10: Parameter to MATCH has a type mismatch; expected Pattern received Numeric."},
 	// 	},
+	{
+		"duplicate begin block",
+		`counter c
+begin {
+  c = 1
+}
+begin {
+  c = 2
+}
+`,
+		[]string{"duplicate begin block:7:1: `begin` block already defined"},
+	},
+	{
+		"empty begin block",
+		`begin {}`,
+		[]string{"empty begin block:1:8: `begin` contains no statements"},
+	},
+	{
+		"counter in begin",
+		`begin {
+counter c
+}`,
+		[]string{"counter in begin:2:9: Can't declare a variable inside a `begin` block."},
+	},
+	{
+		"next in begin",
+		`begin {
+  next
+}`,
+		[]string{"next in begin:2:3-6: Can't use `next' outside of a decorator."},
+	},
+	{
+		"stop in begin",
+		`begin {
+  stop
+}`,
+		[]string{"stop in begin:2:3-6: Can't use `stop' inside a `begin` block."},
+	},
+	{
+		"undeclared metric in begin",
+		`begin {
+  c = 1
+}`,
+		[]string{"undeclared metric in begin:2:3: Identifier `c' not declared.", "\tTry adding `counter c' to the top of the program."},
+	},
+	{
+		"hidden counter in begin",
+		`begin {
+  hidden counter c
+}`,
+		[]string{"hidden counter in begin:2:18: Can't declare a variable inside a `begin` block."},
+	},
+	{
+		"begin with del",
+		`gauge t by x
+begin {
+  del t["x"]
+}
+`,
+		[]string{"begin with del:3:3-5: Can't use `del' inside a `begin` block."},
+	},
+	{
+		"begin with del in nested scope",
+		`gauge t by x
+begin {
+  1 > 0 {
+    del t["x"]
+  }
+}
+`,
+		[]string{"begin with del in nested scope:4:5-7: Can't use `del' inside a `begin` block."},
+	},
 }
 
 func TestCheckInvalidPrograms(t *testing.T) {
@@ -646,6 +718,34 @@ value = subst(/\d+/, "d", value)
 const X /x/
 // || X {
     $0
+}
+`},
+	{"begin with nested blocks", `
+counter c
+begin {
+  1 > 0 {
+    2 > 0 {
+      c = 1
+    }
+  }
+}
+`},
+	{"begin with conditional logic", `
+counter c
+begin {
+  1 == 1 {
+    c = 1
+  } otherwise {
+    c = 2
+  }
+}
+`},
+	{"begin with regex match in body", `
+counter c
+begin {
+  "foo" =~ /o+/ {
+    c = 1
+  }
 }
 `},
 }

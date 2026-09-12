@@ -37,6 +37,7 @@ type checker struct {
 	maxRegexLength    int
 	noRegexSymbols    bool
 	insideBegin       bool // Set when typechecking inside a BEGIN block
+	seenBegin         bool // Set when a BEGIN block has already been defined
 }
 
 // Check performs a semantic check of the astNode, and returns a potentially
@@ -80,7 +81,26 @@ func (c *checker) VisitBefore(node ast.Node) (ast.Visitor, ast.Node) {
 		return c, n
 
 	case *ast.BeginStmt:
+		if c.seenBegin {
+			c.errors.Add(n.Pos(), "`begin` block already defined")
+			c.depth--
+			return nil, n
+		}
+		c.seenBegin = true
 		c.insideBegin = true
+		if stmtList, ok := n.Block.(*ast.StmtList); ok {
+			if len(stmtList.Children) == 0 {
+				c.errors.Add(n.Pos(), "`begin` contains no statements")
+			}
+		}
+		return c, n
+
+	case *ast.StopStmt:
+		if c.insideBegin {
+			c.errors.Add(n.Pos(), "Can't use `stop' inside a `begin` block.")
+			c.depth--
+			return nil, n
+		}
 		return c, n
 
 	case *ast.CondStmt:
@@ -97,7 +117,7 @@ func (c *checker) VisitBefore(node ast.Node) (ast.Visitor, ast.Node) {
 
 	case *ast.CaprefTerm:
 		if c.insideBegin {
-			c.errors.Add(n.Pos(), "Can't use capture group references inside a BEGIN block")
+			c.errors.Add(n.Pos(), "Can't use capture group references inside a begin block")
 			c.depth--
 			return nil, n
 		}
@@ -121,6 +141,11 @@ func (c *checker) VisitBefore(node ast.Node) (ast.Visitor, ast.Node) {
 		return c, n
 
 	case *ast.VarDecl:
+		if c.insideBegin {
+			c.errors.Add(n.Pos(), "Can't declare a variable inside a `begin` block.")
+			c.depth--
+			return nil, n
+		}
 		n.Symbol = symbol.NewSymbol(n.Name, symbol.VarSymbol, n.Pos())
 		if alt := c.scope.Insert(n.Symbol); alt != nil {
 			c.depth--
@@ -249,6 +274,11 @@ func (c *checker) VisitBefore(node ast.Node) (ast.Visitor, ast.Node) {
 
 	case *ast.DelStmt:
 		n.N = ast.Walk(c, n.N)
+		if c.insideBegin {
+			c.errors.Add(n.Pos(), "Can't use `del' inside a `begin` block.")
+			c.depth--
+			return nil, n
+		}
 		return c, n
 	}
 	return c, node

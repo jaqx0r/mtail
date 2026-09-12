@@ -399,6 +399,25 @@ line first, which extracts the timestamp of the log line. Then, `next` causes
 the wrapped block to execute, so then `mtail` matches the line against the
 pattern `some event`, and if it does match, increments `variable`.
 
+#### BEGIN blocks
+
+A `begin` block executes once when the `mtail` program starts up, prior to processing any log lines. This is useful for initializing metric values or setting up initial states.
+
+```
+counter startup_counter
+
+begin {
+  startup_counter = 1
+}
+```
+
+Rules for `begin` blocks:
+* `begin` blocks execute once at program startup before any log processing.
+* Variable declarations are not allowed inside `begin` blocks; all metrics must be declared at the top level of the program.
+* Pattern matching headers (`/re/ { }`) and capture group references (e.g. `$1`) are not supported in `begin` block headers.
+* Statements such as `del`, `export`, and operations on hidden metrics are not permitted inside `begin` blocks.
+* Metrics initialized in `begin` blocks are fully available for subsequent log processing and evaluation.
+
 #### Types
 
 `mtail` metrics have a *kind* and a *type*.  The *kind* affects how the metric is recorded, and the *type* describes the data being recorded.
