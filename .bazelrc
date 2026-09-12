@@ -15,3 +15,8 @@ common:remotecache --noremote_upload_local_results # Uploads logs & artifacts wi
 common:remotecache --remote_timeout=10m
 common:remotecache --remote_header=x-buildbuddy-api-key=${BUILDBUDDY_API_KEY}
 
+# Use a hermetic CC toolchain for cgo and race detector.
+common --enable_platform_specific_config
+build:linux --sandbox_add_mount_pair=/home
+build:macos --sandbox_add_mount_pair=/Users
+build:windows --sandbox_add_mount_pair=C:\Users
