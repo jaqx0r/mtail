@@ -1117,6 +1117,13 @@ func New(name string, obj *code.Object, syslogUseCurrentYear bool, loc *time.Loc
 				break
 			}
 		}
+		initT.pc = 0
+		initT.matched = false
+		initT.time = time.Time{}
+		initT.stack = initT.stack[:0]
+		for i := range initT.matches {
+			initT.matches[i] = matchResult{}
+		}
 		v.threadPool.Put(initT)
 		v.prog = savedProg
 		v.input = nil
