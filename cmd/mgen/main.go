@@ -8,6 +8,9 @@ import (
 	"flag"
 	"fmt"
 	"math/rand"
+	"os"
+	"slices"
+	"strings"
 
 	"github.com/jaqx0r/mtail/internal/runtime/compiler/parser"
 )
@@ -16,6 +19,7 @@ var (
 	randSeed      = flag.Int64("rand_seed", 1, "Seed to use for math.rand.")
 	minIterations = flag.Int64("min_iterations", 5000, "Minimum number of iterations before stopping program generation.")
 	dictionary    = flag.Bool("dictionary", false, "Generate a fuzz dictionary to stdout only.")
+	out           = flag.String("out", "", "Write the dictionary to this file instead of stdout.")
 )
 
 type node struct {
@@ -136,8 +140,13 @@ func generateProgram() {
 }
 
 func generateDictionary() {
-	for _, k := range parser.Dictionary() {
-		fmt.Printf("\"%s\"\n", k)
+	lines := parser.Dictionary()
+	slices.Sort(lines)
+	result := `"` + strings.Join(lines, "\"\n\"") + "\""
+	if *out != "" {
+		os.WriteFile(*out, []byte(result), 0644)
+	} else {
+		fmt.Println(result)
 	}
 }
 
