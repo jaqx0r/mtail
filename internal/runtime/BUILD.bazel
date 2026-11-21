@@ -36,3 +36,13 @@ go_test(
         "@com_github_golang_glog//:glog",
     ],
 )
+
+go_test(
+    name = "fuzz_test",
+    srcs = ["fuzz_test.go"],
+    data = glob(["fuzz/**"]),
+    embed = [":runtime"],
+    deps = [
+        "//internal/logline",
+    ],
+)
