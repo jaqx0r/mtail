@@ -9,6 +9,8 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/jaqx0r/mtail/internal/logline"
@@ -27,6 +29,27 @@ func FuzzE2E(f *testing.F) {
 	// by the compiler, but the fuzzer gets called with flags captured by the
 	// libfuzzer main, which we don't want to intercept here.
 	flag.CommandLine.Parse([]string{})
+
+	entries, err := os.ReadDir("fuzz")
+	if err != nil {
+		if !os.IsNotExist(err) {
+			f.Fatalf("os.ReadDir(fuzz): unexpected error: %v", err)
+		} else {
+			f.Logf("no `fuzz` corpus found, assuming in oss-fuzz")
+		}
+	} else {
+		for _, entry := range entries {
+			if entry.IsDir() {
+				continue
+			}
+			path := filepath.Join("fuzz", entry.Name())
+			data, err := os.ReadFile(path)
+			if err != nil {
+				f.Fatalf("os.ReadFile(%s): %v", path, err)
+			}
+			f.Add(data)
+		}
+	}
 
 	f.Fuzz(func(t *testing.T, data []byte) {
 		// Data contains the program and sample input, separated by SEP.
