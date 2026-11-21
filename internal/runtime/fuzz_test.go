@@ -8,7 +8,6 @@ import (
 	"bytes"
 	"context"
 	"flag"
-	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -38,7 +37,7 @@ func FuzzE2E(f *testing.F) {
 			f.Logf("no `fuzz` corpus found, assuming in oss-fuzz")
 		}
 	} else {
-		for _, entry := range entries {
+		for i, entry := range entries {
 			if entry.IsDir() {
 				continue
 			}
@@ -47,6 +46,7 @@ func FuzzE2E(f *testing.F) {
 			if err != nil {
 				f.Fatalf("os.ReadFile(%s): %v", path, err)
 			}
+			f.Logf("Adding %s as seed %d", path, i)
 			f.Add(data)
 		}
 	}
@@ -59,7 +59,7 @@ func FuzzE2E(f *testing.F) {
 			offset = len(data)
 			data = append(data, []byte(SEP+"\n")...)
 		}
-		fmt.Printf("data len %d, offset is %d, input starts at %d\n", len(data), offset, offset+len(SEP))
+		t.Logf("data len %d, offset is %d, input starts at %d\n", len(data), offset, offset+len(SEP))
 
 		cOpts := []compiler.Option{}
 		if dumpDebug {
@@ -76,12 +76,13 @@ func FuzzE2E(f *testing.F) {
 		}
 		v := vm.New("fuzz", obj, false, nil, dumpDebug, dumpDebug)
 		if dumpDebug {
-			fmt.Println(v.DumpByteCode())
+			t.Logf("%s\n", v.DumpByteCode())
 		}
 		v.HardCrash = true
 		scanner := bufio.NewScanner(bytes.NewBuffer(data[offset+len(SEP):]))
+		hash := logline.GetHash("fuzz")
 		for scanner.Scan() {
-			v.ProcessLogLine(context.Background(), logline.New(context.Background(), "fuzz", logline.GetHash(("fuzz")), scanner.Text()))
+			v.ProcessLogLine(context.Background(), logline.New(context.Background(), "fuzz", hash, scanner.Text()))
 		}
 	})
 }
