@@ -33,7 +33,7 @@ jobs:
         run: bazel mod tidy
 
       - name: Commit updated MODULE files
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: 'chore(bazel): run bazel mod tidy'
           file_pattern: 'MODULE.bazel MODULE.bazel.lock'
