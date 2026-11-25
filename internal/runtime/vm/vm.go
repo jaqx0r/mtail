@@ -137,14 +137,20 @@ func (t *thread) Pop() (value interface{}) {
 
 // Log a runtime error and terminate the program.
 func (v *VM) errorf(format string, args ...interface{}) {
-	i := v.prog[v.t.pc-1]
 	ProgRuntimeErrors.Add(v.name, 1)
 	v.runtimeErrorMu.Lock()
 	v.runtimeError = fmt.Sprintf(format+"\n", args...)
-	v.runtimeError += fmt.Sprintf(
-		"Error occurred at instruction %d {%s, %v}, originating in %s at line %d\n",
-		v.t.pc-1, i.Opcode, i.Operand, v.name, i.SourceLine+1)
-	v.runtimeError += fmt.Sprintf("Full input text from %q was %q", v.input.Filename, v.input.Line)
+	if v.t != nil && v.t.pc > 0 && v.t.pc <= len(v.prog) {
+		i := v.prog[v.t.pc-1]
+		v.runtimeError += fmt.Sprintf(
+			"Error occurred at instruction %d {%s, %v}, originating in %s at line %d\n",
+			v.t.pc-1, i.Opcode, i.Operand, v.name, i.SourceLine+1)
+	}
+	if v.input != nil {
+		v.runtimeError += fmt.Sprintf("Full input text from %q was %q", v.input.Filename, v.input.Line)
+	} else {
+		v.runtimeError += fmt.Sprintf("Full input text was nil")
+	}
 	if v.logRuntimeErrors || bool(glog.V(1)) {
 		glog.Error(v.name + ": Runtime error: " + v.runtimeError)
 
@@ -156,11 +162,15 @@ func (v *VM) errorf(format string, args ...interface{}) {
 		glog.Infof("Name: %s", v.name)
 		glog.Infof("Input: %#v", v.input)
 		glog.Infof("Thread:")
-		glog.Infof(" PC %v", v.t.pc-1)
-		glog.Infof(" Matched %v", v.t.matched)
-		glog.Infof(" Matches %v", v.t.matches)
-		glog.Infof(" Timestamp %v", v.t.time)
-		glog.Infof(" Stack %v", v.t.stack)
+		if v.t != nil {
+			glog.Infof(" PC %v", v.t.pc-1)
+			glog.Infof(" Matched %v", v.t.matched)
+			glog.Infof(" Matches %v", v.t.matches)
+			glog.Infof(" Timestamp %v", v.t.time)
+			glog.Infof(" Stack %v", v.t.stack)
+		} else {
+			glog.Infof(" (nil thread)")
+		}
 		glog.Infof(v.DumpByteCode())
 	}
 	if v.trace != nil {
@@ -1074,8 +1084,6 @@ func (v *VM) ProcessLogLine(_ context.Context, line *logline.LogLine) {
 	}
 }
 
-// New creates a new virtual machine with the given name, and compiler
-// artifacts for executable and data segments.
 func New(name string, obj *code.Object, syslogUseCurrentYear bool, loc *time.Location, log bool, trace bool) *VM {
 	v := &VM{
 		name:                 name,
@@ -1112,6 +1120,7 @@ func New(name string, obj *code.Object, syslogUseCurrentYear bool, loc *time.Loc
 			stack:   make([]interface{}, 0),
 			keysBuf: make([]string, obj.MaxDimensions),
 		}
+		v.t = initT
 		for initT.pc = 0; initT.pc < len(v.prog); {
 			i := v.prog[initT.pc]
 			initT.pc++
@@ -1129,6 +1138,7 @@ func New(name string, obj *code.Object, syslogUseCurrentYear bool, loc *time.Loc
 
 		v.prog = savedProg
 		v.input = nil
+		v.t = nil
 	}
 	return v
 }
