@@ -1107,7 +1107,11 @@ func New(name string, obj *code.Object, syslogUseCurrentYear bool, loc *time.Loc
 		v.prog = obj.InitProgram
 		// Set a dummy input so errorf() can safely reference v.input.Filename and v.input.Line.
 		v.input = &logline.LogLine{Filename: v.name, Line: "<init>"}
-		initT := v.threadPool.Get().(*thread)
+		initT := &thread{
+			matches: make([]matchResult, len(obj.Regexps)),
+			stack:   make([]interface{}, 0),
+			keysBuf: make([]string, obj.MaxDimensions),
+		}
 		for initT.pc = 0; initT.pc < len(v.prog); {
 			i := v.prog[initT.pc]
 			initT.pc++
@@ -1121,10 +1125,8 @@ func New(name string, obj *code.Object, syslogUseCurrentYear bool, loc *time.Loc
 		initT.matched = false
 		initT.time = time.Time{}
 		initT.stack = initT.stack[:0]
-		for i := range initT.matches {
-			initT.matches[i] = matchResult{}
-		}
-		v.threadPool.Put(initT)
+		// Do not put initT back into threadPool to avoid race conditions or pool corruption during concurrent VM creation/execution.
+
 		v.prog = savedProg
 		v.input = nil
 	}
