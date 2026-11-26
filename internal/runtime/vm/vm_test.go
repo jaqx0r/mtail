@@ -1005,3 +1005,20 @@ func TestProcessLogLineClearsInput(t *testing.T) {
 		t.Error("v.t was not cleared after ProcessLogLine returned")
 	}
 }
+
+func TestInitProgramError(t *testing.T) {
+	// InitProgram that triggers a runtime error (divide by zero)
+	obj := &code.Object{
+		Program: []code.Instr{{Opcode: code.Stop, SourceLine: 0}},
+		InitProgram: []code.Instr{
+			{Opcode: code.Push, Operand: int64(1), SourceLine: 0},
+			{Opcode: code.Push, Operand: int64(0), SourceLine: 0},
+			{Opcode: code.Idiv, SourceLine: 0},
+		},
+	}
+	v := New("inittest", obj, true, nil, false, false)
+	// Even if v.terminate is reset to false, New() completed successfully without crashing (null pointer dereference).
+	if v == nil {
+		t.Errorf("Expected VM to be created")
+	}
+}
