@@ -672,8 +672,8 @@ func (c *codegen) resolveJumps(prog []code.Instr) {
 				continue
 			}
 			offset := c.l[index]
-			if offset < 0 {
-				c.errorf(nil, "offset for label %v is negative, table is %v", i.Operand, c.l)
+			if offset <= j {
+				c.errorf(nil, "backward jump detected for label %v from %d to %d", i.Operand, j, offset)
 				continue
 			}
 			prog[j].Operand = c.l[index]
