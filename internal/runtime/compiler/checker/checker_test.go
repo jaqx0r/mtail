@@ -415,6 +415,13 @@ begin {
 		[]string{"begin with del:3:3-5: Can't use `del' inside a `begin` block."},
 	},
 	{
+		"recursive text metric assign",
+		`text t
+t += t + "foo"
+`,
+		[]string{"recursive text metric assign:2:1-14: recursive reference to text metric \"t\" in += assignment"},
+	},
+	{
 		"begin with del in nested scope",
 		`gauge t by x
 begin {

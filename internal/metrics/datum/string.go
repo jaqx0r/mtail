@@ -19,6 +19,9 @@ type String struct {
 
 // Set sets the value of the String to the value at timestamp.
 func (d *String) Set(value string, timestamp time.Time) {
+	if len(value) > 256 {
+		value = value[:256]
+	}
 	d.mu.Lock()
 	d.Value = value
 	d.stamp(timestamp)

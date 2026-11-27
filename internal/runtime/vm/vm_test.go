@@ -1022,3 +1022,26 @@ func TestInitProgramError(t *testing.T) {
 		t.Errorf("Expected VM to be created")
 	}
 }
+
+func TestVMInstructionLimit(t *testing.T) {
+	prog := []code.Instr{
+		{Opcode: code.Jmp, Operand: 0, SourceLine: 0},
+	}
+	obj := &code.Object{Program: prog}
+	v := New("limit_test", obj, true, nil, false, false)
+	v.ProcessLogLine(context.Background(), logline.New(context.Background(), "test", 0, "line"))
+	if !strings.Contains(v.RuntimeErrorString(), "exceeded maximum instruction count") {
+		t.Errorf("Expected instruction count limit error, got %q", v.RuntimeErrorString())
+	}
+}
+
+func TestTextMetricLengthBound(t *testing.T) {
+	m := metrics.NewMetric("text_metric", "tst", metrics.Gauge, metrics.String)
+	d, err := m.GetDatum()
+	testutil.FatalIfErr(t, err)
+	longStr := strings.Repeat("a", 300)
+	datum.SetString(d, longStr, time.Now())
+	if got := datum.GetString(d); len(got) != 256 {
+		t.Errorf("Expected string datum to be truncated to 256 bytes, got %d bytes", len(got))
+	}
+}
