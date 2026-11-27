@@ -545,6 +545,22 @@ func (c *checker) VisitAfter(node ast.Node) ast.Node {
 			}
 
 		case parser.ASSIGN, parser.ADD_ASSIGN:
+			if n.Op == parser.ADD_ASSIGN && types.Equals(lT, types.String) {
+				var lhsName string
+				switch v := n.LHS.(type) {
+				case *ast.IDTerm:
+					lhsName = v.Name
+				case *ast.IndexedExpr:
+					if id, ok := v.LHS.(*ast.IDTerm); ok {
+						lhsName = id.Name
+					}
+				}
+				if lhsName != "" && referencesID(n.RHS, lhsName) {
+					c.errors.Add(n.Pos(), fmt.Sprintf("recursive reference to text metric %q in += assignment", lhsName))
+					n.SetType(types.Error)
+					return n
+				}
+			}
 			// e1 = e2; e1 += e2
 			// O ⊢ e1 : Tl, O ⊢ e2 : Tr
 			// Tr <= Tl
@@ -1024,4 +1040,32 @@ func (p *patternEvaluator) VisitBefore(n ast.Node) (ast.Visitor, ast.Node) {
 
 func (p *patternEvaluator) VisitAfter(n ast.Node) ast.Node {
 	return n
+}
+
+type idFinder struct {
+	name  string
+	found bool
+}
+
+func (f *idFinder) VisitBefore(node ast.Node) (ast.Visitor, ast.Node) {
+	if f.found {
+		return nil, node
+	}
+	switch n := node.(type) {
+	case *ast.IDTerm:
+		if n.Name == f.name {
+			f.found = true
+		}
+	}
+	return f, node
+}
+
+func (f *idFinder) VisitAfter(node ast.Node) ast.Node {
+	return node
+}
+
+func referencesID(node ast.Node, name string) bool {
+	f := &idFinder{name: name}
+	ast.Walk(f, node)
+	return f.found
 }
