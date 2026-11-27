@@ -1067,8 +1067,14 @@ func (v *VM) ProcessLogLine(_ context.Context, line *logline.LogLine) {
 	}()
 	v.t = v.threadPool.Get().(*thread)
 	v.input = line
+	var instructionsRun int
 	for {
 		if v.t.pc >= len(v.prog) {
+			return
+		}
+		instructionsRun++
+		if instructionsRun > 2048 {
+			v.errorf("exceeded maximum instruction count (2048)")
 			return
 		}
 		if v.trace != nil {
@@ -1121,7 +1127,13 @@ func New(name string, obj *code.Object, syslogUseCurrentYear bool, loc *time.Loc
 			keysBuf: make([]string, obj.MaxDimensions),
 		}
 		v.t = initT
+		var initInstructionsRun int
 		for initT.pc = 0; initT.pc < len(v.prog); {
+			initInstructionsRun++
+			if initInstructionsRun > 512 {
+				v.errorf("exceeded maximum instruction count (512) in init program")
+				break
+			}
 			i := v.prog[initT.pc]
 			initT.pc++
 			v.execute(initT, i)
