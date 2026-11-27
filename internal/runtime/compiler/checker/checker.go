@@ -566,10 +566,14 @@ func (c *checker) VisitAfter(node ast.Node) ast.Node {
 			// Tr <= Tl
 			// ⇒ O ⊢ e : Tl
 			rType = lT
-			// TODO(jaq): the rT <= lT relationship is not correctly encoded here.
 			t := types.LeastUpperBound(lT, rT)
-			uType := types.Unify(rType, t)
 			var err *types.TypeError
+			if types.AsTypeError(t, &err) {
+				c.errors.Add(n.Pos(), err.Error())
+				n.SetType(err)
+				return n
+			}
+			uType := types.Unify(rType, t)
 			if types.AsTypeError(uType, &err) {
 				c.errors.Add(n.Pos(), err.Error())
 				n.SetType(err)
