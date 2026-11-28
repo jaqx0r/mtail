@@ -604,9 +604,8 @@ func (c *checker) VisitAfter(node ast.Node) ast.Node {
 			// e1 =~ e2, e1 !~ e2
 			// O ⊢ e1 : String , O ⊢ e2 : Pattern
 			// ⇒ O ⊢ e : Bool
-			// TODO(jaq): We're not correctly encoding this.
 			rType = types.Bool
-			wantType := types.Function(types.NewVariable(), types.Pattern, rType)
+			wantType := types.Function(types.String, types.Pattern, rType)
 			gotType := types.Function(lT, rT, types.NewVariable())
 			uType := types.Unify(wantType, gotType)
 			var err *types.TypeError
