@@ -153,10 +153,12 @@ func (c *checker) VisitBefore(node ast.Node) (ast.Visitor, ast.Node) {
 		}
 		var rType types.Type
 		switch n.Kind {
-		case metrics.Counter, metrics.Gauge, metrics.Timer, metrics.Histogram:
+		case metrics.Counter, metrics.Gauge, metrics.Timer:
 			// TODO(jaq): This should be a numeric type, unless we want to
 			// enforce more specific rules like "Counter can only be Int."
 			rType = types.NewVariable()
+		case metrics.Histogram:
+			rType = types.Buckets
 		case metrics.Text:
 			rType = types.String
 		default:
@@ -565,16 +567,25 @@ func (c *checker) VisitAfter(node ast.Node) ast.Node {
 			// O ⊢ e1 : Tl, O ⊢ e2 : Tr
 			// Tr <= Tl
 			// ⇒ O ⊢ e : Tl
-			rType = lT
-			// TODO(jaq): the rT <= lT relationship is not correctly encoded here.
+			if types.Equals(lT, types.Buckets) {
+				rType = rT
+			} else {
+				rType = lT
+			}
 			t := types.LeastUpperBound(lT, rT)
-			uType := types.Unify(rType, t)
 			var err *types.TypeError
+			if types.AsTypeError(t, &err) {
+				c.errors.Add(n.Pos(), err.Error())
+				n.SetType(err)
+				return n
+			}
+			uType := types.Unify(rType, t)
 			if types.AsTypeError(uType, &err) {
 				c.errors.Add(n.Pos(), err.Error())
 				n.SetType(err)
 				return n
 			}
+			n.SetType(uType)
 
 			// If the LHS is assignable, mark it as an lvalue, otherwise error.
 			switch v := n.LHS.(type) {

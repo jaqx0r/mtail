@@ -347,6 +347,14 @@ l++=l
 		[]string{"negate None:1:2-17: type mismatch; expected Int received None for `~' operator."},
 	},
 
+	{
+		"assign string to histogram",
+		`histogram h
+h = "foo"
+`,
+		[]string{"assign string to histogram:2:1-9: type mismatch; expected Buckets received String"},
+	},
+
 	// 	{"match against gauge",
 	// 		`gauge t
 	// t = 6 =~ t
