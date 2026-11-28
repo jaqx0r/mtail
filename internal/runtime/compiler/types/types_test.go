@@ -182,6 +182,18 @@ var typeUnificationTests = []struct {
 		Float, Numeric,
 		Float,
 	},
+	{
+		NewNumericVariable(), Int,
+		Int,
+	},
+	{
+		NewNumericVariable(), Float,
+		Float,
+	},
+	{
+		NewNumericVariable(), String,
+		&TypeError{},
+	},
 }
 
 func TestTypeUnification(t *testing.T) {

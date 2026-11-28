@@ -93,6 +93,7 @@ type Variable struct {
 	// Instance is set if this variable has been bound to a type.
 	instanceMu sync.RWMutex
 	Instance   Type
+	Constraint Type
 }
 
 // NewVariable constructs a new unique TypeVariable.
@@ -102,6 +103,15 @@ func NewVariable() *Variable {
 	nextVariableID++
 	nextVariableIDMu.Unlock()
 	return &Variable{ID: id}
+}
+
+// NewNumericVariable constructs a new unique TypeVariable constrained to Numeric.
+func NewNumericVariable() *Variable {
+	nextVariableIDMu.Lock()
+	id := nextVariableID
+	nextVariableID++
+	nextVariableIDMu.Unlock()
+	return &Variable{ID: id, Constraint: Numeric}
 }
 
 // Root returns an exemplar of this TypeVariable, in this case the root of the unification tree.
@@ -377,6 +387,13 @@ func Unify(a, b Type) Type {
 			if occursInType(aT, bT) {
 				return &TypeError{ErrRecursiveUnification, aT, bT}
 			}
+			if aT.Constraint != nil {
+				lub := LeastUpperBound(aT.Constraint, bT)
+				var err *TypeError
+				if AsTypeError(lub, &err) {
+					return err
+				}
+			}
 			glog.V(2).Infof("Making %q type %q", aT, bR)
 			aT.SetInstance(bR)
 			return bR
@@ -486,10 +503,16 @@ func LeastUpperBound(a, b Type) Type {
 		return a1
 	}
 	// If either is a TypeVariable, the other is the lub
-	if _, ok := a1.(*Variable); ok {
+	if v, ok := a1.(*Variable); ok {
+		if v.Constraint != nil {
+			return LeastUpperBound(v.Constraint, b1)
+		}
 		return b1
 	}
-	if _, ok := b1.(*Variable); ok {
+	if v, ok := b1.(*Variable); ok {
+		if v.Constraint != nil {
+			return LeastUpperBound(a1, v.Constraint)
+		}
 		return a1
 	}
 	// If either is Undef, other is the lub
@@ -515,6 +538,13 @@ func LeastUpperBound(a, b Type) Type {
 	if (Equals(a1, Bool) && Equals(b1, Int)) ||
 		(Equals(a1, Int) && Equals(b1, Bool)) {
 		return Int
+	}
+	// Buckets can accept Int or Float observations
+	if Equals(a1, Buckets) && (Equals(b1, Int) || Equals(b1, Float)) {
+		return b1
+	}
+	if (Equals(a1, Int) || Equals(a1, Float)) && Equals(b1, Buckets) {
+		return a1
 	}
 	// A Numeric can be an Int, or a Float, but not vice versa.
 	if (Equals(a1, Numeric) && Equals(b1, Int)) ||
